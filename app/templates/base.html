@@ -1,0 +1,274 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+      {% if title %}
+      <title>{{ title }} - All Day TA</title>
+      {% else %}
+      <title>Welcome to All Day TA</title>
+      {% endif %}
+      <link rel="apple-touch-icon" sizes="180x180" href="/static/apple-touch-icon.png">
+      <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32x32.png">
+      <link rel="icon" type="image/png" sizes="16x16" href="/static/favicon-16x16.png">
+      <link rel="manifest" href="/static/site.webmanifest">
+      <link rel="mask-icon" href="/static/safari-pinned-tab.svg" color="#d5985b">
+      <link rel="shortcut icon" href="/static/favicon.ico">
+      <meta name="msapplication-TileColor" content="#da532c">
+      <meta name="msapplication-config" content="/static/browserconfig.xml">
+      <meta name="theme-color" content="#ffffff">
+      <meta name="description" content="All-Day-TA - Virtual Teaching Assistant">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" type="text/css" href="/static/style.css">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cabin&display=swap">
+      <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+      <!-- Open Graph Meta Tags -->
+      <meta property="og:title" content="All-Day-TA - Virtual Teaching Assistant">
+      <meta property="og:description" content="SAll-Day-TA - Virtual Teaching Assistant">
+      <meta property="og:type" content="website">
+      <meta property="og:url" content="https://alldayta.xyz">
+      <meta property="og:image" content="https://alldayta.xyz/static/og-image.png">
+      <meta property="og:site_name" content="alldayta.xyz">
+
+      <!-- PLACEHOLDER: Future Implementation of Matomo Page Analytics Code -->
+      
+
+      <style>
+        /* Add this style block to include the toggle switch CSS */
+        .toggle-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin: 0px;
+        }
+
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 30px; /* 50% of the original width */
+          height: 17px; /* 50% of the original height */
+        }
+    
+        .switch input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+    
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: #ccc;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+    
+        .slider:before {
+          position: absolute;
+          content: "";
+          height: 13px; /* 50% of the original height */
+          width: 13px; /* 50% of the original width */
+          left: 2px; /* 50% of the original left */
+          bottom: 2px; /* 50% of the original bottom */
+          background-color: white;
+          -webkit-transition: .4s;
+          transition: .4s;
+        }
+    
+        input:checked + .slider {
+          background-color: #2196F3;
+        }
+    
+        input:focus + .slider {
+          box-shadow: 0 0 1px #2196F3;
+        }
+    
+        input:checked + .slider:before {
+          -webkit-transform: translateX(13px); /* 50% of the original translateX value */
+          -ms-transform: translateX(13px); /* 50% of the original translateX value */
+          transform: translateX(13px); /* 50% of the original translateX value */
+        }
+    
+        .slider.round {
+          border-radius: 17px; /* 50% of the original border-radius */
+        }
+    
+        .slider.round:before {
+          border-radius: 50%;
+        }
+
+        /* For the Processing ... Animations */
+
+  /* For the Processing ... Animations */
+  .processing {
+    display: none;
+    font-weight: bold;
+    font-size: 24px;
+    padding: 15px;
+    border-radius: 5px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+  }
+
+  .processing:before {
+    content: 'Processing';
+    animation: animatedText 2s steps(4, end) infinite;
+  }
+
+  .processing:after {
+    content: '';
+    animation: animatedDots 2s steps(4, end) infinite;
+  }
+
+  @keyframes animatedText {
+    0% {
+      content: 'Processing';
+    }
+    100% {
+      content: 'Processing';
+    }
+  }
+
+  @keyframes animatedDots {
+    0% {
+      content: '.';
+    }
+    25% {
+      content: '..';
+    }
+    50% {
+      content: '...';
+    }
+    75% {
+      content: '';
+    }
+  }
+
+  /* Dark Mode support for the Processing text */
+  .dark-mode .processing {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #FFF;
+  }
+
+    </style>
+    <script>
+function setTheme(theme) {
+    const root = document.documentElement;
+    const body = document.body;
+    if (theme === 'dark') {
+        body.classList.add('dark-mode');
+        root.style.setProperty('--bg-color', '#10141d');
+        root.style.setProperty('--text-color', '#edf1fb');
+        root.style.setProperty('--input-bg-color', '#444');
+        root.style.setProperty('--input-text-color', '#edf1fb');
+        root.style.setProperty('--button-bg-color', '#444');
+        root.style.setProperty('--button-text-color', '#edf1fb');
+    } else {
+        body.classList.remove('dark-mode');
+        root.style.setProperty('--bg-color', '#f2f3f7');
+        root.style.setProperty('--text-color', '#10141d');
+        root.style.setProperty('--input-bg-color', '#f2f3f7');
+        root.style.setProperty('--input-text-color', '#10141d');
+        root.style.setProperty('--button-bg-color', '#f2f3f7');
+        root.style.setProperty('--button-text-color', '#10141d');
+    }
+    localStorage.setItem('theme', theme);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyTheme();
+
+    const toggleSwitch = document.getElementById('toggle-theme');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    toggleSwitch.checked = savedTheme === 'dark';
+
+    toggleSwitch.addEventListener('change', () => {
+        const newTheme = toggleSwitch.checked ? 'dark' : 'light';
+        setTheme(newTheme);
+    });
+});
+
+function applyTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+}
+    </script>
+    </head>
+    <body> 
+      <div class="container">
+          <div class="item">
+            <nav class="navbar">
+              <ul>
+                <li> <a href="{{ url_for('index') }}"><img src="/static/AllDayTA_transparent_logov1.png" alt="AllDayTA Logo - AI-Powered Virtual Teaching Assistant" aria-label="AllDayTA Homepage" height="45px" width="162px"></a></li>
+                <li class="nav-links"> <a href="{{ url_for('index') }}" alt="AllDayTA - Login" aria-label="AllDayTA - Login">Login (Professors)</a></li> 
+                <li class="nav-links"> <a href="{{ url_for('index') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
+                <li class="nav-links"> <a href="{{ url_for('index') }}" alt="AllDayTA - Practice Questions" aria-label="AllDayTA - Practice Questions">Practice Questions</a></li>
+                <li class="nav-links"> <a href="{{ url_for('index') }}">Logs</a></li> 
+                <li class="nav-links">
+              <div class="toggle-container">
+                <div class="toggle-dark-mode-animation">
+                      <!-- Add the toggle switch element -->
+                      Dark Mode
+                      <label class="switch"> 
+                        <input type="checkbox" id="toggle-theme" onclick="setTheme()" aria-label="toggle-dark-mode-theme">
+                        <span class="slider round"></span>
+                      </label>
+                </div>
+              </div>
+            </li>
+            </ul>
+            </nav>
+
+          </div>  
+        <div class="item">
+          {% block content %}
+          
+          {% endblock %}
+          <hr>
+        </div>
+        <div class="item-footer">
+
+          <ul>
+            <li class="nav-links"> 
+              <a href="https://github.com/satishsurath/alldayta.xyz" target="_blank" aria-label="Contribute to All-Day-TA Open Source Code on Github">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="footer-img" style="fill: var(--text-color); height:1.5em; width: 1.5em;">
+                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                </svg>
+              </a>
+            </li>
+            <li>&nbsp</li>
+            <li>&nbsp</li>
+            <li class="nav-links"> 
+              <a href="https://twitter.com/alldayta.xyz" target="_blank" aria-label="Follow SummarizeMe.io on Twitter">
+                
+                <svg class="icon icon-twitter" aria-hidden="true" role="img" class="footer-img" style="fill: var(--text-color); height:1.5em; width: 1.5em;"> 
+                  <use href="#icon-twitter" xlink:href="#icon-twitter"></use> 
+              </svg>
+              </a>
+            </li> 
+          </ul>
+        </div>  
+      </div>
+      <svg 
+           style="position: absolute; width: 0; height: 0; overflow: hidden;" 
+           version="1.1" 
+           xmlns="http://www.w3.org/2000/svg" 
+           xmlns:xlink="http://www.w3.org/1999/xlink">
+          <defs>      
+            <symbol id="icon-twitter" viewBox="0 0 30 32">
+              <path class="path1" d="M28.929 7.286q-1.196 1.75-2.893 2.982 0.018 0.25 0.018 0.75 0 2.321-0.679 4.634t-2.063 4.437-3.295 3.759-4.607 2.607-5.768 0.973q-4.839 0-8.857-2.589 0.625 0.071 1.393 0.071 4.018 0 7.161-2.464-1.875-0.036-3.357-1.152t-2.036-2.848q0.589 0.089 1.089 0.089 0.768 0 1.518-0.196-2-0.411-3.313-1.991t-1.313-3.67v-0.071q1.214 0.679 2.607 0.732-1.179-0.786-1.875-2.054t-0.696-2.75q0-1.571 0.786-2.911 2.161 2.661 5.259 4.259t6.634 1.777q-0.143-0.679-0.143-1.321 0-2.393 1.688-4.080t4.080-1.688q2.5 0 4.214 1.821 1.946-0.375 3.661-1.393-0.661 2.054-2.536 3.179 1.661-0.179 3.321-0.893z"></path>
+            </symbol>
+            <symbol id="icon-linkedin" viewBox="0 0 27 32">
+              <path class="path1" d="M6.232 11.161v17.696h-5.893v-17.696h5.893zM6.607 5.696q0.018 1.304-0.902 2.179t-2.42 0.875h-0.036q-1.464 0-2.357-0.875t-0.893-2.179q0-1.321 0.92-2.188t2.402-0.866 2.375 0.866 0.911 2.188zM27.429 18.714v10.143h-5.875v-9.464q0-1.875-0.723-2.938t-2.259-1.063q-1.125 0-1.884 0.616t-1.134 1.527q-0.196 0.536-0.196 1.446v9.875h-5.875q0.036-7.125 0.036-11.554t-0.018-5.286l-0.018-0.857h5.875v2.571h-0.036q0.357-0.571 0.732-1t1.009-0.929 1.554-0.777 2.045-0.277q3.054 0 4.911 2.027t1.857 5.938z"></path>
+            </symbol>            
+          </defs>
+      </svg>        
+    </body>
+</html>

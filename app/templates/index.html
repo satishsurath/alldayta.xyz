@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+        <h1 class="center-align">All Day TA</h1>
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flashes">
+                        {% for message in messages %}
+                        <div class="alert alert-warning" role="alert">{{ message }}</div>
+                        {% endfor %}
+                </div>
+                {% endif %}
+        {% endwith %}
+        <details>
+        <summary class="homepage-heading">About</summary>                
+        <h2 class="center-align">Virtual Teaching Assistant</h2>
+        <h2 class="center-align"> 📄 ➕ 🤖 ➡ 🎯 </h2>
+        <br>
+        <p class="center-align">                            
+        AI-powered Virtual Teaching Assistant. <br>
+        </p>
+        <br>
+        </details>
+        <hr>
+        <h3 class="center-align">All Day TA</h3>
+        <h3 class="center-align">
+                <ul>
+                        <li>
+                                Professors Login
+                        </li>
+                        |
+                        <li>
+                                Chat with Virtual Teaching Assistant    
+                        </li>
+                        |
+                        <li>
+                                Practice Questions
+                        </li>                        
+                        </ul>
+                </ul>    
+        </h3>
+        <details>
+                <summary class="homepage-heading">Release Notes</summary>
+
+                <h3>v0.1.0 Inital Commit</h3>
+                <p class="left-align">
+                <b>Features in this release:</b><br>
+                - Basic Flask Template with Logging<br>
+                - Privacy Policy (first version) added<br>
+                - Dark Mode Toggle<br>             
+                </p>
+        </details>
+
+{% endblock %}
