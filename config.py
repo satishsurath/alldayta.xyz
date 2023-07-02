@@ -13,11 +13,14 @@ class Config(object):
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMINS = ['support@alldayta.xyz']
+
+
     # Configure file upload
-    UPLOAD_FOLDER = 'app/static/uploads'
-    UPLOAD_CONTENT = 'app/courses/uploads'
-    WRITE_JSON_LOCALLY = True
-    WRITE_TEXT_LOCALLY = True
+    FOLDER_UPLOAD = 'app/uploads'
+    FOLDER_PROCESSED_CONTENT = 'app/content'
+    FOLDER_SETTINGS = 'app/settings'
+    
+    
     # Configure session options
     SESSION_TYPE = 'filesystem'
     SESSION_FILE_DIR = './sessions'

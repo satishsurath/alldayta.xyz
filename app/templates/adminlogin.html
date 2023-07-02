@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+        <h1>Login</h1>
+        <p class="left-align">
+          <form method='POST' >
+            Admin Username: <input type='text' name='username' class='form-control'></input>  
+            Admin Password: <input type='password' name='pw' class='form-control'></input> 
+             <input type='submit' name='submit'></input>
+          </form>
+        </p>
+        {% include 'user_status.html' %}
+{% endblock %}

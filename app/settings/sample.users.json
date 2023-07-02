@@ -1,0 +1,11 @@
+{
+    "user1": {
+        "pw": "pass1"
+    },
+    "user2": {
+        "pw": "pass2"
+    },
+    "user3": {
+        "pw": "pass3"
+    }
+}

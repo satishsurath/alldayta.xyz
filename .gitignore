@@ -169,10 +169,16 @@ app.sqlite3
 
 #ignore uploads folder
 uploads/
-app/static/uploads/
+app/uploads/
 
 #ignore the sessions folder
 sessions/
 
 #ignore the logs folder
 logs/
+
+#ignore the processed content folder
+app/content
+
+#ignore the settings files
+app/settings/users.json

@@ -5,16 +5,25 @@ from logging.handlers import SMTPHandler, RotatingFileHandler
 from flask import Flask, request, session, has_request_context
 from config import Config
 from flask_session import Session
-
+from flask_login import LoginManager
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 
+# ---------------  Login Manager --------------- #
+# Initialize the login manager
+login_manager = LoginManager()
+login_manager.login_view = 'adminlogin'
+login_manager.init_app(app)
+
+
 # Initialize the session
 Session(app)
 
-from app import routes
+from app import routes, file_operations
+
+
 
 # ---------------  Configure logging --------------- #
 
