@@ -1,6 +1,7 @@
 import os
 import json
 import hashlib
+import shutil
 from app import app
 
 
@@ -28,5 +29,39 @@ def read_from_file_text(filename):
         with open(os.path.join(app.config['FOLDER_PROCESSED_CONTENT'], filename), 'r') as f:
             content = f.read()
         return content
+    except:
+        return False
+    
+
+
+
+# List all the First Level Folders under this app.config["FOLDER_UPLOAD"]
+def list_folders():
+    try:
+        return [name for name in os.listdir(app.config["FOLDER_UPLOAD"]) if os.path.isdir(os.path.join(app.config["FOLDER_UPLOAD"], name))]
+    except:
+        return False
+
+# Rename the Folder (with the Folder Name as its input parameter)
+def rename_folder(old_folder_name, new_folder_name):
+    try:
+        os.rename(os.path.join(app.config["FOLDER_UPLOAD"], old_folder_name), os.path.join(app.config["FOLDER_UPLOAD"], new_folder_name))
+        return True
+    except:
+        return False
+
+# Delete the Folder (and all the contents under this)
+def delete_folder(folder_name):
+    try:
+        shutil.rmtree(os.path.join(app.config["FOLDER_UPLOAD"], folder_name))
+        return True
+    except:
+        return False
+
+# Create a New Folder under this app.config["FOLDER_UPLOAD"]
+def create_folder(folder_name):
+    try:
+        os.makedirs(os.path.join(app.config["FOLDER_UPLOAD"], folder_name))
+        return True
     except:
         return False
