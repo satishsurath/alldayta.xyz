@@ -27,7 +27,8 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 users = read_from_file_json(os.path.join(app.config['FOLDER_SETTINGS'], "users.json")) 
 
-print(users)
+## Debug
+# print(users)
 
 class User(UserMixin):
   pass
@@ -59,10 +60,7 @@ def request_loader(request):
 @app.route('/index')
 def index():
   #return render_template('index.html')
-  if not session.get('name', False):  
-    return render_template('index.html')
-  else:
-     return render_template('index.html', name=session['name'])
+  return render_template('index.html', name=session.get('name'))
 
 @app.route('/privacy-policy')
 def privacypolicy():
@@ -80,11 +78,8 @@ def adminlogin():
       login_user(user)
       session['name'] = user.id
       return redirect(url_for('index'))
-  if not session.get('name', False):  
-    return render_template('adminlogin.html')
-  else:
-     return render_template('adminlogin.html', name=session['name'])
-
+  return render_template('adminlogin.html', name=session.get('name'))
+  
 @app.route('/logout')
 def logout():
   logout_user()
