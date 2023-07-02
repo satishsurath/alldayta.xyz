@@ -22,3 +22,5 @@ export OPENAI_API_KEY=[YOUR-OPENAI_API_KEY-HERE]
 ```shell
 pip install -r requirements.txt
 ```
+
+5. Configure Authorized Logins by editing the ```app/settings/sample.users.json``` and renaming it to ```users.json```
