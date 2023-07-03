@@ -6,6 +6,7 @@ from flask import Flask, request, session, has_request_context
 from config import Config
 from flask_session import Session
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -20,6 +21,9 @@ login_manager.init_app(app)
 
 # Initialize the session
 Session(app)
+
+#Initialize CSFR Protect
+csrf = CSRFProtect(app)
 
 from app import routes, file_operations
 

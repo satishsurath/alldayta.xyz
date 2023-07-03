@@ -5,7 +5,7 @@ from flask import render_template, flash, redirect, url_for, request, session
 
 #Secure against CSRF attacks
 from flask_wtf.csrf import generate_csrf
-
+from flask_wtf.csrf import CSRFProtect
 from flask_login import login_required, current_user, UserMixin
 from flask_login import login_user, logout_user, login_required
 

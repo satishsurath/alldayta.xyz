@@ -12,6 +12,7 @@
         {% endwith %}
         <h2>Create a New Course</h2>
         <form action="{{ url_for('create_course') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <label for="name">Course Name:</label> 
             <input type="text" id="name" name="name"> 
             <input type="submit" value="Create" class="form-control">
@@ -37,6 +38,7 @@
                     </td>   
                     <td>
                         <form action="{{ url_for('rename_item') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="old_name" value="{{ course }}">
                             <input type="text" name="new_name" placeholder="New name">
                             <input type="submit" value="Rename">
@@ -45,6 +47,7 @@
                  
                     <td>
                         <form action="{{ url_for('delete_item') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="name" value="{{ course }}">
                             <input type="submit" value="Delete">
                         </form>

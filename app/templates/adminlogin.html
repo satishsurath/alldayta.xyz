@@ -3,6 +3,7 @@
         <h1>Login</h1>
         <p class="left-align">
           <form method='POST' >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             Admin Username: <input type='text' name='username' class='form-control'></input>  
             Admin Password: <input type='password' name='pw' class='form-control'></input> 
              <input type='submit' name='submit'></input>

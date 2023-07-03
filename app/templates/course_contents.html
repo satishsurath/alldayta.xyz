@@ -26,6 +26,7 @@
                     <td>{{ content }}</td>
                     <td>
                         <form action="{{ url_for('rename_item') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="old_name" value="{{ content }}">
                             <input type="hidden" name="course_name" value="{{ course_name }}">
                             <input type="text" name="new_name" placeholder="New name">
@@ -34,6 +35,7 @@
                     </td>
                     <td>
                         <form action="{{ url_for('delete_item') }}" method="post">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                             <input type="hidden" name="name" value="{{ content }}">
                             <input type="hidden" name="course_name" value="{{ course_name }}">
                             <input type="submit" value="Delete">
