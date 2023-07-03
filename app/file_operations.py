@@ -5,6 +5,9 @@ import shutil
 from app import app
 
 
+
+
+
 #check if folder exists, if not create it
 def check_folder_exists(folder_path):
   try:
@@ -65,3 +68,9 @@ def create_folder(folder_name):
         return True
     except:
         return False
+
+#define the allowed files!
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

@@ -7,6 +7,7 @@ from config import Config
 from flask_session import Session
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
+from flask_dropzone import Dropzone
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -24,6 +25,11 @@ Session(app)
 
 #Initialize CSFR Protect
 csrf = CSRFProtect(app)
+
+
+# Set up Dropzone
+dropzone = Dropzone(app)
+
 
 from app import routes, file_operations
 

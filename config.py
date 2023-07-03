@@ -26,4 +26,10 @@ class Config(object):
     SESSION_FILE_DIR = './sessions'
     SESSION_FILE_THRESHOLD = 100
     SESSION_PERMANENT = False
+
+    # Set up Dropzone
+    DROPZONE_ALLOWED_FILE_CUSTOM=True
+    DROPZONE_ALLOWED_FILE_TYPE='image/*, .pdf, .txt'
+    DROPZONE_MAX_FILE_SIZE=3
+    DROPZONE_MAX_FILES=30    
     

@@ -8,14 +8,13 @@ from flask_wtf.csrf import generate_csrf
 from flask_wtf.csrf import CSRFProtect
 from flask_login import login_required, current_user, UserMixin
 from flask_login import login_user, logout_user, login_required
-
-from app.file_operations import read_from_file_json, read_from_file_text, check_folder_exists, list_folders, rename_folder, delete_folder, create_folder
+from werkzeug.utils import secure_filename
+from app.file_operations import read_from_file_json, read_from_file_text, check_folder_exists, list_folders, rename_folder, delete_folder, create_folder, allowed_file
 
 
 # -------------------- Flask app configurations --------------------
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
-
 
 
 # -------------------- Basic Admin Authentication --------------------
@@ -138,4 +137,17 @@ def delete_item():
 def course_contents(course_name):
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
     contents = os.listdir(folder_path) if os.path.exists(folder_path) else []
-    return render_template('course_contents.html', course_name=course_name, contents=contents)
+    return render_template('course_contents.html', course_name=course_name, contents=contents, name=session.get('name'))
+
+
+@app.route('/upload-file', methods=['GET', 'POST'])
+@login_required
+def upload_file():
+    if request.method == 'POST':
+        file = request.files.get('file')
+        course_name = request.form.get('course_name')
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['FOLDER_UPLOAD'], course_name, filename))
+        return "File uploaded successfully."
+    return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
