@@ -140,15 +140,12 @@ def rename_item():
         rename_folder(old_path_processed_syllabus, new_path_processed_syllabus)  # Replace with the appropriate function to rename a file or folder
     return redirect(request.referrer)
 
-@app.route('/delete-item', methods=['GET','POST'])
+@app.route('/delete-item', methods=['GET'])
 @login_required
 def delete_item():
-    if request.method == 'POST':
-      name = request.form['name']
-    if request.method == 'GET':
-      name = request.args.get('name')
+    name = request.args.get('name')
     #$print(name)
-    course_name = request.form.get('course_name', None)
+    course_name = request.args.get('course_name', None)
     if course_name: # So this is a deletion of a single file
         # This is a file (content) within a course (folder)
         path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, name)
@@ -208,9 +205,9 @@ def course_contents(course_name):
     ################ 
     # check if we have the Syllabus already for this course
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
+      #print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
-      print(syllabus)
+      #print(syllabus)
     else:
        syllabus = None
 
@@ -231,9 +228,9 @@ def course_contents(course_name):
 def course_syllabus(course_name):
     # check if we have the Syllabus already for this course
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
+      #print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
-      print(syllabus)
+      #print(syllabus)
     else:
        syllabus = None
 
