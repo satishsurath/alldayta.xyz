@@ -162,8 +162,7 @@ def delete_item():
         path = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], name)
         delete_folder(path)  
         path = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], name)
-        delete_folder(path)  
-
+        delete_folder(path) 
     return redirect(request.referrer)
 
 @app.route('/course-contents/<course_name>', methods=['GET', 'POST'])
@@ -196,15 +195,10 @@ def course_contents(course_name):
 def course_syllabus(course_name):
     # check if we have the Syllabus already for this course
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      #print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
-      #print(syllabus)
     else:
        syllabus = None
-
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
-    # Time to load up the template
-
     return render_template(
        'course_syllabus.html', 
        course_name=course_name, 
