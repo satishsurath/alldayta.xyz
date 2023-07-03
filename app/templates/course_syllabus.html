@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+        <h1 class="center-align">Course Syllabus: {{ course_name }}</h1><br>
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flashes">
+                        {% for message in messages %}
+                        <div class="alert alert-warning" role="alert">{{ message }}</div>
+                        {% endfor %}
+                </div>
+                {% endif %}
+        {% endwith %}
+        < <a href="{{ url_for('course_contents', course_name=course_name) }}">Back to Course Content</a>
+        <br>
+        <br>
+        {% if syllabus %}
+        <h2>Course Syllabus Full Preview:</h2>
+            <p>
+                {{ syllabus|safe }}
+            </p>
+
+        {% else %}
+
+        <p>No Syllabus found.</p>
+
+        {% endif %}
+        
+
+
+
+
+        {% include 'user_status.html' %}       
+
+        
+
+
+
+{% endblock %}
