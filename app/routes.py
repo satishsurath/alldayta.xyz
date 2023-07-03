@@ -140,10 +140,13 @@ def rename_item():
         rename_folder(old_path_processed_syllabus, new_path_processed_syllabus)  # Replace with the appropriate function to rename a file or folder
     return redirect(request.referrer)
 
-@app.route('/delete-item', methods=['POST'])
+@app.route('/delete-item', methods=['GET','POST'])
 @login_required
 def delete_item():
-    name = request.form['name']
+    if request.method == 'POST':
+      name = request.form['name']
+    if request.method == 'GET':
+      name = request.args.get('name')
     #$print(name)
     course_name = request.form.get('course_name', None)
     if course_name: # So this is a deletion of a single file
