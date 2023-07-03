@@ -180,5 +180,8 @@ logs/
 #ignore the processed content folder
 app/content
 
+#ignore the processed syllabus folder
+app/syllabus
+
 #ignore the settings files
 app/settings/users.json
