@@ -47,18 +47,34 @@ def list_folders():
 
 # Rename the Folder (with the Folder Name as its input parameter)
 def rename_folder(old_folder_name, new_folder_name):
+    old_folder_path = os.path.abspath(os.path.join(old_folder_name))
+    new_folder_path = os.path.abspath(os.path.join(new_folder_name))
     try:
-        os.rename(os.path.join(app.config["FOLDER_UPLOAD"], old_folder_name), os.path.join(app.config["FOLDER_UPLOAD"], new_folder_name))
+        os.rename(old_folder_path, new_folder_path)
         return True
-    except:
+    except Exception as e:
+        print("An exception occurred:", e)
         return False
 
 # Delete the Folder (and all the contents under this)
 def delete_folder(folder_name):
+    folder_path = os.path.abspath(os.path.join(folder_name))
+    #print(folder_path)
     try:
-        shutil.rmtree(os.path.join(app.config["FOLDER_UPLOAD"], folder_name))
+        shutil.rmtree(folder_path)
         return True
-    except:
+    except Exception as e:
+        print("An exception occurred:", e)
+        return False
+
+# Delete the File
+def delete_file(file_name):
+    file_path = os.path.abspath(file_name)
+    try:
+        os.remove(file_path)
+        return True
+    except Exception as e:
+        print("An exception occurred:", e)
         return False
 
 # Create a New Folder under this app.config["FOLDER_UPLOAD"]

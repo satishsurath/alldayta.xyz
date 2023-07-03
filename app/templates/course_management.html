@@ -14,7 +14,7 @@
         <form action="{{ url_for('create_course') }}" method="post">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <label for="name">Course Name:</label> 
-            <input type="text" id="name" name="name"> 
+            <input type="text" id="name" name="name" size="35" placeholder="Year-CourseCode-CourseTitle"> 
             <input type="submit" value="Create" class="form-control">
         </form>
 

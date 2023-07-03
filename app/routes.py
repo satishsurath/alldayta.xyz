@@ -9,7 +9,18 @@ from flask_wtf.csrf import CSRFProtect
 from flask_login import login_required, current_user, UserMixin
 from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
-from app.file_operations import read_from_file_json, read_from_file_text, check_folder_exists, list_folders, rename_folder, delete_folder, create_folder, allowed_file
+from app.file_operations import (
+    read_from_file_json,
+    read_from_file_text,
+    check_folder_exists,
+    list_folders,
+    rename_folder,
+    delete_folder,
+    create_folder,
+    allowed_file,
+    delete_file
+)
+
 
 
 # -------------------- Flask app configurations --------------------
@@ -96,7 +107,7 @@ def course_management():
 @app.route('/create-course', methods=['POST'])
 @login_required
 def create_course():
-    name = request.form['name']
+    name = request.form['name'].replace(' ', '-')
     create_folder(name)
     return redirect(url_for('course_management'))
 
@@ -104,7 +115,7 @@ def create_course():
 @login_required
 def rename_item():
     old_name = request.form['old_name']
-    new_name = request.form['new_name']
+    new_name = request.form['new_name'].replace(' ', '-')
     course_name = request.form.get('course_name', None)
     if course_name:
         # This is a file (content) within a course (folder)
@@ -121,14 +132,18 @@ def rename_item():
 @login_required
 def delete_item():
     name = request.form['name']
+    #$print(name)
     course_name = request.form.get('course_name', None)
-    if course_name:
+    if course_name: # So this is a deletion of a single file
         # This is a file (content) within a course (folder)
         path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, name)
-    else:
+        delete_file(path)
+    else: # So this is a deletion of a folder
         # This is a course (folder)
         path = os.path.join(app.config["FOLDER_UPLOAD"], name)
-    delete_folder(path)  # Replace with the appropriate function to delete a file or folder
+        #print("Before Delete")
+        delete_folder(path)  # Replace with the appropriate function to delete a file or folder
+    #print("After Delete")
     return redirect(request.referrer)
 
 
