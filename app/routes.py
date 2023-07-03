@@ -67,7 +67,7 @@ def privacypolicy():
     return render_template('privacy.html')
 
 
-# Routes for the login and logout pages
+#  --------------------Routes for the login and logout pages --------------------
 @app.route('/admin-login', methods=['GET', 'POST'])
 def adminlogin():
   if request.method == 'POST':
@@ -86,3 +86,56 @@ def logout():
   session.clear()  # Clear session data
   return redirect(url_for('index'))
 
+#  --------------------Routes for Course Management --------------------
+
+@app.route('/course-management', methods=['GET'])
+@login_required
+def course_management():
+    courses = list_folders()
+    return render_template('course_management.html', courses=courses, name=session.get('name'))
+
+@app.route('/create-course', methods=['POST'])
+@login_required
+def create_course():
+    name = request.form['name']
+    create_folder(name)
+    return redirect(url_for('course_management'))
+
+@app.route('/rename-item', methods=['POST'])
+@login_required
+def rename_item():
+    old_name = request.form['old_name']
+    new_name = request.form['new_name']
+    course_name = request.form.get('course_name', None)
+    if course_name:
+        # This is a file (content) within a course (folder)
+        old_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, old_name)
+        new_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, new_name)
+    else:
+        # This is a course (folder)
+        old_path = os.path.join(app.config["FOLDER_UPLOAD"], old_name)
+        new_path = os.path.join(app.config["FOLDER_UPLOAD"], new_name)
+    rename_folder(old_path, new_path)  # Replace with the appropriate function to rename a file or folder
+    return redirect(request.referrer)
+
+@app.route('/delete-item', methods=['POST'])
+@login_required
+def delete_item():
+    name = request.form['name']
+    course_name = request.form.get('course_name', None)
+    if course_name:
+        # This is a file (content) within a course (folder)
+        path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, name)
+    else:
+        # This is a course (folder)
+        path = os.path.join(app.config["FOLDER_UPLOAD"], name)
+    delete_folder(path)  # Replace with the appropriate function to delete a file or folder
+    return redirect(request.referrer)
+
+
+@app.route('/course-contents/<course_name>', methods=['GET'])
+@login_required
+def course_contents(course_name):
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
+    contents = os.listdir(folder_path) if os.path.exists(folder_path) else []
+    return render_template('course_contents.html', course_name=course_name, contents=contents)

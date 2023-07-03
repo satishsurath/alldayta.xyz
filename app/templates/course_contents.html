@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block content %}
+        <h1 class="center-align">All Day TA - Course Content: {{ course_name }}</h1>
+        {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flashes">
+                        {% for message in messages %}
+                        <div class="alert alert-warning" role="alert">{{ message }}</div>
+                        {% endfor %}
+                </div>
+                {% endif %}
+        {% endwith %}
+        < <a href="{{ url_for('course_management') }}">Back to Course Management</a>
+        {% if contents %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Content</th>
+                    <th>Rename</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for content in contents %}
+                <tr>
+                    <td>{{ content }}</td>
+                    <td>
+                        <form action="{{ url_for('rename_item') }}" method="post">
+                            <input type="hidden" name="old_name" value="{{ content }}">
+                            <input type="hidden" name="course_name" value="{{ course_name }}">
+                            <input type="text" name="new_name" placeholder="New name">
+                            <input type="submit" value="Rename">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{{ url_for('delete_item') }}" method="post">
+                            <input type="hidden" name="name" value="{{ content }}">
+                            <input type="hidden" name="course_name" value="{{ course_name }}">
+                            <input type="submit" value="Delete">
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No content found.</p>
+        {% endif %}
+
+        {% include 'user_status.html' %}       
+
+
+
+
+
+{% endblock %}
