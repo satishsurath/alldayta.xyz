@@ -4,5 +4,5 @@ from flask_wtf.file import FileField, FileRequired, FileAllowed
 
 
 class UploadSyllabus(FlaskForm):
-    pdf = FileField('Upload Course Syllabus (PDF) file:', validators=[FileRequired(), FileAllowed(['pdf'], 'PDF files only')])
-    submit = SubmitField('Update Course Syllabus')
+    pdf = FileField('', validators=[FileRequired(), FileAllowed(['pdf'], 'PDF files only')])
+    submit = SubmitField('Update / Upload Course Syllabus (PDF) file')

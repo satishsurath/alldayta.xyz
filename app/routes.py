@@ -89,7 +89,7 @@ def adminlogin():
       user.id = username
       login_user(user)
       session['name'] = user.id
-      return redirect(url_for('index'))
+      return redirect(url_for('course_management'))
   return render_template('adminlogin.html', name=session.get('name'))
   
 @app.route('/logout')
@@ -222,6 +222,28 @@ def course_contents(course_name):
        name=session.get('name'), 
        form=form
        )
+
+@app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])
+@login_required
+def course_syllabus(course_name):
+    # check if we have the Syllabus already for this course
+    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
+      print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
+      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
+      print(syllabus)
+    else:
+       syllabus = None
+
+    # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
+    # Time to load up the template
+
+    return render_template(
+       'course_syllabus.html', 
+       course_name=course_name, 
+       syllabus=syllabus,
+       name=session.get('name'), 
+       )
+
 
 @app.route('/upload-file', methods=['GET', 'POST'])
 @login_required

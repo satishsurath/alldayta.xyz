@@ -20,6 +20,9 @@
 
         <h2>All Courses</h2>
         {% if courses %}
+        <br>
+        <div class="alert alert-warning" role="alert"> Warning: Deleting the Course will delete all the Contents, Syllabus, Transcription, Processed Data, etc. </div>
+        <br>
         <table>
             <thead>
                 <tr>
@@ -34,7 +37,7 @@
                 <tr>
                     <td>{{ course }}</td>
                     <td>
-                        <a href="{{ url_for('course_contents', course_name=course) }}">Modify Content</a>
+                        <a href="{{ url_for('course_contents', course_name=course) }}">Modify Course</a>
                     </td>   
                     <td>
                         <form action="{{ url_for('rename_item') }}" method="post">
