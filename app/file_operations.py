@@ -106,3 +106,39 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def get_file_path(folder, course_name, filename=''):
+    """
+    This function generates a full file path.
+
+    Parameters:
+    folder (str): The folder path.
+    course_name (str): The name of the course.
+    filename (str): The filename. Defaults to ''.
+
+    Returns:
+    str: The full file path.
+    """
+    return os.path.join(folder, course_name, filename)
+
+
+def delete_files_in_folder(folder_path):
+    """
+    This function deletes all files in a folder.
+
+    Parameters:
+    folder_path (str): The folder path.
+
+    Returns:
+    None
+    """
+    for filename in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print(f'Failed to delete {file_path}. Reason: {e}')

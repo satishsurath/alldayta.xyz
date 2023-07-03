@@ -11,6 +11,7 @@ from flask_login import login_required, current_user, UserMixin
 from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from app.forms import UploadSyllabus
+from app.routes_helper.py import save_pdf_and_extract_text
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -21,7 +22,10 @@ from app.file_operations import (
     create_folder,
     allowed_file,
     delete_file,
-    get_first_txt_file
+    get_first_txt_file,
+    get_file_path,
+    delete_files_in_folder
+
 )
 
 from pdfminer.high_level import extract_text
@@ -166,54 +170,18 @@ def delete_item():
 @login_required
 def course_contents(course_name):
     form = UploadSyllabus()
-    ################ 
-    # Part 1: Upload Syllabus PDF file and Save the text version
-    ################ 
-    #Check if the form was sucessfully validated:
+    # Part 1: Upload Syllabus PDF file and Save the text version: Check if the form was sucessfully validated:
     if form.validate_on_submit():
-      # Get the uploaded PDF file
-      pdf_file = form.pdf.data
-      course_syllabus  = extract_text(BytesIO(pdf_file.read()))
-      course_syllabus_hash = hashlib.sha256(course_syllabus.encode('utf-8')).hexdigest()
-
-      #generate file names and full file paths for the PDF and txt files
-      filename = secure_filename(course_syllabus_hash + pdf_file.filename)
-      pdf_path = os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name, filename)
-      txt_filename = secure_filename(course_syllabus_hash + os.path.splitext(pdf_file.filename)[0] + '.txt')
-      txt_path = os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name, txt_filename)
-
-      # check if there is a text file already and delete the folder contents
-      if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-        folder_path = os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)
-        for file_name in os.listdir(folder_path):
-          file_path = os.path.join(folder_path, file_name)
-          delete_file(file_path)
-
-      #write the PDF files and text files to the locations:
-      if check_folder_exists(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-          pdf_file.save(pdf_path)
-          with open(txt_path, 'w') as txt_file:
-              txt_file.write(course_syllabus)
-    ################ 
-    # Part 2: Load Course Content
-    ################ 
-    #query all the files in the Upload Folder for the respective course
+       save_pdf_and_extract_text(form, course_name)
+    # Part 2: Load Course Content: 
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
     contents = os.listdir(folder_path) if os.path.exists(folder_path) else []
-    ################ 
-    # Part 3: Load Syllabus
-    ################ 
-    # check if we have the Syllabus already for this course
+    # Part 3: Load Syllabus:
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      #print(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)))
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
-      #print(syllabus)
     else:
        syllabus = None
-
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
-    # Time to load up the template
-
     return render_template(
        'course_contents.html', 
        course_name=course_name, 
