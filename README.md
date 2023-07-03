@@ -24,3 +24,16 @@ pip install -r requirements.txt
 ```
 
 5. Configure Authorized Logins by editing the ```app/settings/sample.users.json``` and renaming it to ```users.json```
+
+
+## 📚 Configure your First Course:
+
+1. Login with the Username and Password Configured in ```users.json``` file
+
+2. Add a new "Course" under the ```course-management``` page
+
+3. Go to the ```Modify``` Course page for the newly created Course
+
+4. Upload the Course ```Syllabus``` (This will trigger the process to define the course)
+
+5. Upload the Course ```Contents``` on ```Modify``` Course page with the Drag-and-Drop feature
