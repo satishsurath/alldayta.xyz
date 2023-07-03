@@ -18,6 +18,7 @@ class Config(object):
     # Configure file upload
     FOLDER_UPLOAD = 'app/uploads'
     FOLDER_PROCESSED_CONTENT = 'app/content'
+    FOLDER_PROCESSED_SYLLABUS = 'app/syllabus'
     FOLDER_SETTINGS = 'app/settings'
     
     

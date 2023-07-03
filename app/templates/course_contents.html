@@ -14,6 +14,46 @@
         <br>
         <br>
 
+        <h2 class="center-align"> Step 1: Manage Course Syllabus</h2>
+        <br>
+
+        {% if syllabus %}
+        <details>
+            <summary class="homepage-heading">Course Syllabus Preview:</summary>
+            <p>
+                {{ syllabus }}
+            </p>
+    </details>
+
+        {% else %}
+
+        <p>No Syllabus found.</p>
+
+        {% endif %}
+        
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.csrf_token }}
+                {{ form.pdf.label }}<br>
+                {{ form.pdf(class_='form-control',placeholder='Upload PDF...') }}<br>
+                {% for error in form.pdf.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+                <br>                     
+            </p>
+            <br>
+            <p>{{ form.submit(id='submit_button') }}</p>
+            <br>
+            <div id="processing" class="processing"></div>
+
+    
+        </form>
+
+        <br>
+        <br>        
+        <h2 class="center-align"> Step 2: Manage Course Content</h2>
         <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="my-dropzone">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <input type="hidden" name="course_name" value="{{ course_name }}">
