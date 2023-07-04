@@ -25,8 +25,8 @@
         {{ dropzone.load_css() }}
         {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 4em; background-color: var(--bkg-color)') }}
         {{ dropzone.load_js() }}
-        {{ dropzone.config(id='myDropzone', custom_init='this.on("queuecomplete", function() {location.reload();});') }}
-               
+        {{ dropzone.config(id='myDropzone', custom_init='this.on("queuecomplete", function() {location.reload();});', custom_options='acceptedFiles: ".txt,.pdf,.png,.jpg,.jpeg,.gif,.doc,.docx,.ppt,.pptx",') }}
+       
       {% endif %}
       <!-- Open Graph Meta Tags -->
       <meta property="og:title" content="All-Day-TA - Virtual Teaching Assistant">
