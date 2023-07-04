@@ -16,6 +16,7 @@ from app.routes_helper import (
     check_processed_files
 )
 from app.chop_documents import chunk_documents_given_course_name
+from app.embed_documents import embed_documents_given_course_name
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -215,8 +216,7 @@ def course_syllabus(course_name):
        name=session.get('name'), 
        )
 
-
-
+#This is used by the Flask_Dropone component
 @app.route('/upload-file', methods=['GET', 'POST'])
 @login_required
 def upload_file():
@@ -237,4 +237,11 @@ def upload_file():
 def chop_course_content():
     course_name = request.args.get('course_name', None) 
     chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    return redirect(request.referrer)
+
+@app.route('/embed-course-content', methods=['GET'])
+@login_required
+def embed_course_content():
+    course_name = request.args.get('course_name', None) 
+    embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
     return redirect(request.referrer)

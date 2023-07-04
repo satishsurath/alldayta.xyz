@@ -47,12 +47,12 @@ def check_processed_files(contents, parent_folder):
     processed_files_info = []
     for file in contents:
         file_without_ext = os.path.splitext(file)[0]
-        processed_file_name = file_without_ext + "-originaltext.csv"
-        processed_file_path = os.path.join(parent_folder, "Textchunks", processed_file_name)
-        if os.path.isfile(processed_file_path):
-            # if the processed file exists
-            processed_files_info.append([file, True])
-        else:
-            # if the processed file does not exist
-            processed_files_info.append([file, False])
+        processed_csv_file_name = file_without_ext + "-originaltext.csv"
+        processed_npy_file_name = file_without_ext + "-originaltext.npy"
+        processed_csv_file_path = os.path.join(parent_folder, "Textchunks", processed_csv_file_name)
+        processed_npy_file_path = os.path.join(parent_folder, "EmbeddedText", processed_npy_file_name)
+        csv_exists = os.path.isfile(processed_csv_file_path)
+        npy_exists = os.path.isfile(processed_npy_file_path)
+        # Add the csv and npy existence check results to the list
+        processed_files_info.append([file, csv_exists, npy_exists])
     return processed_files_info
