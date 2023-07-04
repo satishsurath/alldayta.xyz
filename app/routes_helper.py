@@ -1,4 +1,5 @@
 import hashlib
+import os
 from pdfminer.high_level import extract_text
 from io import BytesIO
 from app.forms import UploadSyllabus
@@ -40,3 +41,18 @@ def save_pdf_and_extract_text(form, course_name):
         pdf_file.save(pdf_path)
         with open(txt_path, 'w') as txt_file:
             txt_file.write(course_syllabus)
+
+
+def check_processed_files(contents, parent_folder):
+    processed_files_info = []
+    for file in contents:
+        file_without_ext = os.path.splitext(file)[0]
+        processed_file_name = file_without_ext + "-originaltext.csv"
+        processed_file_path = os.path.join(parent_folder, "Textchunks", processed_file_name)
+        if os.path.isfile(processed_file_path):
+            # if the processed file exists
+            processed_files_info.append([file, True])
+        else:
+            # if the processed file does not exist
+            processed_files_info.append([file, False])
+    return processed_files_info

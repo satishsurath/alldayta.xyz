@@ -11,7 +11,11 @@ from flask_login import login_required, current_user, UserMixin
 from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from app.forms import UploadSyllabus
-from app.routes_helper.py import save_pdf_and_extract_text
+from app.routes_helper import (
+    save_pdf_and_extract_text, 
+    check_processed_files
+)
+from app.chop_documents import chunk_documents_given_course_name
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -174,8 +178,12 @@ def course_contents(course_name):
        save_pdf_and_extract_text(form, course_name)
     # Part 2: Load Course Content: 
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
-    contents = os.listdir(folder_path) if os.path.exists(folder_path) else []
-    # Part 3: Load Syllabus:
+    #hiding other folders and hidden files
+    if os.path.exists(folder_path):
+        contents = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and not f.startswith('.')]
+    else:
+        contents = []
+    contents_info = check_processed_files(contents, folder_path)
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
     else:
@@ -183,7 +191,8 @@ def course_contents(course_name):
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
     return render_template(
        'course_contents.html', 
-       course_name=course_name, 
+       course_name=course_name,
+       contents_info = contents_info, 
        contents=contents,
        syllabus=syllabus,
        name=session.get('name'), 
@@ -207,6 +216,7 @@ def course_syllabus(course_name):
        )
 
 
+
 @app.route('/upload-file', methods=['GET', 'POST'])
 @login_required
 def upload_file():
@@ -220,5 +230,11 @@ def upload_file():
     return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
 
 
+#  --------------------Routes for Content Processing --------------------
 
-
+@app.route('/chop-course-content', methods=['GET'])
+@login_required
+def chop_course_content():
+    course_name = request.args.get('course_name', None) 
+    chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    return redirect(request.referrer)
