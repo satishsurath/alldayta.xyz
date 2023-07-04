@@ -273,7 +273,9 @@
         <h2 class="center-align"> Step 4: Embed your Content</h2>
         <br><br>
         <a href="{{ url_for('embed_course_content', course_name=course_name) }}">Embed All Chunks</a>
-
+        <h2 class="center-align"> Step 5: Create Final Data</h2>
+        <br><br>
+        <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Create Final Data</a>
         {% else %}
         <p>No content found.</p>
         {% endif %}

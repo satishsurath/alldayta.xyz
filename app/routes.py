@@ -17,6 +17,7 @@ from app.routes_helper import (
 )
 from app.chop_documents import chunk_documents_given_course_name
 from app.embed_documents import embed_documents_given_course_name
+from app.create_final_data import create_final_data_given_course_name
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -181,7 +182,12 @@ def course_contents(course_name):
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
     #hiding other folders and hidden files
     if os.path.exists(folder_path):
-        contents = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and not f.startswith('.')]
+        #contents = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and not f.startswith('.')]
+        contents = [f for f in os.listdir(folder_path) 
+            if os.path.isfile(os.path.join(folder_path, f)) 
+            and not f.startswith('.') 
+            and f != 'textchunks.npy' 
+            and f != 'textchunks-originaltext.csv']
     else:
         contents = []
     contents_info = check_processed_files(contents, folder_path)
@@ -244,4 +250,11 @@ def chop_course_content():
 def embed_course_content():
     course_name = request.args.get('course_name', None) 
     embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    return redirect(request.referrer)
+
+@app.route('/create-final-data-course-content', methods=['GET'])
+@login_required
+def create_final_data_course_content():
+    course_name = request.args.get('course_name', None) 
+    create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
     return redirect(request.referrer)
