@@ -4,6 +4,7 @@ from pdfminer.high_level import extract_text
 from io import BytesIO
 from app.forms import UploadSyllabus
 from werkzeug.utils import secure_filename
+from app import app
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -35,11 +36,11 @@ def save_pdf_and_extract_text(form, course_name):
     txt_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name, txt_filename)
 
     # check if there is a text file already and delete the folder contents
-    if get_first_txt_file(pdf_path):
+    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
         delete_files_in_folder(pdf_path)
 
     #write the PDF files and text files to the locations:
-    if check_folder_exists(pdf_path):
+    if check_folder_exists(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
         pdf_file.save(pdf_path)
         with open(txt_path, 'w') as txt_file:
             txt_file.write(course_syllabus)

@@ -21,6 +21,8 @@
       <link rel="stylesheet" type="text/css" href="/static/style.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cabin&display=swap">
       <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
       {% if current_user.is_authenticated %}
         {{ dropzone.load_css() }}
         {{ dropzone.style('border: 2px dashed #0087F7; margin: 10%; min-height: 4em; background-color: var(--bkg-color)') }}
