@@ -56,3 +56,26 @@ def check_processed_files(contents, parent_folder):
         # Add the csv and npy existence check results to the list
         processed_files_info.append([file, csv_exists, npy_exists])
     return processed_files_info
+
+
+def detect_final_data_files(course_name):
+
+
+    file_info = {}
+
+    for file_name in ['textchunks.npy', 'textchunks-originaltext.csv']:
+        file_path = os.path.join(course_name, file_name)
+        if os.path.isfile(file_path):
+            file_info[file_name] = {
+                'present': True,
+                'name': file_name,
+                'size': os.path.getsize(file_path)
+            }
+        else:
+            file_info[file_name] = {
+                'present': False,
+                'name': file_name,
+                'size': None
+            }
+    
+    return file_info

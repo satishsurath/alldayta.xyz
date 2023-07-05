@@ -13,7 +13,8 @@ from werkzeug.utils import secure_filename
 from app.forms import UploadSyllabus
 from app.routes_helper import (
     save_pdf_and_extract_text, 
-    check_processed_files
+    check_processed_files,
+    detect_final_data_files
 )
 from app.chop_documents import chunk_documents_given_course_name
 from app.embed_documents import embed_documents_given_course_name
@@ -180,6 +181,10 @@ def course_contents(course_name):
        save_pdf_and_extract_text(form, course_name)
     # Part 2: Load Course Content: 
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
+    #part 3: check for
+    print(folder_path)
+    file_info = detect_final_data_files(folder_path)
+    print(file_info)
     #hiding other folders and hidden files
     if os.path.exists(folder_path):
         #contents = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and not f.startswith('.')]
@@ -203,7 +208,8 @@ def course_contents(course_name):
        contents=contents,
        syllabus=syllabus,
        name=session.get('name'), 
-       form=form
+       form=form,
+       file_info=file_info
        )
 
 @app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])
