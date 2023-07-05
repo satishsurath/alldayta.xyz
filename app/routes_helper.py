@@ -63,7 +63,7 @@ def check_processed_files(contents, parent_folder):
 # This function checks if 'textchunks.npy' and 'textchunks-originaltext.csv' files are present in a given course directory, and returns their status (present or not) and size.
 def detect_final_data_files(course_name):
     file_info = {}
-    for file_name in ['textchunks.npy', 'textchunks-originaltext.csv']:
+    for file_name in ['Textchunks.npy', 'Textchunks-originaltext.csv']:
         file_path = os.path.join(course_name, file_name)
         if os.path.isfile(file_path):
             file_info[file_name] = {
@@ -90,6 +90,6 @@ def courses_with_final_data(parent_folder):
             continue
         file_info = detect_final_data_files(course_folder)
         # Check if both files are present
-        if file_info['textchunks.npy']['present'] and file_info['textchunks-originaltext.csv']['present']:
+        if file_info['Textchunks.npy']['present'] and file_info['Textchunks-originaltext.csv']['present']:
             courses.append(course_name)
     return courses

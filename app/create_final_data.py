@@ -37,11 +37,10 @@ def create_final_data_given_course_name(course_name):
 
 
     # Save the concatenated data to the base folder
-    output_file = os.path.join(course_name, "textchunks-originaltext.csv")
-    concatenated_csv.to_csv(os.path.join(course_name, "textchunks-originaltext.csv"), encoding='utf-8', escapechar='\\', index=False)
-    np.save(os.path.join(course_name, "textchunks.npy"), concatenated_npy)
-    print("Files saved: textchunks-originaltext.csv and textchunks.npy")
+    concatenated_csv.to_csv(os.path.join(course_name, "Textchunks-originaltext.csv"), encoding='utf-8', escapechar='\\', index=False)
+    np.save(os.path.join(course_name, "Textchunks.npy"), concatenated_npy)
+    print("Files saved: Textchunks-originaltext.csv and Textchunks.npy")
     # Print the dimensions of the concatenated files
-    print(f"textchunks-originaltext.csv dimensions: {concatenated_csv.shape}")
-    print(f"textchunks.npy dimensions: {concatenated_npy.shape}")
+    print(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape}")
+    print(f"Textchunks.npy dimensions: {concatenated_npy.shape}")
 
