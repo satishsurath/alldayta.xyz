@@ -282,3 +282,21 @@ def chat():
        courses=courses, 
        name=session.get('name'), 
        )
+
+
+@app.route('/teaching-assistant', methods=['GET', 'POST'])
+@login_required
+def teaching_assistant():
+    course_name = request.args.get('course_name', None) 
+    # check if we have the Syllabus already for this course
+    if courses_with_final_data(app.config['FOLDER_UPLOAD']):
+      courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
+    else:
+       syllabus = None
+    # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
+    return render_template(
+       'ta.html', 
+       courses=courses, 
+       name=session.get('name'),
+       course_name = course_name 
+       )
