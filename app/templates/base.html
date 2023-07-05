@@ -218,7 +218,7 @@ function applyTheme() {
                 <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
                 <li class="nav-links"> <a href="{{ url_for('index') }}">Logs</a></li> 
                 {% else %}
-                <li class="nav-links"> <a href="{{ url_for('index') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
+                <li class="nav-links"> <a href="{{ url_for('chat') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
                 <li class="nav-links"> <a href="{{ url_for('index') }}" alt="AllDayTA - Practice Questions" aria-label="AllDayTA - Practice Questions">Practice Questions</a></li>
                 <li class="nav-links"> <a href="{{ url_for('adminlogin') }}" alt="AllDayTA - Login" aria-label="AllDayTA - Login">Login (Professors)</a></li> 
                 {% endif %}

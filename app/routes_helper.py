@@ -20,6 +20,8 @@ from app.file_operations import (
 
 )
 
+
+# This function handles an uploaded PDF file from a form, extracts text from the PDF, generates a hash of the extracted text for naming, checks if a text file already exists for the course and deletes it if so, and finally saves the PDF and the extracted text to the designated locations.
 def save_pdf_and_extract_text(form, course_name):
     # Get the uploaded PDF file
     pdf_file = form.pdf.data
@@ -42,7 +44,7 @@ def save_pdf_and_extract_text(form, course_name):
         with open(txt_path, 'w') as txt_file:
             txt_file.write(course_syllabus)
 
-
+# This function checks if the '-originaltext.csv' and '-originaltext.npy' versions of each file in the provided list exist in the 'Textchunks' and 'EmbeddedText' folders respectively, and returns their existence status.
 def check_processed_files(contents, parent_folder):
     processed_files_info = []
     for file in contents:
@@ -57,12 +59,9 @@ def check_processed_files(contents, parent_folder):
         processed_files_info.append([file, csv_exists, npy_exists])
     return processed_files_info
 
-
+# This function checks if 'textchunks.npy' and 'textchunks-originaltext.csv' files are present in a given course directory, and returns their status (present or not) and size.
 def detect_final_data_files(course_name):
-
-
     file_info = {}
-
     for file_name in ['textchunks.npy', 'textchunks-originaltext.csv']:
         file_path = os.path.join(course_name, file_name)
         if os.path.isfile(file_path):
@@ -77,5 +76,19 @@ def detect_final_data_files(course_name):
                 'name': file_name,
                 'size': None
             }
-    
     return file_info
+
+
+# This function checks all sub-folders (courses) in a given parent folder and returns a list of those that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
+def courses_with_final_data(parent_folder):
+    courses = []
+    for course_name in os.listdir(parent_folder):
+        course_folder = os.path.join(parent_folder, course_name)
+        # Exclude files, hidden folders and specific file names
+        if not os.path.isdir(course_folder) or course_name.startswith('.') or course_name in ['textchunks.npy', 'textchunks-originaltext.csv']:
+            continue
+        file_info = detect_final_data_files(course_folder)
+        # Check if both files are present
+        if file_info['textchunks.npy']['present'] and file_info['textchunks-originaltext.csv']['present']:
+            courses.append(course_name)
+    return courses

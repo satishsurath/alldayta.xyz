@@ -14,7 +14,8 @@ from app.forms import UploadSyllabus
 from app.routes_helper import (
     save_pdf_and_extract_text, 
     check_processed_files,
-    detect_final_data_files
+    detect_final_data_files,
+    courses_with_final_data
 )
 from app.chop_documents import chunk_documents_given_course_name
 from app.embed_documents import embed_documents_given_course_name
@@ -264,3 +265,20 @@ def create_final_data_course_content():
     course_name = request.args.get('course_name', None) 
     create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
     return redirect(request.referrer)
+
+#  --------------------Routes for Chatting --------------------
+
+@app.route('/chat', methods=['GET', 'POST'])
+@login_required
+def chat():
+    # check if we have the Syllabus already for this course
+    if courses_with_final_data(app.config['FOLDER_UPLOAD']):
+      courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
+    else:
+       syllabus = None
+    # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
+    return render_template(
+       'chat.html', 
+       courses=courses, 
+       name=session.get('name'), 
+       )
