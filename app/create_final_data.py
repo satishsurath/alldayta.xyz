@@ -23,7 +23,7 @@ def create_final_data_given_course_name(course_name):
         concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
         
         # Print the shape of csv_data
-        print(f"Shape of csv_data for {csv_file}: {csv_data.shape}")
+        #print(f"Shape of csv_data for {csv_file}: {csv_data.shape}")
 
         npy_path = os.path.join(npy_folder, npy_file)
         npy_data = np.load(npy_path)
@@ -33,21 +33,7 @@ def create_final_data_given_course_name(course_name):
             concatenated_npy = np.concatenate([concatenated_npy, npy_data], axis=0)
         
         # Print the shape of npy_data
-        print(f"Shape of npy_data for {npy_file}: {npy_data.shape}")
-
-    # for csv_file, npy_file in zip(csv_files, npy_files):
-    #     print(npy_file)
-    #     # Read the CSV file and concatenate
-    #     csv_path = os.path.join(csv_folder, csv_file)
-    #     csv_data = pd.read_csv(csv_path, encoding='utf-8', escapechar='\\')
-    #     concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
-
-    #     npy_path = os.path.join(npy_folder, npy_file)
-    #     npy_data = np.load(npy_path)
-    #     if concatenated_npy is None:
-    #         concatenated_npy = npy_data
-    #     else:
-    #         concatenated_npy = np.concatenate([concatenated_npy, npy_data], axis=0)
+        #print(f"Shape of npy_data for {npy_file}: {npy_data.shape}")
 
 
     # Save the concatenated data to the base folder
