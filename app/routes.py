@@ -278,8 +278,8 @@ def create_final_data_course_content():
 
 #  --------------------Routes for Chatting --------------------
 
-@app.route('/chat', methods=['GET', 'POST'])
-def chat():
+@app.route('/pick-course', methods=['GET', 'POST'])
+def pick_course():
     # check if we have the Syllabus already for this course
     if courses_with_final_data(app.config['FOLDER_UPLOAD']):
       courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
@@ -287,7 +287,7 @@ def chat():
        syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
     return render_template(
-       'chat.html', 
+       'pick_course.html', 
        courses=courses, 
        name=session.get('name'), 
        )
