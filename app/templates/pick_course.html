@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1 class="center-align">Pick a Course to Chat with the Virtual Teaching Assistant</h1><br>
+        <h1 class="center-align">Pick a Course to {{type}} with the Virtual Teaching Assistant</h1><br>
         {% with messages = get_flashed_messages() %}
                 {% if messages %}
                 <div class="flashes">
@@ -14,7 +14,13 @@
         <h2>Pick a Course to start chatting</h2>
         <ul>
                 {% for course in courses %}
-                    <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
+                        {% if type=='chat' %}
+                        <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
+                        {% elif type=='practice' %} 
+                        <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
+                        {% else %}
+                        Something went wrong. 
+                        {% endif %}
                 {% endfor %}
         </ul>
         {% else %}

@@ -280,6 +280,7 @@ def create_final_data_course_content():
 
 @app.route('/pick-course', methods=['GET', 'POST'])
 def pick_course():
+    type = request.args.get('type', None) 
     # check if we have the Syllabus already for this course
     if courses_with_final_data(app.config['FOLDER_UPLOAD']):
       courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
@@ -289,7 +290,8 @@ def pick_course():
     return render_template(
        'pick_course.html', 
        courses=courses, 
-       name=session.get('name'), 
+       name=session.get('name'),
+       type = type 
        )
 
 
