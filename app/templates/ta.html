@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1 class="center-align">Pick a Course to Chat with the Virtual Teaching Assistant</h1><br>
+        <h1 class="center-align">Virtual Teaching Assistant For: <br>{{ course_name }}</h1><br>
         {% with messages = get_flashed_messages() %}
                 {% if messages %}
                 <div class="flashes">
@@ -11,8 +11,10 @@
                 {% endif %}
         {% endwith %}
         {% if course_name %}
-        <h2>Virtual TA for {{ course_name }}</h2>
-
+        <h2 ></h2>
+        <br><br>
+        <p><b>Instructions: </b><br>{{ instruct|safe }}	 </p>
+        <br>
         <div class="main-container">
                 <div class="container">
                     <form id="my-form-1" method="post" data-target="response">
@@ -28,7 +30,7 @@
                     <span id="processing-message" style="display: none; margin-bottom: 10px; font-size: 16pt; font-weight: bold; font-style: normal;"></span>
                     <div class="text-1" id="response">  </div>
                     <p></p><p>&nbsp;</p>
-                    <div class="text-2" id="previous-response"><b>Instructions: </b>{{ instruct }}	    </div>
+                    <div class="text-2" id="previous-response">   </div>
                 </div>
             </div>
             <script>

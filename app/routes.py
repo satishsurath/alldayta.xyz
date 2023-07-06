@@ -37,7 +37,6 @@ from app.file_operations import (
     get_first_txt_file,
     get_file_path,
     delete_files_in_folder
-
 )
 
 from pdfminer.high_level import extract_text
@@ -604,7 +603,8 @@ def teaching_assistant():
        'ta.html', 
        courses=courses, 
        name=session.get('name'),
-       course_name = course_name 
+       course_name = course_name,
+       instruct = 'I am an experimental virtual TA for your course in <i>' + course_name + '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides. <br>I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. <br>The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice. <br> If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'
        )
 
 
@@ -619,18 +619,7 @@ def background_loading(dataname):
         df_chunks = load_df_chunks(dataname)
         print("Loaded data from background")
 
-def load_df_chunks(dataname):
-    global df_chunks, embedding
-    # maybe just save this numpy embedding?
-    if embedding is None:
-        df_chunks = pd.read_csv(dataname+"-originaltext.csv")
-        embedding = np.load(dataname+".npy")
-        print(f"embedding dimensions: {embedding.shape}")
-        print(f"df_chunks dimensions: {df_chunks.shape}")
 
-    else:
-        print("Database already loaded")
-    return df_chunks
 
 def grab_last_response():
     global last_session
@@ -640,3 +629,15 @@ def grab_last_response():
         print("I don't know old content")
         last_session = ""
     return last_session
+
+def load_df_chunks(dataname):
+    global df_chunks, embedding
+    # maybe just save this numpy embedding?
+    if embedding is None:
+        df_chunks = pd.read_csv(dataname+"-originaltext.csv")
+        embedding = np.load(dataname+".npy")
+        #print(f"embedding dimensions: {embedding.shape}")
+        #print(f"df_chunks dimensions: {df_chunks.shape}")
+    else:
+        print("Database already loaded")
+    return df_chunks

@@ -142,3 +142,5 @@ def delete_files_in_folder(folder_path):
                 shutil.rmtree(file_path)
     except Exception as e:
         print(f'Failed to delete: Reason: {e}')
+
+    
