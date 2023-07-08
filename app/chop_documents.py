@@ -53,47 +53,25 @@ def chunk_documents_given_course_name(course_name):
 
     # Loop through all pdf, txt, tex in the "documents" folder
     for filename in os.listdir(filedirectory):
-        filepath = os.path.join(filedirectory, filename)
-        #Ingnore folders and hidden files
-        if os.path.isfile(filepath) and not filename.startswith('.'):
-            # Create an empty DataFrame to store the text and title of each document
-            df = pd.DataFrame(columns=["Title", "Text"])
-            print("Loading " + filename)
+        if filename not in ["Textchunks.npy", "Textchunks-originaltext.csv"] and not filename.startswith('.'):
+            filepath = os.path.join(filedirectory, filename)
+            #Ingnore folders and hidden files
+            if os.path.isfile(filepath) and not filename.startswith('.'):
+                # Create an empty DataFrame to store the text and title of each document
+                df = pd.DataFrame(columns=["Title", "Text"])
+                print("Loading " + filename)
 
 
 
-            # 1. PDF
-            if filename.endswith(".pdf"):
-                # Open the PDF file in read-binary mode
-                filepath = os.path.join(filedirectory, filename)
-                text  = extract_text(filepath)
-                # Add the text and title to the DataFrame
-                title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
-                new_row = pd.DataFrame({"Title": [title], "Text": [text]})
-                df = pd.concat([df, new_row], ignore_index=True)
-
-
-
-
-
-
-
-
-            # 2. DOCX files
-            elif filename.endswith(".doc") or filename.endswith(".docx"):
-                # Open the DOC/DOCX file in binary mode and read the raw data
-                filepath = os.path.join(filedirectory, filename)
-                doc = docx.Document(filepath)
-
-                # Convert the file to UTF-8 and extract the text
-                text = ''
-                for paragraph in doc.paragraphs:
-                    text += paragraph.text
-
-                # Add the text and title to the DataFrame
-                title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
-                new_row = pd.DataFrame({"Title": [title], "Text": [text]})
-                df = pd.concat([df, new_row], ignore_index=True)
+                # 1. PDF
+                if filename.endswith(".pdf"):
+                    # Open the PDF file in read-binary mode
+                    filepath = os.path.join(filedirectory, filename)
+                    text  = extract_text(filepath)
+                    # Add the text and title to the DataFrame
+                    title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
+                    new_row = pd.DataFrame({"Title": [title], "Text": [text]})
+                    df = pd.concat([df, new_row], ignore_index=True)
 
 
 
@@ -101,18 +79,22 @@ def chunk_documents_given_course_name(course_name):
 
 
 
-            # 3. TXT files
-            elif filename.endswith(".txt"):
-                # Open the text file and read its contents
-                filepath = os.path.join(filedirectory, filename)
-                with open(filepath, "r", encoding="utf-8") as file:
-                    text = file.read()
 
-                # Add the text and title to the DataFrame
-                title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
-                new_row = pd.DataFrame({"Title": [title], "Text": [text]})
-                df = pd.concat([df, new_row], ignore_index=True)
-                
+                # 2. DOCX files
+                elif filename.endswith(".doc") or filename.endswith(".docx"):
+                    # Open the DOC/DOCX file in binary mode and read the raw data
+                    filepath = os.path.join(filedirectory, filename)
+                    doc = docx.Document(filepath)
+
+                    # Convert the file to UTF-8 and extract the text
+                    text = ''
+                    for paragraph in doc.paragraphs:
+                        text += paragraph.text
+
+                    # Add the text and title to the DataFrame
+                    title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
+                    new_row = pd.DataFrame({"Title": [title], "Text": [text]})
+                    df = pd.concat([df, new_row], ignore_index=True)
 
 
 
@@ -120,90 +102,109 @@ def chunk_documents_given_course_name(course_name):
 
 
 
-            # 4. LaTeX files
-            elif filename.endswith(".tex"):
-                # Use regular expressions to extract regular text from the LaTeX file
-                filepath = os.path.join(filedirectory, filename)
-                with open(filepath, "r", encoding="utf-8") as file:
-                    text = file.read()
-                
-                # Add the text and title to the DataFrame
-                title = os.path.splitext(filename)[0] # Remove the file extension from the filename
-                new_row = pd.DataFrame({"Title": [title], "Text": [text]})
-                df = pd.concat([df, new_row], ignore_index=True)
+                # 3. TXT files
+                elif filename.endswith(".txt"):
+                    # Open the text file and read its contents
+                    filepath = os.path.join(filedirectory, filename)
+                    with open(filepath, "r", encoding="utf-8") as file:
+                        text = file.read()
 
-                
-                
+                    # Add the text and title to the DataFrame
+                    title = os.path.splitext(filename)[0]  # Remove the file extension from the filename
+                    new_row = pd.DataFrame({"Title": [title], "Text": [text]})
+                    df = pd.concat([df, new_row], ignore_index=True)
+                    
 
-                
-            elif filename.endswith(".pptx") or filename.endswith(".ppt"):
-                filepath = os.path.join(filedirectory, filename)
-                prs = Presentation(filepath)
-                # text_runs will be populated with a list of strings,
-                # one for each text run in presentation
-                text_runs = []
-                text = ''
-                for slide in prs.slides:
-                    for shape in slide.shapes:
-                        if not shape.has_text_frame:
-                            continue
-                        if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                            continue                    
-                        for paragraph in shape.text_frame.paragraphs:
-                            for run in paragraph.runs:
-                                run_text = run.text
-                                if run_text and run_text[-1] != '.':
-                                    run_text += '.'  # Add a period at the end if it is not already there
-                                text_runs.append(run_text)
-                                text += run_text
-                title = os.path.splitext(filename)[0] # Remove the file extension from the filename
-                new_row = pd.DataFrame({"Title": [title], "Text": [text]})
-                df = pd.concat([df, new_row], ignore_index=True)
 
-                
-            ## Backend Idea 1:
-            # Instead of Tokenizing each row of text on its own
-            # Consider first splitting them into an "Array of sentences" by splitting them with the "." character
-            # This way the text rows will not be split mid-sentence
-            # Only split sentences that are "bigger" than chuck size      
-                
-            # Loop through the rows and create overlapping chunks for each text
-            chunks = []
-            for i, row in df.iterrows():
-                # Tokenize the text for the current row
-                tokens = nltk.word_tokenize(row['Text'])
 
-                # Loop through the tokens and create overlapping chunks
-                for j in range(0, len(tokens), chunk_size - overlap_size):
-                    # Get the start and end indices of the current chunk
-                    start = j
-                    end = j + chunk_size
 
-                    # Create the current chunk by joining the tokens within the start and end indices
-                    chunk = ' '.join(tokens[start:end])
 
-                    # Add the article title to the beginning of the chunk
-                    chunk_with_title = "This text comes from the document " + row['Title'] + ". " + chunk
 
-                    # Append the current chunk to the list of chunks, along with the corresponding title
-                    chunks.append([row['Title'], chunk_with_title])
 
-            # Convert the list of chunks to a dataframe
-            df_chunks = pd.DataFrame(chunks, columns=['Title', 'Text'])
+                # 4. LaTeX files
+                elif filename.endswith(".tex"):
+                    # Use regular expressions to extract regular text from the LaTeX file
+                    filepath = os.path.join(filedirectory, filename)
+                    with open(filepath, "r", encoding="utf-8") as file:
+                        text = file.read()
+                    
+                    # Add the text and title to the DataFrame
+                    title = os.path.splitext(filename)[0] # Remove the file extension from the filename
+                    new_row = pd.DataFrame({"Title": [title], "Text": [text]})
+                    df = pd.concat([df, new_row], ignore_index=True)
 
-            # Truncate the filename if it's too long, e.g., limit to 250 characters
-            max_filename_length = 250
-            if len(filename) > max_filename_length:
-                filename = filename[:max_filename_length]
+                    
+                    
 
-            # Remove the file extension from the filename
-            filename_without_extension = os.path.splitext(filename)[0]
+                    
+                elif filename.endswith(".pptx") or filename.endswith(".ppt"):
+                    filepath = os.path.join(filedirectory, filename)
+                    prs = Presentation(filepath)
+                    # text_runs will be populated with a list of strings,
+                    # one for each text run in presentation
+                    text_runs = []
+                    text = ''
+                    for slide in prs.slides:
+                        for shape in slide.shapes:
+                            if not shape.has_text_frame:
+                                continue
+                            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                                continue                    
+                            for paragraph in shape.text_frame.paragraphs:
+                                for run in paragraph.runs:
+                                    run_text = run.text
+                                    if run_text and run_text[-1] != '.':
+                                        run_text += '.'  # Add a period at the end if it is not already there
+                                    text_runs.append(run_text)
+                                    text += run_text
+                    title = os.path.splitext(filename)[0] # Remove the file extension from the filename
+                    new_row = pd.DataFrame({"Title": [title], "Text": [text]})
+                    df = pd.concat([df, new_row], ignore_index=True)
 
-            # Save the df_chunks to the output_folder subfolder with the new file name
-            output_file = os.path.join(output_folder, filename_without_extension + "-originaltext.csv")
-            df_chunks.to_csv(output_file, encoding='utf-8', escapechar='\\', index=False)
+                    
+                ## Backend Idea 1:
+                # Instead of Tokenizing each row of text on its own
+                # Consider first splitting them into an "Array of sentences" by splitting them with the "." character
+                # This way the text rows will not be split mid-sentence
+                # Only split sentences that are "bigger" than chuck size      
+                    
+                # Loop through the rows and create overlapping chunks for each text
+                chunks = []
+                for i, row in df.iterrows():
+                    # Tokenize the text for the current row
+                    tokens = nltk.word_tokenize(row['Text'])
 
-            print("Saving " + filename)
+                    # Loop through the tokens and create overlapping chunks
+                    for j in range(0, len(tokens), chunk_size - overlap_size):
+                        # Get the start and end indices of the current chunk
+                        start = j
+                        end = j + chunk_size
+
+                        # Create the current chunk by joining the tokens within the start and end indices
+                        chunk = ' '.join(tokens[start:end])
+
+                        # Add the article title to the beginning of the chunk
+                        chunk_with_title = "This text comes from the document " + row['Title'] + ". " + chunk
+
+                        # Append the current chunk to the list of chunks, along with the corresponding title
+                        chunks.append([row['Title'], chunk_with_title])
+
+                # Convert the list of chunks to a dataframe
+                df_chunks = pd.DataFrame(chunks, columns=['Title', 'Text'])
+
+                # Truncate the filename if it's too long, e.g., limit to 250 characters
+                max_filename_length = 250
+                if len(filename) > max_filename_length:
+                    filename = filename[:max_filename_length]
+
+                # Remove the file extension from the filename
+                filename_without_extension = os.path.splitext(filename)[0]
+
+                # Save the df_chunks to the output_folder subfolder with the new file name
+                output_file = os.path.join(output_folder, filename_without_extension + "-originaltext.csv")
+                df_chunks.to_csv(output_file, encoding='utf-8', escapechar='\\', index=False)
+
+                print("Saving " + filename)
 
 
 

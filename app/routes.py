@@ -199,8 +199,8 @@ def course_contents(course_name):
         contents = [f for f in os.listdir(folder_path) 
             if os.path.isfile(os.path.join(folder_path, f)) 
             and not f.startswith('.') 
-            and f != 'textchunks.npy' 
-            and f != 'textchunks-originaltext.csv']
+            and f != 'Textchunks.npy' 
+            and f != 'Textchunks-originaltext.csv']
     else:
         contents = []
     contents_info = check_processed_files(contents, folder_path)
