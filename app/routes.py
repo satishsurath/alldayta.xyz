@@ -5,6 +5,8 @@ import numpy as np
 import hashlib
 import time
 import threading
+import csv
+from csv import reader
 from app import app, login_manager
 from flask import render_template, flash, redirect, url_for, request, session
 
@@ -219,6 +221,36 @@ def course_contents(course_name):
        form=form,
        file_info=file_info
        )
+
+
+@app.route('/preview-chunks/<course_name>', methods=['GET'])
+@login_required
+def preview_chunks(course_name):
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, 'Textchunks')
+
+    # Filter only csv files in the course content folder
+    csv_files = [f for f in os.listdir(folder_path) 
+        if os.path.isfile(os.path.join(folder_path, f)) 
+        and not f.startswith('.') 
+        and f.endswith('.csv')]
+    
+    # Read the second element of the second line of each csv file
+    second_entries = []
+    for csv_file in csv_files:
+        try:
+            with open(os.path.join(folder_path, csv_file), 'r') as f:
+                csv_reader = reader(f)
+                next(csv_reader, None)  # Skip the header
+                second_entry = next(csv_reader, None)  # Get the second row
+                if second_entry and len(second_entry) > 1:  # Ensure there's a second element
+                    second_entry = second_entry[1]  # Get the second element
+                second_entries.append(second_entry)
+                #print(f"Second row, second element of {csv_file}: {second_entry}")  # Print second row for debugging
+        except Exception as e:
+            print(f"Error reading {csv_file}: {e}")  # Print any errors encountered
+    #print(f"CSV files: {csv_files}\nSecond entries: {second_entries}")
+    return render_template('preview_chunks.html', course_name=course_name, zip=zip, csv_files=csv_files, second_entries=second_entries, name=session.get('name'))
+
 
 @app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])
 @login_required
@@ -610,7 +642,7 @@ def teaching_assistant():
        )
 
 
-
+#  --------------------Functions for Chatting --------------------
 
 # this ensures we load the data before taking an input
 load_lock = threading.Lock()
@@ -620,8 +652,6 @@ def background_loading(dataname):
         global df_chunks, embedding
         df_chunks = load_df_chunks(dataname)
         print("Loaded data from background")
-
-
 
 def grab_last_response():
     global last_session
