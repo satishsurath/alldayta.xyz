@@ -6,9 +6,10 @@ import hashlib
 import time
 import threading
 import csv
+
 from csv import reader
 from app import app, login_manager
-from flask import render_template, flash, redirect, url_for, request, session
+from flask import render_template, flash, redirect, url_for, request, session, jsonify
 
 #Secure against CSRF attacks
 from flask_wtf.csrf import generate_csrf
@@ -49,6 +50,10 @@ from io import BytesIO
 df_chunks = None
 embedding = None
 last_session = None
+
+# define the variable to show / hide all the Courses available to the system
+
+showAllCoursesAvailable = False
 
 # -------------------- Flask app configurations --------------------
 
@@ -93,7 +98,7 @@ def request_loader(request):
 @app.route('/index')
 def index():
   #return render_template('index.html')
-  return render_template('index.html', name=session.get('name'))
+  return render_template('index.html', name=session.get('name'), showAllCoursesAvailable=showAllCoursesAvailable)
 
 @app.route('/privacy-policy')
 def privacypolicy():
@@ -252,6 +257,18 @@ def preview_chunks(course_name):
     return render_template('preview_chunks.html', course_name=course_name, zip=zip, csv_files=csv_files, second_entries=second_entries, name=session.get('name'))
 
 
+@app.route('/toggle_activation', methods=['POST'])
+def toggle_activation():
+    filename = request.form.get('filename')
+    course_name = request.form.get('course_name')
+    status = request.form.get('status') == 'true'
+
+    # TODO: Update the status in your JSON file
+
+    return jsonify({'success': True})
+
+
+
 @app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])
 @login_required
 def course_syllabus(course_name):
@@ -323,7 +340,8 @@ def pick_course():
        'pick_course.html', 
        courses=courses, 
        name=session.get('name'),
-       type = type 
+       type = type,
+       showAllCoursesAvailable = showAllCoursesAvailable 
        )
 
 

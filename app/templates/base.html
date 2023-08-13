@@ -215,8 +215,10 @@ function applyTheme() {
             <nav class="navbar">
               <ul>
                 <li> <a href="{{ url_for('index') }}"><img src="/static/AllDayTA_transparent_logov1.png" alt="AllDayTA Logo - AI-Powered Virtual Teaching Assistant" aria-label="AllDayTA Homepage" height="45px" width="162px"></a></li>
+                {% if showAllCoursesAvailable %}
                 <li class="nav-links"> <a href="{{ url_for('pick_course', type='chat') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
                 <li class="nav-links"> <a href="{{ url_for('pick_course', type='practice') }}" alt="AllDayTA - Practice Questions" aria-label="AllDayTA - Practice Questions">Practice Questions</a></li>
+                {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="nav-links"><a href="{{ url_for('course_management') }}">Course Management</a></li> 
                 <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>

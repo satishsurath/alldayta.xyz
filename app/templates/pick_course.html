@@ -12,17 +12,24 @@
         {% endwith %}
         {% if courses %}
         <h2>Pick a Course to start chatting</h2>
+        {% if showAllCoursesAvailable %}
         <ul>
                 {% for course in courses %}
-                        {% if type=='chat' %}
-                        <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
-                        {% elif type=='practice' %} 
-                        <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
-                        {% else %}
-                        Something went wrong. 
-                        {% endif %}
+
+                                {% if type=='chat' %}
+                                <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
+                                {% elif type=='practice' %} 
+                                <li><a href="{{ url_for('teaching_assistant', course_name=course) }}" target="_blank">{{ course }}</a></li>
+                                {% else %}
+                                Something went wrong. 
+                                {% endif %}
+
+                        
                 {% endfor %}
         </ul>
+        {% else %}
+        Please Use The Provided "Course URL" to Access the Virtual Teaching Assistant
+        {% endif %}         
         {% else %}
         <p>No Syllabus found.</p>
         {% endif %}

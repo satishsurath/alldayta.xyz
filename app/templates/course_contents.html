@@ -70,6 +70,7 @@
                     <th>Content</th>
                     <th>Chunking Status</th>
                     <th>Embedding Status</th>
+                    <th>Activation Status</th>
                     <th>Delete</th>
                     <th>Rename</th>
 
@@ -236,7 +237,16 @@
     {% endif %}
 
 
-                    </td>                    
+                    </td>
+                    <td>
+                      <a id="activation-{{ content[0] }}" href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
+                          {% if content[3]: %}
+                          Deactivate
+                          {% else %}
+                          Activate
+                          {% endif %}
+                      </a>
+                  </td>                                        
                     <td>
                         <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}"><svg style="fill: var(--text-color);" width="18px" height="18px"viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">

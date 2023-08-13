@@ -22,7 +22,9 @@
         </details>
         <hr>
         <h3 class="center-align">All Day TA</h3>
-        <h3 class="center-align">
+
+                {% if showAllCoursesAvailable %}
+                <h3 class="center-align">
                 <ul>
                         <li>
                                 <a href="{{ url_for('pick_course', type='chat') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Ask Teaching Assistant</a>
@@ -32,8 +34,13 @@
                                 <a href="{{ url_for('pick_course', type='practice') }}" alt="AllDayTA - Practice Questions" aria-label="AllDayTA - Practice Questions">Practice Questions</a>
                         </li>                        
                         </ul>
-                </ul>    
-        </h3>
+                </ul>
+                </h3>    
+                {% else %}
+                <br>
+                Please Use The Provided "Course URL" to Access the Virtual Teaching Assistant
+                {% endif %} 
+        
         {% include 'user_status.html' %}        
         <details>
                 <summary class="homepage-heading">Release Notes</summary>
