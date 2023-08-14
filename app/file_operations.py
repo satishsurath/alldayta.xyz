@@ -2,8 +2,12 @@ import os
 import json
 import hashlib
 import shutil
+import logging
 from app import app
 
+
+
+SETTINGS_PATH = os.path.join(app.config['FOLDER_SETTINGS'], 'platform-settings.json')
 
 
 
@@ -39,7 +43,25 @@ def read_from_file_json(filename):
     except Exception as e:
         print("An exception occurred:", e)
         return False
-      
+
+#Given the filename and aata, write the the json, wrap it in try catch
+def write_to_file_json(filename, data):
+    try:
+        app.logger.info(f"Data to be written: {data}")
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+        app.logger.info(f"Data successfully written to {filename}")
+        with open(filename, 'r') as f:
+            read_data = json.load(f)
+        app.logger.info(f"Data read back after write: {read_data}")
+        absolute_path = os.path.abspath(filename)
+        app.logger.info(f"Writing to: {absolute_path}")
+        return True
+    except Exception as e:
+        app.logger.error(f"An exception occurred when writing to {filename}: {e}")
+        return False
+
+
 #Given the filename, read the file and return the contents, wrap it in try catch
 def read_from_file_text(filename):
     try:

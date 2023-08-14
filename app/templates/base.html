@@ -222,7 +222,7 @@ function applyTheme() {
                 {% if current_user.is_authenticated %}
                 <li class="nav-links"><a href="{{ url_for('course_management') }}">Course Management</a></li> 
                 <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
-                <li class="nav-links"> <a href="{{ url_for('index') }}">Logs</a></li> 
+                <li class="nav-links"> <a href="{{ url_for('settings') }}">Settings</a></li> 
                 {% else %}
                 
                 <li class="nav-links"> <a href="{{ url_for('adminlogin') }}" alt="AllDayTA - Login" aria-label="AllDayTA - Login">Login (Professors)</a></li> 

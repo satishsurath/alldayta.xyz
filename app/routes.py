@@ -7,6 +7,7 @@ import time
 import threading
 import csv
 
+
 from csv import reader
 from app import app, login_manager
 from flask import render_template, flash, redirect, url_for, request, session, jsonify
@@ -29,6 +30,7 @@ from app.embed_documents import embed_documents_given_course_name
 from app.create_final_data import create_final_data_given_course_name
 from app.file_operations import (
     read_from_file_json,
+    write_to_file_json,
     read_from_file_text,
     check_folder_exists,
     list_folders,
@@ -53,7 +55,13 @@ last_session = None
 
 # define the variable to show / hide all the Courses available to the system
 
-showAllCoursesAvailable = False
+
+SETTINGS_PATH = os.path.join(app.config['FOLDER_SETTINGS'], 'platform-settings.json')
+
+# Load custom settings from JSON
+custom_settings = read_from_file_json(SETTINGS_PATH)
+for key, value in custom_settings.items():
+    app.config[key.upper()] = True if value["Value"] == "True" else False
 
 # -------------------- Flask app configurations --------------------
 
@@ -98,7 +106,8 @@ def request_loader(request):
 @app.route('/index')
 def index():
   #return render_template('index.html')
-  return render_template('index.html', name=session.get('name'), showAllCoursesAvailable=showAllCoursesAvailable)
+  print(app.config["SHOWALLCOURSESAVAILABLE"])
+  return render_template('index.html', name=session.get('name'), showAllCoursesAvailable=app.config["SHOWALLCOURSESAVAILABLE"])
 
 @app.route('/privacy-policy')
 def privacypolicy():
@@ -301,6 +310,30 @@ def upload_file():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
 
+@app.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    settings_data = read_from_file_json(SETTINGS_PATH) or {}
+    
+    if request.method == 'POST':
+        for setting, details in settings_data.items():
+            # Check if setting was submitted in the form and set to "True" if it was, otherwise "False"
+            settings_data[setting]["Value"] = "True" if request.form.get(setting) else "False"
+            app.logger.info(f"Setting value for {setting}: {settings_data[setting]['Value']}")
+
+        # Save the updated settings to the JSON file
+        if write_to_file_json(SETTINGS_PATH, settings_data):
+            app.logger.info("Successfully wrote settings to file.")
+        else:
+            app.logger.error("Failed to write settings to file.")
+        
+        # Update Flask's app.config with the new settings
+        for key, value in settings_data.items():
+            app.config[key.upper()] = True if value["Value"] == "True" else False
+            
+        flash('Settings have been updated!', 'success')
+    
+    return render_template('settings.html', settings=settings_data)
 
 #  --------------------Routes for Content Processing --------------------
 
@@ -341,7 +374,7 @@ def pick_course():
        courses=courses, 
        name=session.get('name'),
        type = type,
-       showAllCoursesAvailable = showAllCoursesAvailable 
+       showAllCoursesAvailable = app.config["SHOWALLCOURSESAVAILABLE"] 
        )
 
 

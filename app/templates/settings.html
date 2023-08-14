@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 class="center-align">All Day TA - Settings</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flashes">
+                {% for message in messages %}
+                    <div class="alert alert-warning" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+        
+    <form action="/settings" method="POST">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        {% for setting, details in settings.items() %}
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="True" id="{{ setting }}" name="{{ setting }}" {% if details['Value'] == 'True' %} checked {% endif %}>
+            <label class="form-check-label" for="{{ setting }}">
+                {{ details['Description'] }}
+            </label>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+    
+    
+
+
+    {% include 'user_status.html' %}
+{% endblock %}
