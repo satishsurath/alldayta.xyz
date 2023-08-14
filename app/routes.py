@@ -200,12 +200,6 @@ def delete_item():
     return redirect(request.referrer)
 
 
-
-@app.route('/debug_toggle_activation/<course_name>/<file_name>', methods=['POST'])
-def debug_toggle_activation(course_name, file_name):
-    app.logger.info("Debug endpoint triggered!")
-    return jsonify(success=True, message="Debug endpoint!")
-
 @app.errorhandler(400)
 def bad_request_error(error):
     app.logger.error(f"Bad Request Error: {error}")
@@ -213,7 +207,7 @@ def bad_request_error(error):
 
 
 @app.route('/toggle_activation/<course_name>/<file_name>', methods=['POST'])
-#@login_required
+@login_required
 def toggle_activation(course_name, file_name):
     app.logger.info(f"Raw request values: {request.values}")
     app.logger.info(f"Entered toggle_activation for course {course_name} and file {file_name}")    
@@ -344,26 +338,21 @@ def upload_file():
 @login_required
 def settings():
     settings_data = read_from_file_json(SETTINGS_PATH) or {}
-    
     if request.method == 'POST':
         for setting, details in settings_data.items():
             # Check if setting was submitted in the form and set to "True" if it was, otherwise "False"
             settings_data[setting]["Value"] = "True" if request.form.get(setting) else "False"
             app.logger.info(f"Setting value for {setting}: {settings_data[setting]['Value']}")
-
         # Save the updated settings to the JSON file
         if write_to_file_json(SETTINGS_PATH, settings_data):
             app.logger.info("Successfully wrote settings to file.")
         else:
-            app.logger.error("Failed to write settings to file.")
-        
+            app.logger.error("Failed to write settings to file.")  
         # Update Flask's app.config with the new settings
         for key, value in settings_data.items():
             app.config[key.upper()] = True if value["Value"] == "True" else False
-            
-        flash('Settings have been updated!', 'success')
-    
-    return render_template('settings.html', settings=settings_data)
+        flash('Settings have been updated!', 'success') 
+    return render_template('settings.html', settings=settings_data, name=session.get('name'))
 
 #  --------------------Routes for Content Processing --------------------
 
