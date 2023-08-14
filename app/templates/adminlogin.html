@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
         <h1>Login</h1>
+        <br>
         <p class="left-align">
           <form method='POST' >
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            Admin Username: <input type='text' name='username' class='form-control'></input>  
-            Admin Password: <input type='password' name='pw' class='form-control'></input> 
+            Faculty Username: <input type='text' name='username' class='form-control'></input>  
+            Faculty Password: <input type='password' name='pw' class='form-control'></input> 
              <input type='submit' name='submit'></input>
           </form>
         </p>
-        {% include 'user_status.html' %}
 {% endblock %}
