@@ -6,6 +6,7 @@ import hashlib
 import time
 import threading
 import csv
+import json
 
 
 from csv import reader
@@ -41,7 +42,9 @@ from app.file_operations import (
     delete_file,
     get_first_txt_file,
     get_file_path,
-    delete_files_in_folder
+    delete_files_in_folder,
+    get_content_files,
+    check_and_update_activations_file
 )
 
 from pdfminer.high_level import extract_text
@@ -196,6 +199,50 @@ def delete_item():
         delete_folder(path) 
     return redirect(request.referrer)
 
+
+
+@app.route('/debug_toggle_activation/<course_name>/<file_name>', methods=['POST'])
+def debug_toggle_activation(course_name, file_name):
+    app.logger.info("Debug endpoint triggered!")
+    return jsonify(success=True, message="Debug endpoint!")
+
+@app.errorhandler(400)
+def bad_request_error(error):
+    app.logger.error(f"Bad Request Error: {error}")
+    return jsonify(success=False, error="Bad Request"), 400
+
+
+@app.route('/toggle_activation/<course_name>/<file_name>', methods=['POST'])
+#@login_required
+def toggle_activation(course_name, file_name):
+    app.logger.info(f"Raw request values: {request.values}")
+    app.logger.info(f"Entered toggle_activation for course {course_name} and file {file_name}")    
+    try:
+        app.logger.info("Starting toggle_activation logic...")
+        app.logger.info(f"Entering toggle_activation with course_name: {course_name}, file_name: {file_name}")
+
+        folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
+        activations_path = os.path.join(folder_path, app.config['ACTIVATIONS_FILE'])
+        if os.path.exists(activations_path):
+            with open(activations_path, 'r') as f:
+                activations = json.load(f)
+            
+            activations[file_name] = not activations.get(file_name, False)
+            
+            with open(activations_path, 'w') as f:
+                json.dump(activations, f)
+                
+            app.logger.info(f"Updated activations for {file_name}. New status: {activations[file_name]}")
+
+            return jsonify(success=True, status=activations[file_name])
+        else:
+            app.logger.warning(f"Activation file not found for course: {course_name}")
+            return jsonify(success=False, error="Activation file not found!")
+    except Exception as e:
+        app.logger.error(f"Exception in toggle_activation: {str(e)}", exc_info=True)
+        return jsonify(success=False, error=str(e))
+
+
 @app.route('/course-contents/<course_name>', methods=['GET', 'POST'])
 @login_required
 def course_contents(course_name):
@@ -205,26 +252,21 @@ def course_contents(course_name):
        save_pdf_and_extract_text(form, course_name)
     # Part 2: Load Course Content: 
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
-    #part 3: check for
-    #print(folder_path)
-    file_info = detect_final_data_files(folder_path)
-    #print(file_info)
-    #hiding other folders and hidden files
-    if os.path.exists(folder_path):
-        #contents = [f for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f)) and not f.startswith('.')]
-        contents = [f for f in os.listdir(folder_path) 
-            if os.path.isfile(os.path.join(folder_path, f)) 
-            and not f.startswith('.') 
-            and f != 'Textchunks.npy' 
-            and f != 'Textchunks-originaltext.csv']
-    else:
-        contents = []
+    contents = get_content_files(folder_path)
+    file_info = detect_final_data_files(folder_path) # for 'textchunks.npy' and 'textchunks-originaltext.csv' if they exist
+    activations = check_and_update_activations_file(folder_path)
     contents_info = check_processed_files(contents, folder_path)
+    for info in contents_info:
+        filename = info[0]
+        info.append(activations.get(filename, False))
+
     if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
     else:
        syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
+    # When checking and updating activations
+    
     return render_template(
        'course_contents.html', 
        course_name=course_name,
@@ -264,18 +306,6 @@ def preview_chunks(course_name):
             print(f"Error reading {csv_file}: {e}")  # Print any errors encountered
     #print(f"CSV files: {csv_files}\nSecond entries: {second_entries}")
     return render_template('preview_chunks.html', course_name=course_name, zip=zip, csv_files=csv_files, second_entries=second_entries, name=session.get('name'))
-
-
-@app.route('/toggle_activation', methods=['POST'])
-def toggle_activation():
-    filename = request.form.get('filename')
-    course_name = request.form.get('course_name')
-    status = request.form.get('status') == 'true'
-
-    # TODO: Update the status in your JSON file
-
-    return jsonify({'success': True})
-
 
 
 @app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])

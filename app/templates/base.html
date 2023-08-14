@@ -18,6 +18,7 @@
       <meta name="theme-color" content="#ffffff">
       <meta name="description" content="All-Day-TA - Virtual Teaching Assistant">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta name="csrf-token" content="{{ csrf_token() }}">
       <link rel="stylesheet" type="text/css" href="/static/style.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Cabin&display=swap">
       <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
@@ -207,6 +208,48 @@ function applyTheme() {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     setTheme(savedTheme);
 }
+
+
+
+
+function toggleActivation(fileName, courseName) {
+    let csrfToken = $('meta[name="csrf-token"]').attr('content');
+    
+    console.log(`Attempting to toggle activation for course: ${courseName}, file: ${fileName}`);
+    
+    let encodedCourseName = encodeURIComponent(courseName);
+    let encodedFileName = encodeURIComponent(fileName);
+    let link = $("#activation-" + fileName);
+
+    console.log(`Encoding completed ${encodedCourseName}, file: ${encodedFileName}`);
+
+    $.ajax({
+        url: "/toggle_activation/" + encodedCourseName + "/" + encodedFileName,
+        type: 'POST',
+        headers: {
+            "X-CSRFToken": csrfToken
+        },
+        success: function(data) {
+            if (data.success) {
+                if (data.status) {
+                    console.log(`Received data.status: ${data.status}`);  
+                    console.log(`Successfully toggled activation for file: ${fileName}. New status: ${data.status}`);
+                    link.text(data.status ? "Activate" : "Deactivate");  
+                } else {
+                    console.error(`Failed to toggle activation for file: ${fileName}. Error: ${data.error}`);
+                }
+            } else {
+                console.error("Error while toggling activation: " + data.error);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error(`AJAX request failed with status: ${status}, error: ${error}`);
+        }
+    });
+}
+
+
+
     </script>
     </head>
     <body> 

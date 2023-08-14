@@ -165,4 +165,51 @@ def delete_files_in_folder(folder_path):
     except Exception as e:
         print(f'Failed to delete: Reason: {e}')
 
+
+
+def get_content_files(folder_path):
+    """Get a list of content files from the given folder, excluding specific and hidden files."""
+    return [
+        f for f in os.listdir(folder_path) 
+        if os.path.isfile(os.path.join(folder_path, f)) 
+        and not f.startswith('.')
+        and f != 'Textchunks.npy' 
+        and f != 'Textchunks-originaltext.csv'
+        and f != app.config['ACTIVATIONS_FILE']
+    ]
     
+def check_and_update_activations_file(folder_path):
+    """
+    Check and update the course activation status JSON file based on the current content in the specified folder.
+    
+    Parameters:
+    - folder_path (str): Path to the directory containing content files.
+    
+    Returns:
+    - dict: Updated activations with keys being content file names and values being their activation status (True/False).
+    
+    The function does the following:
+    1. Retrieves the list of content files present in the directory, ignoring specific and hidden files.
+    2. Loads the existing activations from the ACTIVATIONS_FILE if it exists, otherwise initializes an empty dictionary.
+    3. Updates the activations based on the current content, setting the status to False for any new content.
+    4. Saves the updated activations back to the ACTIVATIONS_FILE.
+    """
+    contents = get_content_files(folder_path)
+    # Load existing activations if they exist
+    activations_path = os.path.join(folder_path, app.config['ACTIVATIONS_FILE'])
+    if os.path.exists(activations_path):
+        with open(activations_path, 'r') as f:
+            activations = json.load(f)
+    else:
+        activations = {}
+
+    # Update activations based on existing content
+    for content in contents:
+        if content not in activations:
+            activations[content] = False
+
+    # Save updated activations
+    with open(activations_path, 'w') as f:
+        json.dump(activations, f)
+
+    return activations

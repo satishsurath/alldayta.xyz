@@ -20,6 +20,7 @@ class Config(object):
     FOLDER_PROCESSED_CONTENT = 'app/content'
     FOLDER_PROCESSED_SYLLABUS = 'app/syllabus'
     FOLDER_SETTINGS = 'app/settings'
+    ACTIVATIONS_FILE = 'CourseContentActivations.JSON' #file name used to store the activation status of course contents
     
     
     # Configure session options
