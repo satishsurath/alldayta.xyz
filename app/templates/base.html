@@ -264,11 +264,12 @@ function toggleActivation(fileName, courseName) {
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="nav-links"><a href="{{ url_for('course_management') }}">Course Management</a></li> 
-                <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
                 <li class="nav-links"> <a href="{{ url_for('settings') }}">Settings</a></li> 
+                <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
+                
                 {% else %}
                 
-                <li class="nav-links"> <a href="{{ url_for('adminlogin') }}" alt="AllDayTA - Login" aria-label="AllDayTA - Login">Login (Professors)</a></li> 
+                <li class="nav-links"> <a href="{{ url_for('adminlogin') }}" alt="AllDayTA - Login" aria-label="AllDayTA - Login">Login (Faculty)</a></li> 
                 {% endif %}
                 <li class="nav-links">
               <div class="toggle-container">
