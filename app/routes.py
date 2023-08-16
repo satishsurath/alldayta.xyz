@@ -44,7 +44,8 @@ from app.file_operations import (
     get_file_path,
     delete_files_in_folder,
     get_content_files,
-    check_and_update_activations_file
+    check_and_update_activations_file,
+    read_csv_preview
 )
 
 from pdfminer.high_level import extract_text
@@ -301,6 +302,17 @@ def preview_chunks(course_name):
     #print(f"CSV files: {csv_files}\nSecond entries: {second_entries}")
     return render_template('preview_chunks.html', course_name=course_name, zip=zip, csv_files=csv_files, second_entries=second_entries, name=session.get('name'))
 
+
+
+@app.route('/preview-chunks-js/<course_name>/<content_name>', methods=['GET'])
+@login_required
+def preview_chunks_js(course_name, content_name):
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, 'Textchunks')
+    file_path = os.path.join(folder_path, content_name)
+    # Assuming we are reading a CSV with preview content
+    preview_data = read_csv_preview(file_path)  # This function should be implemented to read the CSV preview data
+    
+    return jsonify({'preview_content': preview_data})
 
 @app.route('/course-syllabus/<course_name>', methods=['GET', 'POST'])
 @login_required

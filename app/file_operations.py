@@ -4,7 +4,7 @@ import hashlib
 import shutil
 import logging
 from app import app
-
+from csv import reader
 
 
 SETTINGS_PATH = os.path.join(app.config['FOLDER_SETTINGS'], 'platform-settings.json')
@@ -213,3 +213,23 @@ def check_and_update_activations_file(folder_path):
         json.dump(activations, f)
 
     return activations
+
+
+
+
+def read_csv_preview(file_path):
+    try:
+        with open(file_path, 'r') as f:
+            csv_reader = reader(f)
+            next(csv_reader, None)  # Skip the header
+            second_row = next(csv_reader, None)  # Get the second row
+            
+            if second_row and len(second_row) > 1:  # Ensure there's a second element
+                return second_row[1]  # Get the second element and return it
+            
+            else:
+                return "No preview data available"  # Return a message if there's no preview data
+            
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")  # Print any errors encountered
+        return "Error reading preview data"  # Return a message if an error was encountered

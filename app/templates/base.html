@@ -166,50 +166,67 @@
     color: #FFF;
   }
 
+
+
+  .tooltip {
+    position: absolute;
+    border: 1px solid var(--text-color);
+    background-color: var(--button-bg-color);
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
     </style>
-    <script>
-function setTheme(theme) {
-    const root = document.documentElement;
-    const body = document.body;
-    if (theme === 'dark') {
-        body.classList.add('dark-mode');
-        root.style.setProperty('--bg-color', '#10141d');
-        root.style.setProperty('--text-color', '#edf1fb');
-        root.style.setProperty('--input-bg-color', '#444');
-        root.style.setProperty('--input-text-color', '#edf1fb');
-        root.style.setProperty('--button-bg-color', '#444');
-        root.style.setProperty('--button-text-color', '#edf1fb');
-    } else {
-        body.classList.remove('dark-mode');
-        root.style.setProperty('--bg-color', '#f2f3f7');
-        root.style.setProperty('--text-color', '#10141d');
-        root.style.setProperty('--input-bg-color', '#f2f3f7');
-        root.style.setProperty('--input-text-color', '#10141d');
-        root.style.setProperty('--button-bg-color', '#f2f3f7');
-        root.style.setProperty('--button-text-color', '#10141d');
-    }
-    localStorage.setItem('theme', theme);
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    applyTheme();
+<script>
+  function setTheme(theme) {
+      const root = document.documentElement;
+      const body = document.body;
+      if (theme === 'dark') {
+          body.classList.add('dark-mode');
+          root.style.setProperty('--bg-color', '#10141d');
+          root.style.setProperty('--text-color', '#edf1fb');
+          root.style.setProperty('--input-bg-color', '#444');
+          root.style.setProperty('--input-text-color', '#edf1fb');
+          root.style.setProperty('--button-bg-color', '#444');
+          root.style.setProperty('--button-text-color', '#edf1fb');
+      } else {
+          body.classList.remove('dark-mode');
+          root.style.setProperty('--bg-color', '#f2f3f7');
+          root.style.setProperty('--text-color', '#10141d');
+          root.style.setProperty('--input-bg-color', '#f2f3f7');
+          root.style.setProperty('--input-text-color', '#10141d');
+          root.style.setProperty('--button-bg-color', '#f2f3f7');
+          root.style.setProperty('--button-text-color', '#10141d');
+      }
+      localStorage.setItem('theme', theme);
+  }
+  
+  document.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+  
+      const toggleSwitch = document.getElementById('toggle-theme');
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      toggleSwitch.checked = savedTheme === 'dark';
+  
+      toggleSwitch.addEventListener('change', () => {
+          const newTheme = toggleSwitch.checked ? 'dark' : 'light';
+          setTheme(newTheme);
+      });
+  });
+  
+  function applyTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      setTheme(savedTheme);
+  }
+</script>
 
-    const toggleSwitch = document.getElementById('toggle-theme');
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    toggleSwitch.checked = savedTheme === 'dark';
 
-    toggleSwitch.addEventListener('change', () => {
-        const newTheme = toggleSwitch.checked ? 'dark' : 'light';
-        setTheme(newTheme);
-    });
-});
+{% if current_user.is_authenticated %}
+    
 
-function applyTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    setTheme(savedTheme);
-}
-
-
+<script>
 
 
 function toggleActivation(fileName, courseName) {
@@ -248,9 +265,56 @@ function toggleActivation(fileName, courseName) {
     });
 }
 
+function showPreview(courseName, contentName, event) {
+    // Get the CSRF token from the meta tag
+    let csrfToken = $('meta[name="csrf-token"]').attr('content');
+    
+    // Encode the courseName
+    let encodedCourseName = encodeURIComponent(courseName);
+    
+    // Remove the current file extension from contentName and append .csv
+    let fileNameWithoutExtension = contentName.replace(/\.[^/.]+$/, "");
+    let newContentName = fileNameWithoutExtension + "-originaltext.csv";
+    
+    // Encode the new contentName with .csv extension
+    let encodedContentName = encodeURIComponent(newContentName);
+    
+    console.log(`Requesting preview for course: ${courseName}, content: ${newContentName}`);
+    
+    // AJAX Request to get the course preview
+    $.ajax({
+        url: `/preview-chunks-js/${encodedCourseName}/${encodedContentName}`,
+        type: 'GET',
+        headers: {
+            "X-CSRFToken": csrfToken
+        },
+        success: function(data) {
+            // Create tooltip HTML
+            let tooltipHtml = `<div class="tooltip">${data.preview_content}</div>`;
+            // Append tooltip HTML to the body
+            $('body').append(tooltipHtml);
+            // Set tooltip position based on the mouse event
+            $('.tooltip').css({
+                top: event.pageY + 10 + 'px',
+                left: event.pageX + 10 + 'px'
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error(`AJAX request failed with status: ${status}, error: ${error}`);
+        }
+    });
+}
+
+function hidePreview() {
+    // Remove tooltip HTML from the body
+    $('.tooltip').remove();
+}
+
 
 
     </script>
+{% endif %}
+
     </head>
     <body> 
       <div class="container">
