@@ -743,3 +743,102 @@ def load_df_chunks(dataname):
     else:
         print("Database already loaded")
     return df_chunks
+
+
+# #-------------------
+
+
+  
+
+# load_lock = threading.Lock()  
+  
+# # Function to handle syllabus question  
+# def handle_syllabus_question(request_form, classname, professor, assistants, classdescription):  
+#     # Similar to the original function code...  
+#     send_to_gpt = []  
+#     send_to_gpt.append({"role": "user",  
+#                         "content": f"This question is from a student in an {classname} taught by {professor} with the help of {assistants}.  The class is {classdescription}  I want to know whether this question is likely about the logistical details, schedule, nature, teachers, assignments, or syllabus of the course?  Answer Yes or No and nothing else: {request_form['content1']}"})  
+#     response = openai.ChatCompletion.create(  
+#         model="gpt-3.5-turbo",  
+#         max_tokens=1,  
+#         temperature=0.0,  
+#         messages=send_to_gpt  
+#     )  
+#     return response  
+  
+# # Function to handle multiple-choice question and answer  
+# def handle_multiple_choice(request_form, classname):  
+#     # Similar to the original function code...  
+#     if request_form['content1'].startswith('a:'):  
+#         most_similar = grab_last_response()  
+#     else:  
+#         embedthequery = openai.Embedding.create(  
+#             model="text-embedding-ada-002",  
+#             input=request_form['content1']  
+#         )  
+#         query_embed = embedthequery["data"][0]["embedding"]  
+#         df_chunks['similarity'] = np.dot(embedding, query_embed)  
+#         df_chunks = df_chunks.sort_values(by='similarity', ascending=False)  
+#         most_similar_df = df_chunks.head(num_chunks)  
+#         most_similar = '\n\n'.join(row[1] for row in most_similar_df.values)  
+#     return most_similar  
+  
+# # Function to handle user's query on course data  
+# def handle_user_query(request_form, classname, classdescription, most_similar):  
+#     # Similar to the original function code...  
+#     instructions = "You are a very truthful, precise TA in a " + classname + ", a " + classdescription + ".  You think step by step. A strong graduate student is asking you questions.  The answer to their query may appear in the attached book chapters, handouts, transcripts, and articles.  If it does, in no more than three paragraphs answer the user's question; you may answer in longer form with more depth if you need it to fully construct a requested numerical example.  Do not restate the question, do not refer to the context where you learned the answer, do not say you are an AI; just answer the question.  Say 'I don't know' if you can't find the answer to the original question in the text below; be very careful to match the terminology and definitions, implicit or explicit, used in the attached context. You may try to derive more creative examples ONLY if the user asks for a numerical example of some type when you can construct it precisely using the terminology found in the attached context with high certainty, or when you are asked for an empirical example or an application of an idea to a new context, and you can construct one using the exact terminology and definitions in the text; remember, you are a precise TA who wants the student to understand but also wants to make sure you do not contradict the readings and lectures the student has been given in class. Please answer in the language of the student's question."  
+#     send_to_gpt = []  
+#     send_to_gpt.append({"role":"system","content":instructions + most_similar})  
+#     send_to_gpt.append({"role":"user","content":request_form['content1']})  
+#     response=openai.ChatCompletion.create(  
+#         model="gpt-3.5-turbo",  
+#         messages=send_to_gpt  
+#     )  
+#     return response  
+  
+# @app.route('/teaching-assistant', methods=['GET', 'POST'])  
+# def teaching_assistant():  
+#     global df_chunks, embedding  
+#     course_name = request.args.get('course_name', None)       
+#     course_folder = os.path.join(app.config['FOLDER_UPLOAD'], course_name)  
+#     dataname = os.path.join(course_folder,"Textchunks")  
+#     classname = course_name  
+#     professor = "Placeholder"  
+#     assistants = "Placeholder"  
+#     classdescription = "Placeholder"  
+#     assistant_name = "Placeholder"  
+#     instruct = 'I am an experimental virtual TA for your course in entrepreneurship.  I have been trained with all of your readings, course materials, lecture content, and slides. I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice.  If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'  
+#     num_chunks = 8  
+  
+#     if request.method == 'POST':  
+#         with load_lock:  
+#             # Load the text and its embeddings  
+#             print("ok, starting")  
+#             start_time = time.time()  # record the start time  
+#             df_chunks = load_df_chunks(dataname) # get df_chunks from the global  
+#             elapsed_time = time.time() - start_time  # calculate the elapsed time  
+#             print(f"Data loaded. Time taken: {elapsed_time:.2f} seconds")  
+  
+#             syllabus_response = handle_syllabus_question(request.form, classname, professor, assistants, classdescription)  
+#             multiple_choice_response = handle_multiple_choice(request.form, classname)  
+#             user_query_response = handle_user_query(request.form, classname, classdescription, multiple_choice_response)  
+  
+#             # Combine the responses and return to user  
+#             return user_query_response + syllabus_response + multiple_choice_response  
+#     else:  
+#         # Start background thread to load data  
+#         thread = threading.Thread(target=background_loading, args=(dataname,))  
+#         thread.start()  
+          
+#         if courses_with_final_data(app.config['FOLDER_UPLOAD']):  
+#             courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])  
+#         else:  
+#             syllabus = None  
+#         # We have now processed PDF Uploads, Syllabus Loading, Course Content Loading.  
+#         return render_template(  
+#             'ta.html',   
+#             courses=courses,   
+#             name=session.get('name'),  
+#             course_name = course_name,  
+#             instruct = 'I am an experimental virtual TA for your course in <i>' + course_name + '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides. <br>I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. <br>The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice. <br> If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'  
+#         )  
