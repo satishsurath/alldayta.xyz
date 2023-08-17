@@ -24,7 +24,8 @@ from app.routes_helper import (
     save_pdf_and_extract_text, 
     check_processed_files,
     detect_final_data_files,
-    courses_with_final_data
+    courses_with_final_data, # Checks all (courses) sub-folders returns a list that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
+    retry_with_exponential_backoff # Define a retry decorator with exponential backoff
 )
 from app.chop_documents import chunk_documents_given_course_name
 from app.embed_documents import embed_documents_given_course_name
@@ -408,7 +409,8 @@ def pick_course():
        showAllCoursesAvailable = app.config["SHOWALLCOURSESAVAILABLE"] 
        )
 
-
+# Apply the retry decorator to the original function
+#@retry_with_exponential_backoff
 @app.route('/teaching-assistant', methods=['GET', 'POST'])
 def teaching_assistant():
     global df_chunks, embedding

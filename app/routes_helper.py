@@ -1,5 +1,8 @@
 import hashlib
 import os
+import time
+import openai
+import random
 from pdfminer.high_level import extract_text
 from io import BytesIO
 from app.forms import UploadSyllabus
@@ -93,3 +96,20 @@ def courses_with_final_data(parent_folder):
         if file_info['Textchunks.npy']['present'] and file_info['Textchunks-originaltext.csv']['present']:
             courses.append(course_name)
     return courses
+
+# Define a retry decorator with exponential backoff
+def retry_with_exponential_backoff(func):
+    def wrapper(*args, **kwargs):
+        max_retries = 5
+        retry_delay = 1  # Initial delay in seconds
+        for _ in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except openai.error.RateLimitError as e:
+                print("Rate limit exceeded. Retrying after delay...")
+                time.sleep(retry_delay)
+                # Increase the delay for the next retry with some random jitter
+                retry_delay *= 2 * random.uniform(0.8, 1.2)
+        # If max_retries exceeded, raise an exception
+        raise Exception("API rate limit exceeded even after retries.")
+    return wrapper

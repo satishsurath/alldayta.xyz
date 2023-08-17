@@ -14,6 +14,9 @@ import numpy as np
 import json
 import openai
 import io
+from app.routes_helper import (
+    retry_with_exponential_backoff # Define a retry decorator with exponential backoff
+)
 
 embeddingmodel = "text-embedding-ada-002"
 
@@ -35,7 +38,6 @@ def embed_input_text(input_text_batch):
         input=input_text_batch
     )
     return embeddings["data"]
-
 def embed_documents_given_course_name(course_name):
     
     # Define the maximum number of tokens per batch to send to OpenAI for embedding per minute
@@ -51,8 +53,8 @@ def embed_documents_given_course_name(course_name):
 
 
     openai.api_key = os.getenv("OPENAI_API_KEY")
-        
-
+    embeddings = []
+    input_text_batch = []
 
     # Load text data from Textchunks
     folder = os.path.join(course_name,"Textchunks")
@@ -67,8 +69,6 @@ def embed_documents_given_course_name(course_name):
             print("Embedding " + str(num_tokens) + " tokens")
             if num_tokens > MAX_TOKENS_PER_BATCH:
                 # If there are more than MAX_TOKENS_PER_BATCH tokens, split the input text into batches and send each batch in a separate request
-                embeddings = []
-                input_text_batch = []
                 for text in input_text_list:
                     if sum(len(batch_text.split()) for batch_text in input_text_batch) + len(text.split()) > MAX_TOKENS_PER_BATCH:
                         # If the current batch would exceed MAX_TOKENS_PER_BATCH tokens, send the current batch and start a new batch
@@ -95,3 +95,34 @@ def embed_documents_given_course_name(course_name):
             npy_filename = f"{filename_without_extension}.npy"
             output_path = os.path.join(output_folder, npy_filename)
             np.save(output_path, embeddings_array)
+    
+    filedirectory = course_name
+    output_folder = os.path.join(course_name,"EmbeddedText")
+    
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+        
+    folder = os.path.join(course_name,"Textchunks")
+    for file in os.listdir(folder):
+        if file.endswith(".csv"):
+            file_path = os.path.join(folder, file)
+            df_chunks = pd.read_csv(file_path, encoding='utf-8', escapechar='\\')
+            print(f"Loaded: {file_path}")
+            
+            input_text_list = df_chunks.iloc[:, 1].tolist()
+
+            # Define a retry decorator with exponential backoff
+            @retry_with_exponential_backoff
+            def get_embeddings(input_text_list):
+                return embed_input_text(input_text_list)
+
+            embeddings = get_embeddings(input_text_list)
+
+            embeddings_array = np.vstack([np.array(e['embedding']) for e in embeddings])
+            filename_without_extension = os.path.splitext(file)[0]
+            npy_filename = f"{filename_without_extension}.npy"
+            output_path = os.path.join(output_folder, npy_filename)
+            np.save(output_path, embeddings_array)
+            print(f"Saved embeddings to {output_path}")
