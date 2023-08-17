@@ -1,46 +1,61 @@
 import os
+import json
 import pandas as pd
 import numpy as np
+from flask import flash
 
 def create_final_data_given_course_name(course_name):
-    csv_folder = os.path.join(course_name,"Textchunks")
-    npy_folder = os.path.join(course_name,"EmbeddedText")
+    # Path to the activations file
+    activations_file = os.path.join(course_name, "CourseContentActivations.JSON")
+    csv_folder = os.path.join(course_name, "Textchunks")
+    npy_folder = os.path.join(course_name, "EmbeddedText")
+        
+    # Check if activations file exists
+    if not os.path.exists(activations_file):
+        # Flash message to activate content
+        flash("Please Activate the content via the Course Content Page.", "warning")
+        return
 
+    # Load activations statuses from the JSON file
+    with open(activations_file, "r") as f:
+        activations_data = json.load(f)
+    # Convert keys from format 'filename.docx' to 'filename' by stripping the file extension
+    activations = {key.split('.')[0]: value for key, value in activations_data.items()}
+
+    # Check if all files are deactivated
+    if not any(activations.values()):
+        # Flash message to activate content
+        flash("All content files are deactivated. Please Activate the content via the Course Content Page.", "warning")
+        return
     # Get the sorted list of CSV and .npy files
     csv_files = sorted([f for f in os.listdir(csv_folder) if f.endswith('.csv')])
     npy_files = sorted([f for f in os.listdir(npy_folder) if f.endswith('.npy')])
-
+        
     # Initialize empty DataFrame and NumPy array for concatenation
     concatenated_csv = pd.DataFrame()
     concatenated_npy = None
 
-
     for csv_file, npy_file in zip(csv_files, npy_files):
-        print(npy_file)
-        # Read the CSV file and concatenate
-        csv_path = os.path.join(csv_folder, csv_file)
-        csv_data = pd.read_csv(csv_path, encoding='utf-8', escapechar='\\')
-        concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
+        file_basename = csv_file.replace('-originaltext.csv', '')
         
-        # Print the shape of csv_data
-        #print(f"Shape of csv_data for {csv_file}: {csv_data.shape}")
-
-        npy_path = os.path.join(npy_folder, npy_file)
-        npy_data = np.load(npy_path)
-        if concatenated_npy is None:
-            concatenated_npy = npy_data
-        else:
-            concatenated_npy = np.concatenate([concatenated_npy, npy_data], axis=0)
-        
-        # Print the shape of npy_data
-        #print(f"Shape of npy_data for {npy_file}: {npy_data.shape}")
-
-
+        # Check if the file is activated
+        if activations.get(file_basename, False):
+            # Read the CSV file and concatenate
+            csv_path = os.path.join(csv_folder, csv_file)
+            csv_data = pd.read_csv(csv_path, encoding='utf-8', escapechar='\\')
+            concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
+            
+            npy_path = os.path.join(npy_folder, npy_file)
+            npy_data = np.load(npy_path)
+            if concatenated_npy is None:
+                concatenated_npy = npy_data
+            else:
+                concatenated_npy = np.concatenate([concatenated_npy, npy_data], axis=0)
+    
     # Save the concatenated data to the base folder
     concatenated_csv.to_csv(os.path.join(course_name, "Textchunks-originaltext.csv"), encoding='utf-8', escapechar='\\', index=False)
     np.save(os.path.join(course_name, "Textchunks.npy"), concatenated_npy)
+    
     print("Files saved: Textchunks-originaltext.csv and Textchunks.npy")
-    # Print the dimensions of the concatenated files
     print(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape}")
     print(f"Textchunks.npy dimensions: {concatenated_npy.shape}")
-
