@@ -222,3 +222,21 @@ input[type="submit"]:hover {
     right: 0;
     z-index: 100;
   }
+
+
+  th {
+    border-right: 1px solid black;
+}
+
+th:last-child {
+    border-right: none;
+}
+
+.tooltip {
+  position: absolute;
+  border: 1px solid var(--text-color);
+  background-color: var(--button-bg-color);
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 1000;
+}
