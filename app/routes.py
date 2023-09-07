@@ -68,9 +68,18 @@ custom_settings = read_from_file_json(SETTINGS_PATH)
 for key, value in custom_settings.items():
     app.config[key.upper()] = True if value["Value"] == "True" else False
 
+
+#Flask function to escape special characters:
+def escape_id(id_str):
+    return id_str.replace(".", "\.").replace(":", "\:")
+
+app.jinja_env.globals.update(escape_id=escape_id)
+
 # -------------------- Flask app configurations --------------------
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+
+
 
 
 # -------------------- Basic Admin Authentication --------------------
