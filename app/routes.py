@@ -28,7 +28,8 @@ from app.routes_helper import (
     retry_with_exponential_backoff # Define a retry decorator with exponential backoff
 )
 from app.chop_documents import chunk_documents_given_course_name
-from app.embed_documents import embed_documents_given_course_name
+#from app.embed_documents import embed_documents_given_course_name
+from app.embed_documents_v2 import embed_documents_given_course_name
 from app.create_final_data import create_final_data_given_course_name
 from app.file_operations import (
     read_from_file_json,

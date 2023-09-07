@@ -33,11 +33,18 @@ def read_settings(file_name):
 
 # Define the function to send a batch of input text to the OpenAI API and return the embeddings
 def embed_input_text(input_text_batch):
-    embeddings = openai.Embedding.create(
-        model=embeddingmodel,
-        input=input_text_batch
-    )
+
+    try:
+        
+        embeddings = openai.Embedding.create(
+            model=embeddingmodel,
+            input=input_text_batch
+        )
+    except openai.error.InvalidRequestError as e:
+        print(f"Error with input: {input_text_batch}")
+        raise e
     return embeddings["data"]
+
 def embed_documents_given_course_name(course_name):
     
     # Define the maximum number of tokens per batch to send to OpenAI for embedding per minute
@@ -72,6 +79,9 @@ def embed_documents_given_course_name(course_name):
                 for text in input_text_list:
                     if sum(len(batch_text.split()) for batch_text in input_text_batch) + len(text.split()) > MAX_TOKENS_PER_BATCH:
                         # If the current batch would exceed MAX_TOKENS_PER_BATCH tokens, send the current batch and start a new batch
+                        if not input_text_batch:
+                            print("Error: input_text_batch is empty")
+                        continue
                         embeddings_batch = embed_input_text(input_text_batch)
                         embeddings.extend(embeddings_batch)
                         input_text_batch = []
@@ -114,7 +124,7 @@ def embed_documents_given_course_name(course_name):
             input_text_list = df_chunks.iloc[:, 1].tolist()
 
             # Define a retry decorator with exponential backoff
-            @retry_with_exponential_backoff
+            #@retry_with_exponential_backoff
             def get_embeddings(input_text_list):
                 return embed_input_text(input_text_list)
 
