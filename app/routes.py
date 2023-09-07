@@ -110,7 +110,7 @@ def request_loader(request):
 @app.route('/')
 @app.route('/index')
 def index():
-  #return redirect(url_for('adminlogin'))
+  return redirect(url_for('adminlogin'))
   #return render_template('index.html')
   print(app.config["SHOWALLCOURSESAVAILABLE"])
   return render_template('index.html', name=session.get('name'), showAllCoursesAvailable=app.config["SHOWALLCOURSESAVAILABLE"])
