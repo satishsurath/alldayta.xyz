@@ -14,25 +14,55 @@
         <br>
         <br>
 
-        <h2 class="center-align"> Step 1: Manage Course Syllabus</h2>
-        <br>
-
         {% if syllabus %}
+        <details>
+          <summary class="course-content-heading">View Syllabus </summary>
+          
+          
+          <b>Course Syllabus: [Preview of 250 Characters]:</b>
+          <br><br>
+          {{ syllabus[:200].replace('<br>', '')|safe }}
+          <br><br>
+          <p><a href="{{ url_for('course_syllabus', course_name=course_name) }}" target="_blank">Full Course Syllabus Preview <svg style="fill: var(--text-color); height:1.5rem; width:1.5rem;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M83.333,50v33.333H16.667V16.667H50V10H16.667C13.001,10,10,13,10,16.667v66.667C10,86.999,13.001,90,16.667,90h66.666  C86.999,90,90,86.999,90,83.333V50H83.333z"/><path d="M90,36.667l-0.003-23.335C90,11.493,88.506,10,86.667,10H63.333v6.665h15.283L50,45.285L54.714,50l28.619-28.615v15.281H90z  "/></svg></a></p>
+          <br>
+        </details>
 
-        <b>Course Syllabus: [Preview of 250 Characters]:</b>
-        <br><br>
-        {{ syllabus[:200].replace('<br>', '')|safe }}
-        <br><br>
-        <p><a href="{{ url_for('course_syllabus', course_name=course_name) }}" target="_blank">Full Course Syllabus Preview <svg style="fill: var(--text-color); height:1.5rem; width:1.5rem;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M83.333,50v33.333H16.667V16.667H50V10H16.667C13.001,10,10,13,10,16.667v66.667C10,86.999,13.001,90,16.667,90h66.666  C86.999,90,90,86.999,90,83.333V50H83.333z"/><path d="M90,36.667l-0.003-23.335C90,11.493,88.506,10,86.667,10H63.333v6.665h15.283L50,45.285L54.714,50l28.619-28.615v15.281H90z  "/></svg></a></p>
-        <br>
+
+        <details>
+          <summary class="course-content-heading">Replace Syllabus </summary>
+          
+  
+          <form method="POST" enctype="multipart/form-data" novalidate>
+            {{ form.hidden_tag() }}
+            <p>
+                {{ form.csrf_token }}
+                {{ form.pdf.label }} 
+                
+                {{ form.pdf(class_='form-control',placeholder='Upload PDF...') }} 
+                <p> <br> </p>
+                {{ form.submit(id='submit_button') }} 
+                {% for error in form.pdf.errors %} 
+                <span style="color: red;">[{{ error }}]</span> 
+                {% endfor %} 
+                
+             </p>
+            <br>
+            <div class="alert alert-warning" role="alert"> Warning: Uploading the Course Syllabus will overwrite the existing Course Syllabus without any prompt.</div>
+            <div id="processing" class="processing"></div>
+  
+    
+        </form>
+
+        </details>
+
+
+
         {% else %}
-        <br>
-        <p>No Syllabus found.</p>
-        <br>
-        {% endif %}
-        
 
-        <form method="POST" enctype="multipart/form-data" novalidate>
+        <details>
+          <summary class="course-content-heading">Add Syllabus </summary>
+        
+          <form method="POST" enctype="multipart/form-data" novalidate>
             {{ form.hidden_tag() }}
             <p>
                 {{ form.csrf_token }}
@@ -45,309 +75,260 @@
                 
              </p>
             <br>
-            <div class="alert alert-warning" role="alert"> Warning: Uploading the Course Syllabus will overwrite the existing Course Syllabus without any prompt.</div>
             <div id="processing" class="processing"></div>
-
+  
     
         </form>
 
-        <br>
-        <br>        
-        <h2 class="center-align"> Step 2: Manage Course Content</h2>
-        <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <input type="hidden" name="course_name" value="{{ course_name }}">
-        </form>
+        </details>
+
+        {% endif %}
         
 
-        <br>
-        <br>
+        <details>
+          <summary class="course-content-heading">Add New Course Content </summary>
+          <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              <input type="hidden" name="course_name" value="{{ course_name }}">
+          </form>
+        </details>
+        
 
-        {% if contents_info %}
-        <table style="text-align: center;">
-            <thead>
-                <tr>
-                    <th>Content</th>
-                    <th>Chunking Status</th>
-                    <th>Embedding Status</th>
-                    <th>Activation Status</th>
-                    <th>Delete</th>
-                    <th>Rename</th>
+        <details>
+          <summary class="course-content-heading">Modify Course Content </summary>
+        
 
-                </tr>
-            </thead>
-            <tbody>
-                {% for content in contents_info %}
-                <tr>
+          {% if contents_info %}
+          <table style="text-align: center;">
+              <thead>
+                  <tr>
+                      <th>Content</th>
+                      <th>Chunking Status</th>
+                      <th>Embedding Status</th>
+                      <th>Activation Status</th>
+                      <th>Delete</th>
+                      <th>Rename</th>
+  
+                  </tr>
+              </thead>
+              <tbody>
+                  {% for content in contents_info %}
+                  <tr>
+
+                    {% if content[1]: %}
+                      <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
+                      onmouseout="hidePreview()">{{ content[0] }}</td>
+                    {% else %}
                     <td>{{ content[0] }}</td>
-                    <td>{% if content[1]: %}
-
-                        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg
-    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:cc="http://creativecommons.org/ns#"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-    xmlns:svg="http://www.w3.org/2000/svg"
-    xmlns:ns1="http://sozi.baierouge.fr"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    id="svg2"
-    sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
-    viewBox="0 0 588.67 677.63"
-    sodipodi:version="0.32"
-    version="1.0"
-    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-    inkscape:version="0.46dev+devel"
-    style="height:1.5rem; width:1.5rem;" 
-    onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
-    onmouseout="hidePreview()"> >
-
-  <sodipodi:namedview
-      id="base"
-      bordercolor="#666666"
-      inkscape:pageshadow="2"
-      guidetolerance="10.0"
-      pagecolor="#ffffff"
-      gridtolerance="10.0"
-      inkscape:zoom="0.41050506"
-      objecttolerance="10.0"
-      borderopacity="1.0"
-      inkscape:current-layer="svg2"
-      inkscape:cx="372.04724"
-      inkscape:cy="526.18109"
-      inkscape:window-y="87"
-      inkscape:window-x="66"
-      inkscape:window-height="643"
-      showgrid="false"
-      inkscape:pageopacity="0.0"
-      inkscape:window-width="640"
-  />
-  <g id="layer1"
-      transform="translate(-100.71 -203.07)">
-    <path
-        id="path3161"
-        style="opacity:.85987;fill:#44aa00"
-        d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
-  </g>
-
-</svg>
-
-{% else %}
-
-<?xml version="1.0"?>
-<svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
-  <defs id="defs2162">
-    <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
-      <stop id="stop3145" stop-color="#fff" offset="0"/>
-      <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
-    </radialGradient>
-    <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
-      <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
-      <stop id="stop3205" stop-color="#f00000" offset="1"/>
-    </radialGradient>
-  </defs>
-  <g id="layer1">
-    <g id="g2184" transform="translate(-59.5 -.5)">
-      <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
-      <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
-      <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
+                    {% endif %}
+                    
+                      <td>{% if content[1]: %}
+  
+                          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  <!-- Created with Inkscape (http://www.inkscape.org/) -->
+  <svg
+      xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:cc="http://creativecommons.org/ns#"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:ns1="http://sozi.baierouge.fr"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      id="svg2"
+      sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
+      viewBox="0 0 588.67 677.63"
+      sodipodi:version="0.32"
+      version="1.0"
+      inkscape:output_extension="org.inkscape.output.svg.inkscape"
+      inkscape:version="0.46dev+devel"
+      style="height:1.5rem; width:1.5rem;" 
+      onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
+      onmouseout="hidePreview()"> 
+  
+    <sodipodi:namedview
+        id="base"
+        bordercolor="#666666"
+        inkscape:pageshadow="2"
+        guidetolerance="10.0"
+        pagecolor="#ffffff"
+        gridtolerance="10.0"
+        inkscape:zoom="0.41050506"
+        objecttolerance="10.0"
+        borderopacity="1.0"
+        inkscape:current-layer="svg2"
+        inkscape:cx="372.04724"
+        inkscape:cy="526.18109"
+        inkscape:window-y="87"
+        inkscape:window-x="66"
+        inkscape:window-height="643"
+        showgrid="false"
+        inkscape:pageopacity="0.0"
+        inkscape:window-width="640"
+    />
+    <g id="layer1"
+        transform="translate(-100.71 -203.07)">
+      <path
+          id="path3161"
+          style="opacity:.85987;fill:#44aa00"
+          d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
     </g>
-  </g>
-</svg>
-{% endif %}
-
-
-                    </td>
-                    <td>{% if content[2]: %}
-
-                        <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
-<svg
-    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlns:cc="http://creativecommons.org/ns#"
-    xmlns:dc="http://purl.org/dc/elements/1.1/"
-    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-    xmlns:svg="http://www.w3.org/2000/svg"
-    xmlns:ns1="http://sozi.baierouge.fr"
-    xmlns:xlink="http://www.w3.org/1999/xlink"
-    id="svg2"
-    sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
-    viewBox="0 0 588.67 677.63"
-    sodipodi:version="0.32"
-    version="1.0"
-    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-    inkscape:version="0.46dev+devel"
-    style="height:1.5rem; width:1.5rem;"  >
-
-  <sodipodi:namedview
-      id="base"
-      bordercolor="#666666"
-      inkscape:pageshadow="2"
-      guidetolerance="10.0"
-      pagecolor="#ffffff"
-      gridtolerance="10.0"
-      inkscape:zoom="0.41050506"
-      objecttolerance="10.0"
-      borderopacity="1.0"
-      inkscape:current-layer="svg2"
-      inkscape:cx="372.04724"
-      inkscape:cy="526.18109"
-      inkscape:window-y="87"
-      inkscape:window-x="66"
-      inkscape:window-height="643"
-      showgrid="false"
-      inkscape:pageopacity="0.0"
-      inkscape:window-width="640"
-  />
-  <g id="layer1"
-      transform="translate(-100.71 -203.07)">
-    <path
-        id="path3161"
-        style="opacity:.85987;fill:#44aa00"
-        d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
-  </g>
-
-</svg>
-
-    {% else %}
-
-    <?xml version="1.0"?>
-    <svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
-      <defs id="defs2162">
-        <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
-          <stop id="stop3145" stop-color="#fff" offset="0"/>
-          <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
-        </radialGradient>
-        <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
-          <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
-          <stop id="stop3205" stop-color="#f00000" offset="1"/>
-        </radialGradient>
-      </defs>
-      <g id="layer1">
-        <g id="g2184" transform="translate(-59.5 -.5)">
-          <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
-          <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
-          <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
+  
+  </svg>
+  
+  {% else %}
+  
+  <?xml version="1.0"?>
+  <svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
+    <defs id="defs2162">
+      <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
+        <stop id="stop3145" stop-color="#fff" offset="0"/>
+        <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
+      </radialGradient>
+      <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
+        <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
+        <stop id="stop3205" stop-color="#f00000" offset="1"/>
+      </radialGradient>
+    </defs>
+    <g id="layer1">
+      <g id="g2184" transform="translate(-59.5 -.5)">
+        <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
+        <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
+        <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
+      </g>
+    </g>
+  </svg>
+  {% endif %}
+  
+  
+                      </td>
+                      <td>{% if content[2]: %}
+  
+                          <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+  <!-- Created with Inkscape (http://www.inkscape.org/) -->
+  <svg
+      xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns:cc="http://creativecommons.org/ns#"
+      xmlns:dc="http://purl.org/dc/elements/1.1/"
+      xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:ns1="http://sozi.baierouge.fr"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      id="svg2"
+      sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
+      viewBox="0 0 588.67 677.63"
+      sodipodi:version="0.32"
+      version="1.0"
+      inkscape:output_extension="org.inkscape.output.svg.inkscape"
+      inkscape:version="0.46dev+devel"
+      style="height:1.5rem; width:1.5rem;"  >
+  
+    <sodipodi:namedview
+        id="base"
+        bordercolor="#666666"
+        inkscape:pageshadow="2"
+        guidetolerance="10.0"
+        pagecolor="#ffffff"
+        gridtolerance="10.0"
+        inkscape:zoom="0.41050506"
+        objecttolerance="10.0"
+        borderopacity="1.0"
+        inkscape:current-layer="svg2"
+        inkscape:cx="372.04724"
+        inkscape:cy="526.18109"
+        inkscape:window-y="87"
+        inkscape:window-x="66"
+        inkscape:window-height="643"
+        showgrid="false"
+        inkscape:pageopacity="0.0"
+        inkscape:window-width="640"
+    />
+    <g id="layer1"
+        transform="translate(-100.71 -203.07)">
+      <path
+          id="path3161"
+          style="opacity:.85987;fill:#44aa00"
+          d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
+    </g>
+  
+  </svg>
+  
+      {% else %}
+  
+      <?xml version="1.0"?>
+      <svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
+        <defs id="defs2162">
+          <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
+            <stop id="stop3145" stop-color="#fff" offset="0"/>
+            <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
+          </radialGradient>
+          <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
+            <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
+            <stop id="stop3205" stop-color="#f00000" offset="1"/>
+          </radialGradient>
+        </defs>
+        <g id="layer1">
+          <g id="g2184" transform="translate(-59.5 -.5)">
+            <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
+            <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
+            <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
+          </g>
         </g>
-      </g>
-    </svg>
-    {% endif %}
-
-
-                    </td>
-                    <td>
-                      <a id="activation-{{ content[0] }}" href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
-                          {% if content[3]: %}
-                          Deactivate
-                          {% else %}
-                          Activate
-                          {% endif %}
-                      </a>
-                  </td>                                        
-                    <td>
-                        <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}"><svg style="fill: var(--text-color);" width="18px" height="18px"viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                <g id="Dribbble-Light-Preview" transform="translate(-179.000000, -360.000000)" style="fill: var(--text-color);">
-                                    <g id="icons" transform="translate(56.000000, 160.000000)">
-                                        <path d="M130.35,216 L132.45,216 L132.45,208 L130.35,208 L130.35,216 Z M134.55,216 L136.65,216 L136.65,208 L134.55,208 L134.55,216 Z M128.25,218 L138.75,218 L138.75,206 L128.25,206 L128.25,218 Z M130.35,204 L136.65,204 L136.65,202 L130.35,202 L130.35,204 Z M138.75,204 L138.75,200 L128.25,200 L128.25,204 L123,204 L123,206 L126.15,206 L126.15,220 L140.85,220 L140.85,206 L144,206 L144,204 L138.75,204 Z" id="delete-[#1487]">
-                        
-                        </path>
-                                    </g>
-                                </g>
-                            </g>
-                        </svg></a>                        
-                    </td>
-                    <td>
-                        <form action="{{ url_for('rename_item') }}" method="post">
-                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                            <input type="hidden" name="old_name" value="{{ content[0] }}">
-                            <input type="hidden" name="course_name" value="{{ course_name }}">
-                            <input type="text" name="new_name" placeholder="New name">
-                            <input type="submit" value="Rename">
-                        </form>
-                    </td>
-
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        
-    <br><br>
-        <h2 class="center-align"> Step 3: Chunk your Content</h2>
-        <br><br>
-        <a href="{{ url_for('chop_course_content', course_name=course_name) }}">Chop All Content into Chunks</a>
-        <br>
-        <p>
-          Once you have Chunked your Content, it is highly recommended to "Preview" your Content.
-        </p>
-        <br>
-         Hover on the Chunking Status <svg
-        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:cc="http://creativecommons.org/ns#"
-        xmlns:dc="http://purl.org/dc/elements/1.1/"
-        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-        xmlns:svg="http://www.w3.org/2000/svg"
-        xmlns:ns1="http://sozi.baierouge.fr"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        id="svg2"
-        sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
-        viewBox="0 0 588.67 677.63"
-        sodipodi:version="0.32"
-        version="1.0"
-        inkscape:output_extension="org.inkscape.output.svg.inkscape"
-        inkscape:version="0.46dev+devel"
-        style="height:1.5rem; width:1.5rem;" > 
-    
-      <sodipodi:namedview
-          id="base"
-          bordercolor="#666666"
-          inkscape:pageshadow="2"
-          guidetolerance="10.0"
-          pagecolor="#ffffff"
-          gridtolerance="10.0"
-          inkscape:zoom="0.41050506"
-          objecttolerance="10.0"
-          borderopacity="1.0"
-          inkscape:current-layer="svg2"
-          inkscape:cx="372.04724"
-          inkscape:cy="526.18109"
-          inkscape:window-y="87"
-          inkscape:window-x="66"
-          inkscape:window-height="643"
-          showgrid="false"
-          inkscape:pageopacity="0.0"
-          inkscape:window-width="640"
-      />
-      <g id="layer1"
-          transform="translate(-100.71 -203.07)">
-        <path
-            id="path3161"
-            style="opacity:.85987;fill:#44aa00"
-            d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
-      </g>
-    
-    </svg> Symbol or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV Chunks</a>
-
-        <br><br>
-        <h2 class="center-align"> Step 4: Embed your Content</h2>
-        <br><br>
-        <a href="{{ url_for('embed_course_content', course_name=course_name) }}">Embed All Chunks</a>
-        <h2 class="center-align"> Step 5: Create Final Data</h2>
-        <br><br>
-        {% if file_info %}
-        {% for file_name, file_details in file_info.items() %}
-            
-        <p>
-          {% if file_details.present %}
-
-          <svg
+      </svg>
+      {% endif %}
+  
+  
+                      </td>
+                      <td>
+                        <a id="activation-{{ content[0] }}" href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
+                            {% if content[3]: %}
+                            Deactivate
+                            {% else %}
+                            Activate
+                            {% endif %}
+                        </a>
+                    </td>                                        
+                      <td>
+                          <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}"><svg style="fill: var(--text-color);" width="18px" height="18px"viewBox="0 -0.5 21 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                              <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                  <g id="Dribbble-Light-Preview" transform="translate(-179.000000, -360.000000)" style="fill: var(--text-color);">
+                                      <g id="icons" transform="translate(56.000000, 160.000000)">
+                                          <path d="M130.35,216 L132.45,216 L132.45,208 L130.35,208 L130.35,216 Z M134.55,216 L136.65,216 L136.65,208 L134.55,208 L134.55,216 Z M128.25,218 L138.75,218 L138.75,206 L128.25,206 L128.25,218 Z M130.35,204 L136.65,204 L136.65,202 L130.35,202 L130.35,204 Z M138.75,204 L138.75,200 L128.25,200 L128.25,204 L123,204 L123,206 L126.15,206 L126.15,220 L140.85,220 L140.85,206 L144,206 L144,204 L138.75,204 Z" id="delete-[#1487]">
+                          
+                          </path>
+                                      </g>
+                                  </g>
+                              </g>
+                          </svg></a>                        
+                      </td>
+                      <td>
+                          <form action="{{ url_for('rename_item') }}" method="post">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                              <input type="hidden" name="old_name" value="{{ content[0] }}">
+                              <input type="hidden" name="course_name" value="{{ course_name }}">
+                              <input type="text" name="new_name" placeholder="New name">
+                              <input type="submit" value="Rename">
+                          </form>
+                      </td>
+  
+                  </tr>
+                  {% endfor %}
+              </tbody>
+          </table>
+          
+      <br><br>
+          <h2 class="center-align"> Step 3: Chunk your Content</h2>
+          <br><br>
+          <a href="{{ url_for('chop_course_content', course_name=course_name) }}">Chop All Content into Chunks</a>
+          <br>
+          <p>
+            Once you have Chunked your Content, it is highly recommended to "Preview" your Content.
+          </p>
+          <br>
+           Hover on the Chunking Status <svg
           xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
           xmlns="http://www.w3.org/2000/svg"
@@ -364,7 +345,7 @@
           version="1.0"
           inkscape:output_extension="org.inkscape.output.svg.inkscape"
           inkscape:version="0.46dev+devel"
-          style="height:1.5rem; width:1.5rem;"  >
+          style="height:1.5rem; width:1.5rem;" > 
       
         <sodipodi:namedview
             id="base"
@@ -394,52 +375,126 @@
               d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
         </g>
       
-      </svg>
-          {% else %}
-
-          <svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
-            <defs id="defs2162">
-              <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
-                <stop id="stop3145" stop-color="#fff" offset="0"/>
-                <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
-              </radialGradient>
-              <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
-                <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
-                <stop id="stop3205" stop-color="#f00000" offset="1"/>
-              </radialGradient>
-            </defs>
-            <g id="layer1">
-              <g id="g2184" transform="translate(-59.5 -.5)">
-                <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
-                <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
-                <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
-              </g>
-            </g>
-          </svg>
-          {% endif %}
-          
-          {{ file_details.name }} 
-          
-          [Size: 
+      </svg> Symbol or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV Chunks</a>
+  
+          <br><br>
+          <h2 class="center-align"> Step 4: Embed your Content</h2>
+          <br><br>
+          <a href="{{ url_for('embed_course_content', course_name=course_name) }}">Embed All Chunks</a>
+          <h2 class="center-align"> Step 5: Create Final Data</h2>
+          <br><br>
+          {% if file_info %}
+          {% for file_name, file_details in file_info.items() %}
+              
+          <p>
+            {% if file_details.present %}
+  
+            <svg
+            xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+            xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:cc="http://creativecommons.org/ns#"
+            xmlns:dc="http://purl.org/dc/elements/1.1/"
+            xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+            xmlns:svg="http://www.w3.org/2000/svg"
+            xmlns:ns1="http://sozi.baierouge.fr"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            id="svg2"
+            sodipodi:docname="Ryan_Taylor_Green_Tick_ok.svg"
+            viewBox="0 0 588.67 677.63"
+            sodipodi:version="0.32"
+            version="1.0"
+            inkscape:output_extension="org.inkscape.output.svg.inkscape"
+            inkscape:version="0.46dev+devel"
+            style="height:1.5rem; width:1.5rem;"  >
         
-          {% if file_details.size %}
-                {{ "%.2f" | format(file_details.size / 1024 / 1024) }} MB
+          <sodipodi:namedview
+              id="base"
+              bordercolor="#666666"
+              inkscape:pageshadow="2"
+              guidetolerance="10.0"
+              pagecolor="#ffffff"
+              gridtolerance="10.0"
+              inkscape:zoom="0.41050506"
+              objecttolerance="10.0"
+              borderopacity="1.0"
+              inkscape:current-layer="svg2"
+              inkscape:cx="372.04724"
+              inkscape:cy="526.18109"
+              inkscape:window-y="87"
+              inkscape:window-x="66"
+              inkscape:window-height="643"
+              showgrid="false"
+              inkscape:pageopacity="0.0"
+              inkscape:window-width="640"
+          />
+          <g id="layer1"
+              transform="translate(-100.71 -203.07)">
+            <path
+                id="path3161"
+                style="opacity:.85987;fill:#44aa00"
+                d="m265.69 544.94c0.02 11.27 2.9 22.23 5.29 33.17 8.17 34.88 20.68 68.41 34.09 101.56 12.73 30.26 25.52 60.58 46.5 85.84 31.23-44.4-199.26 147.06-144.56 68.28 11.93-20.73 25.1-40.69 37.88-60.89 38.51-62.08 78.47-123.23 117.94-184.7 61.13-93.89 121.79-188.23 170.95-289.05 4.56-10.66 9.13-21.31 13.69-31.97l141.9-64.11c-6.82 11.82-13.64 23.65-20.46 35.48-57.62 97.4-117.91 193.2-174.39 291.28-31.32 56.62-62.01 113.61-90.06 171.94-9.87 19.45-20.6 38.36-31.07 57.47-27.23 62.99-141.39 169.08-179.22 97.63-10.72-32.02-21.55-64.09-36.06-94.65-14.74-32.38-30.38-64.33-45.42-96.57-5.01-10.73-8.52-21.88-11.98-33.19l164.98-87.52z"/>
+          </g>
+        
+        </svg>
             {% else %}
-                File not present
+  
+            <svg style="height:1.5rem; width:1.5rem;" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2160" viewBox="0 0 64 64" version="1.0">
+              <defs id="defs2162">
+                <radialGradient id="radialGradient2201" gradientUnits="userSpaceOnUse" cy="15.163" cx="15.891" r="27.545">
+                  <stop id="stop3145" stop-color="#fff" offset="0"/>
+                  <stop id="stop3147" stop-color="#00f038" stop-opacity="0" offset="1"/>
+                </radialGradient>
+                <radialGradient id="radialGradient2203" gradientUnits="userSpaceOnUse" cy="16.847" cx="16.028" gradientTransform="matrix(.91888 .94532 -.71707 .69701 13.381 -10.047)" r="27.545">
+                  <stop id="stop3203" stop-color="#ff9b9b" offset="0"/>
+                  <stop id="stop3205" stop-color="#f00000" offset="1"/>
+                </radialGradient>
+              </defs>
+              <g id="layer1">
+                <g id="g2184" transform="translate(-59.5 -.5)">
+                  <path id="path3185" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" fill="url(#radialGradient2201)" transform="matrix(.99849 0 0 .99849 63.996 4.8147)"/>
+                  <path id="path3187" stroke-linejoin="round" d="m55.091 27.727a27.545 27.545 0 1 1 -55.091 0 27.545 27.545 0 1 1 55.091 0z" transform="matrix(.99849 0 0 .99849 63.996 4.8147)" stroke="#be0000" stroke-linecap="round" stroke-width="2.5038" fill="url(#radialGradient2203)"/>
+                  <path id="path3207" d="m95.594 19.312c-1.798 1.551-3.145 4.37-4.532 5.844-2.631-2.177-3.818-6.236-6.656-7.375-3.44 0.919-8.904 4.136-4.875 7.625 2.058 3.043 6.195 5.747 7.157 8.906-1.468 3.79-4.292 6.616-7.032 9.376 1.34 4.675 7.755 0.524 10.344-1.75 2.065-4.634 3.568 0.898 5.499 2.891 1.541 6.222 9.801 4.403 10.521-0.74-2.84-4.549-6.781-8.924-9.52-13.401 1.085-4.655 5.63-7.771 6.69-12.282-1.79-3.122-5.284 0.353-7.596 0.906z" fill="#fff"/>
+                </g>
+              </g>
+            </svg>
             {% endif %}
-            ]</p>
-        
-            {% endfor %}
-        <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Refresh Final Data</a>
-    {% else %}
-        <p>No Final Data files present.</p>
-        <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Create Final Data</a>
-    {% endif %}
+            
+            {{ file_details.name }} 
+            
+            [Size: 
+          
+            {% if file_details.size %}
+                  {{ "%.2f" | format(file_details.size / 1024 / 1024) }} MB
+              {% else %}
+                  File not present
+              {% endif %}
+              ]</p>
+          
+              {% endfor %}
+          <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Refresh Final Data</a>
+      {% else %}
+          <p>No Final Data files present.</p>
+          <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Create Final Data</a>
+      {% endif %}
+  
+  
+          {% else %}
+          <p>No content found.</p>
+          {% endif %}
+
+        </details>
 
 
-        {% else %}
-        <p>No content found.</p>
-        {% endif %}
+
+
+
+
+
+
+
+
+
 
         {% include 'user_status.html' %}       
 

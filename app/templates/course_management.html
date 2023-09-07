@@ -10,19 +10,11 @@
                 </div>
                 {% endif %}
         {% endwith %}
-        <h2>Create a New Course</h2>
-        <form action="{{ url_for('create_course') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <label for="name">Course Name:</label> 
-            <input type="text" id="name" name="name" size="35" placeholder="Year-CourseCode-CourseTitle"> 
-            <input type="submit" value="Create" class="form-control">
-        </form>
+
 
         <h2>All Courses</h2>
         {% if courses %}
-        <br>
-        <div class="alert alert-warning" role="alert"> Warning: Deleting the Course will delete all the Contents, Syllabus, Transcription, Processed Data, etc. </div>
-        <br>
+        
         <table style="text-align: center;">
             <thead>
                 <tr>
@@ -71,9 +63,19 @@
                 {% endfor %}
             </tbody>
         </table>
+        <br>
+        <div class="alert alert-warning" role="alert"> Warning: Deleting the Course will delete all the Contents, Syllabus, Transcription, Processed Data, etc. </div>
+        <br>
         {% else %}
         <p>No courses found.</p>
         {% endif %}
+        <h2>Create a New Course</h2>
+        <form action="{{ url_for('create_course') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <label for="name">Course Name:</label> 
+            <input type="text" id="name" name="name" size="35" placeholder="Year-CourseCode-CourseTitle"> 
+            <input type="submit" value="Create" class="form-control">
+        </form>
         {% include 'user_status.html' %}       
 
 
