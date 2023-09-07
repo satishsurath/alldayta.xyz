@@ -1,6 +1,6 @@
 {
     "showAllCoursesAvailable": {
-        "Value": "True",
+        "Value": "False",
         "Description": "Show / Hide List of all the Courses On the Homepage"
     }
 }

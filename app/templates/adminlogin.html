@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1>Login</h1>
+        <h1>Faculty Login</h1>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flashes">
+                {% for message in messages %}
+                <div class="alert alert-warning" role="alert">{{ message }}</div>
+                {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
         <br>
         <p class="left-align">
           <form method='POST' >
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            Faculty Username: <input type='text' name='username' class='form-control'></input>  
-            Faculty Password: <input type='password' name='pw' class='form-control'></input> 
+             Username: <input type='text' name='username' class='form-control'></input>  
+             Password: <input type='password' name='pw' class='form-control'></input> 
              <input type='submit' name='submit'></input>
           </form>
         </p>

@@ -122,21 +122,26 @@ def privacypolicy():
 #  --------------------Routes for the login and logout pages --------------------
 @app.route('/admin-login', methods=['GET', 'POST'])
 def adminlogin():
-  if request.method == 'POST':
-    username = request.form.get('username')
-    if request.form.get('pw') == users.get(username, {}).get('pw'):
-      user = User()
-      user.id = username
-      login_user(user)
-      session['name'] = user.id
-      return redirect(url_for('course_management'))
-  return render_template('adminlogin.html', name=session.get('name'))
+    if session.get('name'):
+        return redirect(url_for('course_management'))
+    else:
+        if request.method == 'POST':
+            username = request.form.get('username')
+            if request.form.get('pw') == users.get(username, {}).get('pw'):
+                user = User()
+                user.id = username
+                login_user(user)
+                session['name'] = user.id
+                return redirect(url_for('course_management'))
+            else:
+                flash('Incorrect username or password!', 'error')
+    return render_template('adminlogin.html', name=session.get('name'))
   
 @app.route('/logout')
 def logout():
   logout_user()
   session.clear()  # Clear session data
-  return redirect(url_for('index'))
+  return redirect(url_for('adminlogin'))
 
 #  --------------------Routes for Course Management --------------------
 
