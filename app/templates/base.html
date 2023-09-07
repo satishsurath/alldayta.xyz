@@ -200,10 +200,9 @@ function hidePreview() {
                 <li class="nav-links"> <a href="{{ url_for('index') }}"> AllDayTA</a></li>
                 {% if showAllCoursesAvailable %}
                 <li class="nav-links"> <a href="{{ url_for('pick_course', type='chat') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
-                <li class="nav-links"> <a href="{{ url_for('pick_course', type='practice') }}" alt="AllDayTA - Practice Questions" aria-label="AllDayTA - Practice Questions">Practice Questions</a></li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
-                <li class="nav-links"><a href="{{ url_for('course_management') }}">Course Management</a></li> 
+                <li class="nav-links"><a href="{{ url_for('course_management') }}">All Courses</a></li> 
                 <li class="nav-links"> <a href="{{ url_for('settings') }}">Settings</a></li> 
                 <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
                 
