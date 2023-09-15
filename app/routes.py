@@ -727,15 +727,15 @@ def teaching_assistant():
 
 
 
-
-    if courses_with_final_data(app.config['FOLDER_UPLOAD']):
-      courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
-    else:
-       syllabus = None
+    # This is now manually being triggered by the faculty. 
+    #if courses_with_final_data(app.config['FOLDER_UPLOAD']):
+    #  courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
+    #else:
+    #   syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
     return render_template(
        'ta.html', 
-       courses=courses, 
+       # courses=courses, # THis is no longer needed
        name=session.get('name'),
        course_name = course_name,
        instruct = 'I am an experimental virtual TA for your course in <i>' + course_name + '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides. <br>I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. <br>The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice. <br> If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'
