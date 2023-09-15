@@ -3,9 +3,11 @@ import json
 import pandas as pd
 import numpy as np
 from flask import flash
+from app import app
 
 def create_final_data_given_course_name(course_name):
     # Path to the activations file
+    app.logger.info(f"Creating final data for course: {course_name}")
     activations_file = os.path.join(course_name, "CourseContentActivations.JSON")
     csv_folder = os.path.join(course_name, "Textchunks")
     npy_folder = os.path.join(course_name, "EmbeddedText")
@@ -14,6 +16,7 @@ def create_final_data_given_course_name(course_name):
     if not os.path.exists(activations_file):
         # Flash message to activate content
         flash("Please Activate the content via the Course Content Page.", "warning")
+        app.logger.info(f"Activations file not found: {activations_file} for course: {course_name}")
         return
 
     # Load activations statuses from the JSON file
@@ -21,11 +24,13 @@ def create_final_data_given_course_name(course_name):
         activations_data = json.load(f)
     # Convert keys from format 'filename.docx' to 'filename' by stripping the file extension
     activations = {key.split('.')[0]: value for key, value in activations_data.items()}
+    app.logger.info(f" The Contents of the activations file: {activations}")
 
     # Check if all files are deactivated
     if not any(activations.values()):
         # Flash message to activate content
         flash("All content files are deactivated. Please Activate the content via the Course Content Page.", "warning")
+        app.logger.info(f"All content files are deactivated for course: {course_name}")
         return
     # Get the sorted list of CSV and .npy files
     csv_files = sorted([f for f in os.listdir(csv_folder) if f.endswith('.csv')])
@@ -41,6 +46,7 @@ def create_final_data_given_course_name(course_name):
         # Check if the file is activated
         if activations.get(file_basename, False):
             # Read the CSV file and concatenate
+            app.logger.info(f"Reading file: {csv_file} and {npy_file}")
             csv_path = os.path.join(csv_folder, csv_file)
             csv_data = pd.read_csv(csv_path, encoding='utf-8', escapechar='\\')
             concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
