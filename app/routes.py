@@ -388,15 +388,19 @@ def settings():
 @app.route('/chop-course-content', methods=['GET'])
 @login_required
 def chop_course_content():
+    app.logger.info(f"Entered chop_course_content")
     course_name = request.args.get('course_name', None) 
     chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    app.logger.info(f"Completed chop_course_content")
     return redirect(request.referrer)
 
 @app.route('/embed-course-content', methods=['GET'])
 @login_required
 def embed_course_content():
+    app.logger.info(f"Entered embed_course_content")
     course_name = request.args.get('course_name', None) 
     embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    app.logger.info(f"Completed embed_course_content")
     return redirect(request.referrer)
 
 @app.route('/create-final-data-course-content', methods=['GET'])
