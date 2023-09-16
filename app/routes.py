@@ -403,7 +403,9 @@ def embed_course_content():
 @login_required
 def create_final_data_course_content():
     course_name = request.args.get('course_name', None) 
+    app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
     create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
     return redirect(request.referrer)
 
 #  --------------------Routes for Chatting --------------------
