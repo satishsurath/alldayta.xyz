@@ -414,6 +414,7 @@ def create_final_data_course_content():
         return redirect(request.referrer)
     except Exception as e:
         app.logger.error(f"An error occurred: {e}")
+        return redirect(request.referrer)
 
 #  --------------------Routes for Chatting --------------------
 
