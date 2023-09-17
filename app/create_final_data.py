@@ -28,9 +28,15 @@ def create_final_data_given_course_name(course_name):
 
     # Check if all files are deactivated
     if not any(activations.values()):
-        # Flash message to activate content
-        flash("All content files are deactivated. Please Activate the content via the Course Content Page.", "warning")
-        app.logger.info(f"All content files are deactivated for course: {course_name}")
+        try:
+            # Flash message to activate content
+            flash("All content files are deactivated. Please Activate the content via the Course Content Page.", "warning")
+            app.logger.info(f"All content files are deactivated for course: {course_name}")
+            # Make os.path.join(course_name, "Textchunks.npy") and os.path.join(course_name, "Textchunks-originaltext.csv") empty files
+            open(os.path.join(course_name, "Textchunks.npy"), 'w').close()
+            open(os.path.join(course_name, "Textchunks-originaltext.csv"), 'w').close()
+        except Exception as e:
+            app.logger.info(f"Error while creating empty files for course: {course_name}. Error: {e}")
         return
     # Get the sorted list of CSV and .npy files
     csv_files = sorted([f for f in os.listdir(csv_folder) if f.endswith('.csv')])
