@@ -406,8 +406,9 @@ def embed_course_content():
 @app.route('/create-final-data-course-content', methods=['GET'])
 @login_required
 def create_final_data_course_content():
+    app.logger.info(f"Entered create_final_data_course_content")    
     try:
-        app.logger.info(f"Entering final data for course.")
+        app.logger.info(f"Entering final data for course. - In the try block")
         course_name = request.args.get('course_name', None) 
         app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
         create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
