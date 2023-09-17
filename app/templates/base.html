@@ -77,6 +77,27 @@
      //     const newTheme = toggleSwitch.checked ? 'dark' : 'light';
      //     setTheme(newTheme);
      // });
+
+    // Get all details elements
+    const detailsElements = document.querySelectorAll('details');
+
+    // On page load, set the state from localStorage
+    detailsElements.forEach((details) => {
+        const isOpen = localStorage.getItem(details.id);
+        if (isOpen !== null) {
+            details.open = isOpen === "true"; // Convert the string to a boolean and set it
+        }
+    });
+
+    // Listen for the toggle event and save the state to localStorage
+    detailsElements.forEach((details) => {
+        details.addEventListener('toggle', function() {
+            localStorage.setItem(details.id, details.open);
+        });
+    });
+
+
+
   });
   
   function applyTheme() {

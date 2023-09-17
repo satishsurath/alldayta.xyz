@@ -15,7 +15,7 @@
         <br>
 
         {% if syllabus %}
-        <details>
+        <details id="viewSyllabus">
           <summary class="course-content-heading">View Syllabus </summary>
           
           
@@ -28,7 +28,7 @@
         </details>
 
 
-        <details>
+        <details id="ReplaceSyllabus">
           <summary class="course-content-heading">Replace Syllabus </summary>
           
   
@@ -59,7 +59,7 @@
 
         {% else %}
 
-        <details>
+        <details id="AddSyllabus">
           <summary class="course-content-heading">Add Syllabus </summary>
         
           <form method="POST" enctype="multipart/form-data" novalidate>
@@ -85,7 +85,7 @@
         {% endif %}
         
 
-        <details>
+        <details id="NewCourseContent">
           <summary class="course-content-heading">Add New Course Content </summary>
           <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -94,7 +94,7 @@
         </details>
         
 
-        <details>
+        <details id="modifyCourseContent">
           <summary class="course-content-heading">Modify Course Content </summary>
         
 
