@@ -1,11 +1,17 @@
 {
     "user1": {
-        "pw": "pass1"
+        "pw": "pass1",
+        "folder": "user1",
+        "admin": true
     },
     "user2": {
-        "pw": "pass2"
+        "pw": "pass2",
+        "folder": "user2",
+        "admin": true
     },
     "user3": {
-        "pw": "pass3"
+        "pw": "pass3",
+        "folder": "user3",
+        "admin": false
     }
 }

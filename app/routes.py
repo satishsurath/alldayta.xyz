@@ -81,7 +81,18 @@ app.jinja_env.globals.update(escape_id=escape_id)
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
-# Used to not have chache on pages
+# -------------------- Flask Overrides  --------------------
+
+
+# Flask Login Overrides to load additional attributes
+class User(UserMixin):
+    def __init__(self, id=None, folder=None, admin=None):
+        self.id = id
+        self.folder = folder
+        self.admin = admin
+
+
+# Used to not have chache on pages which effected the processing of information in the background
 @app.after_request
 def add_header(r):
     """
@@ -104,16 +115,18 @@ users = read_from_file_json(os.path.join(app.config['FOLDER_SETTINGS'], "users.j
 ## Debug
 # print(users)
 
-class User(UserMixin):
-  pass
+#class User(UserMixin):
+#  pass
 
 #Define the Username and Password to access the Logs and Debugging  
 @login_manager.user_loader
 def user_loader(username):
   if username not in users:
     return None
-  user = User()
-  user.id = username
+  #user = User()
+  #user.id = username
+  user_data = users[username]
+  user = User(id=username, folder=user_data['folder'], admin=user_data['admin'])
   return user
 
 @login_manager.request_loader
@@ -121,11 +134,11 @@ def request_loader(request):
   username = request.form.get('username')
   if username not in users:
     return None
-  user = User()
-  user.id = username
-  user.is_authenticated = request.form['pw'] == users[username]['pw']
+  user_data = users[username]
+  user = User(id=username, folder=user_data['folder'], admin=user_data['admin'])
+  user.is_authenticated = request.form['pw'] == user_data['pw']
   return user
-
+    
 
 
 
@@ -151,15 +164,20 @@ def adminlogin():
     else:
         if request.method == 'POST':
             username = request.form.get('username')
+            user_data = users.get(username, {})
             if request.form.get('pw') == users.get(username, {}).get('pw'):
-                user = User()
-                user.id = username
+                #user = User()
+                user = User(id=username, folder=user_data.get('folder'), admin=user_data.get('admin'))
                 login_user(user)
                 session['name'] = user.id
+                session['folder'] = user.folder
+                session['admin'] = user.admin
+                app.config['FOLDER_UPLOAD'] = os.path.join(app.config['FOLDER_UPLOAD'], session['folder'])
+                app.logger.info(f"User {session['name']} logged in successfully, folder: {session['folder']}, admin: {session['admin']}")
                 return redirect(url_for('course_management'))
             else:
                 flash('Incorrect username or password!', 'error')
-    return render_template('adminlogin.html', name=session.get('name'))
+    return render_template('adminlogin.html', name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
   
 @app.route('/logout')
 def logout():
@@ -173,7 +191,7 @@ def logout():
 @login_required
 def course_management():
     courses = list_folders()
-    return render_template('course_management.html', courses=courses, name=session.get('name'))
+    return render_template('course_management.html', courses=courses, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
 @app.route('/create-course', methods=['POST'])
 @login_required
@@ -357,7 +375,7 @@ def course_syllabus(course_name):
        'course_syllabus.html', 
        course_name=course_name, 
        syllabus=syllabus,
-       name=session.get('name'), 
+       name=session.get('name'), folder=session.get('folder'), admin=session.get('admin')
        )
 
 #This is used by the Flask_Dropone component
@@ -394,7 +412,7 @@ def settings():
         for key, value in settings_data.items():
             app.config[key.upper()] = True if value["Value"] == "True" else False
         flash('Settings have been updated!', 'success') 
-    return render_template('settings.html', settings=settings_data, name=session.get('name'))
+    return render_template('settings.html', settings=settings_data, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
 #  --------------------Routes for Content Processing --------------------
 
@@ -446,6 +464,7 @@ def pick_course():
        'pick_course.html', 
        courses=courses, 
        name=session.get('name'),
+       folder=session.get('folder'), admin=session.get('admin'),
        type = type,
        showAllCoursesAvailable = app.config["SHOWALLCOURSESAVAILABLE"] 
        )
