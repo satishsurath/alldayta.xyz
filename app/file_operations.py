@@ -5,6 +5,8 @@ import shutil
 import logging
 from app import app
 from csv import reader
+from flask import session
+
 
 
 SETTINGS_PATH = os.path.join(app.config['FOLDER_SETTINGS'], 'platform-settings.json')
@@ -76,11 +78,14 @@ def read_from_file_text(filename):
 
 
 
-# List all the First Level Folders under this app.config["FOLDER_UPLOAD"]
+# List all the First Level Folders under this app.config["FOLDER_UPLOAD"] + Sessions['folder']
 def list_folders():
     try:
-        return [name for name in os.listdir(app.config["FOLDER_UPLOAD"]) if os.path.isdir(os.path.join(app.config["FOLDER_UPLOAD"], name))]
-    except:
+        path_to_check = os.path.join(app.config['FOLDER_UPLOAD'], session['folder'])
+        app.logger.info(f"Reading from: {path_to_check}")
+        return [name for name in os.listdir(path_to_check) if os.path.isdir(os.path.join(path_to_check, name))]
+    except Exception as e:
+        app.logger.error(f"An exception occurred when reading from: {path_to_check} with error: {e}")
         return False
 
 # Rename the Folder (with the Folder Name as its input parameter)

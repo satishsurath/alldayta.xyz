@@ -474,8 +474,9 @@ def pick_course():
 @app.route('/teaching-assistant', methods=['GET', 'POST'])
 def teaching_assistant():
     global df_chunks, embedding
-    course_name = request.args.get('course_name', None)     
-    course_folder = os.path.join(app.config['FOLDER_UPLOAD'], course_name)
+    course_name = request.args.get('course_name', None)
+    folder = request.args.get('folder', None)     
+    course_folder = os.path.join(app.config['FOLDER_UPLOAD'], folder, course_name)
     dataname = os.path.join(course_folder,"Textchunks")
     classname = course_name
     professor = "Placeholder"
