@@ -8,6 +8,7 @@ from io import BytesIO
 from app.forms import UploadSyllabus
 from werkzeug.utils import secure_filename
 from app import app
+from flask import session
 from app.file_operations import (
     read_from_file_json,
     read_from_file_text,
@@ -34,16 +35,17 @@ def save_pdf_and_extract_text(form, course_name):
 
     #generate file names and full file paths for the PDF and txt files
     filename = secure_filename(course_syllabus_hash + pdf_file.filename)
-    pdf_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name, filename)
+    user_folder = session['folder']
+    pdf_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name, filename)
     txt_filename = secure_filename(course_syllabus_hash + os.path.splitext(pdf_file.filename)[0] + '.txt')
-    txt_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name, txt_filename)
+    txt_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name, txt_filename)
 
     # check if there is a text file already and delete the folder contents
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
+    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
         delete_files_in_folder(pdf_path)
 
     #write the PDF files and text files to the locations:
-    if check_folder_exists(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
+    if check_folder_exists(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
         pdf_file.save(pdf_path)
         with open(txt_path, 'w') as txt_file:
             txt_file.write(course_syllabus)
@@ -82,20 +84,6 @@ def detect_final_data_files(course_name):
             }
     return file_info
 
-
-# This function checks all sub-folders (courses) in a given parent folder and returns a list of those that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
-def courses_with_final_data(parent_folder):
-    courses = []
-    for course_name in os.listdir(parent_folder):
-        course_folder = os.path.join(parent_folder, course_name)
-        # Exclude files, hidden folders and specific file names
-        if not os.path.isdir(course_folder) or course_name.startswith('.') or course_name in ['textchunks.npy', 'textchunks-originaltext.csv']:
-            continue
-        file_info = detect_final_data_files(course_folder)
-        # Check if both files are present
-        if file_info['Textchunks.npy']['present'] and file_info['Textchunks-originaltext.csv']['present']:
-            courses.append(course_name)
-    return courses
 
 # Define a retry decorator with exponential backoff
 def retry_with_exponential_backoff(func):

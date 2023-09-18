@@ -64,15 +64,16 @@
         
           <form method="POST" enctype="multipart/form-data" novalidate>
             {{ form.hidden_tag() }}
-            <p>
+            <p class="course-content-heading">
                 {{ form.csrf_token }}
                 {{ form.pdf.label }} 
-                {{ form.submit(id='submit_button') }}
+                
                 {{ form.pdf(class_='form-control',placeholder='Upload PDF...') }}  
                 {% for error in form.pdf.errors %} 
                 <span style="color: red;">[{{ error }}]</span> 
                 {% endfor %} 
-                
+                <br>
+                {{ form.submit(id='submit_button') }}
              </p>
             <br>
             <div id="processing" class="processing"></div>

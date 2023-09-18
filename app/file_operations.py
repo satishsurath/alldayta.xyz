@@ -123,7 +123,8 @@ def delete_file(file_name):
 # Create a New Folder under this app.config["FOLDER_UPLOAD"]
 def create_folder(folder_name):
     try:
-        os.makedirs(os.path.join(app.config["FOLDER_UPLOAD"], folder_name))
+        user_folder = session['folder']
+        os.makedirs(os.path.join(app.config["FOLDER_UPLOAD"], user_folder, folder_name))
         return True
     except:
         return False
@@ -135,7 +136,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def get_file_path(folder, course_name, filename=''):
+def get_file_path(folder, user_folder, course_name, filename=''):
     """
     This function generates a full file path.
 
@@ -147,7 +148,7 @@ def get_file_path(folder, course_name, filename=''):
     Returns:
     str: The full file path.
     """
-    return os.path.join(folder, course_name, filename)
+    return os.path.join(folder, user_folder, course_name, filename)
 
 
 def delete_files_in_folder(folder_path):

@@ -23,9 +23,9 @@ from app.forms import UploadSyllabus
 from app.routes_helper import (
     save_pdf_and_extract_text, 
     check_processed_files,
-    detect_final_data_files,
-    courses_with_final_data, # Checks all (courses) sub-folders returns a list that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
-    retry_with_exponential_backoff # Define a retry decorator with exponential backoff
+    detect_final_data_files
+    #courses_with_final_data, # Checks all (courses) sub-folders returns a list that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
+    #retry_with_exponential_backoff # Define a retry decorator with exponential backoff
 )
 from app.chop_documents import chunk_documents_given_course_name
 #from app.embed_documents import embed_documents_given_course_name
@@ -172,7 +172,7 @@ def adminlogin():
                 session['name'] = user.id
                 session['folder'] = user.folder
                 session['admin'] = user.admin
-                app.config['FOLDER_UPLOAD'] = os.path.join(app.config['FOLDER_UPLOAD'], session['folder'])
+                #app.config['FOLDER_UPLOAD'] = os.path.join(app.config['FOLDER_UPLOAD'], session['folder'])
                 app.logger.info(f"User {session['name']} logged in successfully, folder: {session['folder']}, admin: {session['admin']}")
                 return redirect(url_for('course_management'))
             else:
@@ -233,18 +233,19 @@ def delete_item():
     name = request.args.get('name')
     #$print(name)
     course_name = request.args.get('course_name', None)
+    user_folder = session['folder']
     if course_name: # So this is a deletion of a single file
         # This is a file (content) within a course (folder)
-        path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, name)
+        path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, name)
         delete_file(path)
     else: # So this is a deletion of a folder
         # This is a course (folder)
         # Delete all the Corresponding Course folders in all places
-        path = os.path.join(app.config["FOLDER_UPLOAD"], name)
+        path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, name)
         delete_folder(path)  
-        path = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], name)
+        path = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], user_folder, name)
         delete_folder(path)  
-        path = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], name)
+        path = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], user_folder, name)
         delete_folder(path) 
     return redirect(request.referrer)
 
@@ -263,8 +264,8 @@ def toggle_activation(course_name, file_name):
     try:
         app.logger.info("Starting toggle_activation logic...")
         app.logger.info(f"Entering toggle_activation with course_name: {course_name}, file_name: {file_name}")
-
-        folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
+        user_folder = session['folder']
+        folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
         activations_path = os.path.join(folder_path, app.config['ACTIVATIONS_FILE'])
         if os.path.exists(activations_path):
             with open(activations_path, 'r') as f:
@@ -294,7 +295,8 @@ def course_contents(course_name):
     if form.validate_on_submit():
        save_pdf_and_extract_text(form, course_name)
     # Part 2: Load Course Content: 
-    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name)
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
     contents = get_content_files(folder_path)
     file_info = detect_final_data_files(folder_path) # for 'textchunks.npy' and 'textchunks-originaltext.csv' if they exist
     activations = check_and_update_activations_file(folder_path)
@@ -303,8 +305,8 @@ def course_contents(course_name):
         filename = info[0]
         info.append(activations.get(filename, False))
 
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
+    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
+      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
     else:
        syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
@@ -325,7 +327,8 @@ def course_contents(course_name):
 @app.route('/preview-chunks/<course_name>', methods=['GET'])
 @login_required
 def preview_chunks(course_name):
-    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, 'Textchunks')
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks')
 
     # Filter only csv files in the course content folder
     csv_files = [f for f in os.listdir(folder_path) 
@@ -355,7 +358,8 @@ def preview_chunks(course_name):
 @app.route('/preview-chunks-js/<course_name>/<content_name>', methods=['GET'])
 @login_required
 def preview_chunks_js(course_name, content_name):
-    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, 'Textchunks')
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks')
     file_path = os.path.join(folder_path, content_name)
     # Assuming we are reading a CSV with preview content
     preview_data = read_csv_preview(file_path)  # This function should be implemented to read the CSV preview data
@@ -366,8 +370,9 @@ def preview_chunks_js(course_name, content_name):
 @login_required
 def course_syllabus(course_name):
     # check if we have the Syllabus already for this course
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name)):
-      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], course_name))).replace('\n', '<br>')
+    user_folder = session['folder']
+    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
+      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
     else:
        syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
@@ -383,12 +388,13 @@ def course_syllabus(course_name):
 @login_required
 def upload_file():
     try:
+        user_folder = session['folder']
         if request.method == 'POST':
             file = request.files.get('file')
             course_name = request.form.get('course_name')
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['FOLDER_UPLOAD'], course_name, filename))
+                file.save(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename))
             return "File uploaded successfully."
         return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
     except Exception as e:
@@ -421,7 +427,8 @@ def settings():
 def chop_course_content():
     app.logger.info(f"Entered chop_course_content")
     course_name = request.args.get('course_name', None) 
-    chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    user_folder = session['folder']
+    chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
     app.logger.info(f"Completed chop_course_content")
     return redirect(request.referrer)
 
@@ -430,7 +437,8 @@ def chop_course_content():
 def embed_course_content():
     app.logger.info(f"Entered embed_course_content")
     course_name = request.args.get('course_name', None) 
-    embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+    user_folder = session['folder']
+    embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
     app.logger.info(f"Completed embed_course_content")
     return redirect(request.referrer)
 
@@ -439,10 +447,11 @@ def embed_course_content():
 def create_final_data_course_content():
     app.logger.info(f"Entered create_final_data_course_content")    
     try:
+        user_folder = session['folder']
         app.logger.info(f"Entering final data for course. - In the try block")
         course_name = request.args.get('course_name', None) 
         app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
-        create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], course_name))
+        create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
         app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
         return redirect(request.referrer)
     except Exception as e:
@@ -451,23 +460,7 @@ def create_final_data_course_content():
 
 #  --------------------Routes for Chatting --------------------
 
-@app.route('/pick-course', methods=['GET', 'POST'])
-def pick_course():
-    type = request.args.get('type', None) 
-    # check if we have the Syllabus already for this course
-    if courses_with_final_data(app.config['FOLDER_UPLOAD']):
-      courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])
-    else:
-       syllabus = None
-    # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
-    return render_template(
-       'pick_course.html', 
-       courses=courses, 
-       name=session.get('name'),
-       folder=session.get('folder'), admin=session.get('admin'),
-       type = type,
-       showAllCoursesAvailable = app.config["SHOWALLCOURSESAVAILABLE"] 
-       )
+# This is the route for the Chatbot
 
 # Apply the retry decorator to the original function
 #@retry_with_exponential_backoff
