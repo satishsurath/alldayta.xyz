@@ -39,7 +39,8 @@ from app.file_operations import (
     list_folders,
     rename_folder,
     delete_folder,
-    create__course_folder_with_metadata,
+    create_course_folder_with_metadata,
+    save_course_metadata,
     allowed_file,
     delete_file,
     get_first_txt_file,
@@ -197,14 +198,14 @@ def course_management():
 @login_required
 def create_course():
     name = request.form['name'].replace(' ', '-')
-    meta_data = {
+    metadata = {
         'classname': request.form.get('classname', ''),
         'professor': request.form.get('professor', ''),
         'assistants': request.form.get('assistants', ''),
         'classdescription': request.form.get('classdescription', ''),
         'assistant_name': request.form.get('assistant_name', '')
     }    
-    create__course_folder_with_metadata(name, meta_data)
+    create_course_folder_with_metadata(name, metadata)
     return redirect(url_for('course_management'))
 
 @app.route('/rename-item', methods=['POST'])
@@ -294,6 +295,9 @@ def toggle_activation(course_name, file_name):
         return jsonify(success=False, error=str(e))
 
 
+
+
+
 @app.route('/course-contents/<course_name>', methods=['GET', 'POST'])
 @login_required
 def course_contents(course_name):
@@ -304,6 +308,22 @@ def course_contents(course_name):
     # Part 2: Load Course Content: 
     user_folder = session['folder']
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
+    # Check if metadata file exists, if not create a blank one
+    meta_file_path = os.path.join(folder_path, "course_meta.json")
+    if not os.path.exists(meta_file_path):
+        metadata = {
+            'classname': '',
+            'professor': '',
+            'assistants': '',
+            'classdescription': '',
+            'assistant_name': ''
+        }
+        with open(meta_file_path, 'w') as json_file:
+            json.dump(metadata, json_file)
+    else:
+        with open(meta_file_path, 'r') as json_file:
+            metadata = json.load(json_file)
+
     contents = get_content_files(folder_path)
     file_info = detect_final_data_files(folder_path) # for 'textchunks.npy' and 'textchunks-originaltext.csv' if they exist
     activations = check_and_update_activations_file(folder_path)
@@ -327,8 +347,41 @@ def course_contents(course_name):
        syllabus=syllabus,
        name=session.get('name'), 
        form=form,
-       file_info=file_info
+       file_info=file_info,
+       metadata=metadata,  # add metadata to the template
        )
+
+
+@app.route('/update-course-metadata', methods=['POST'])
+@login_required
+def update_course_metadata():
+    # Extract the form data from the request
+    folder_name = request.form.get('course_name', '')
+    metadata = {
+        'classname': request.form.get('name', ''),
+        'professor': request.form.get('professor', ''),
+        'assistants': request.form.get('assistants', ''),
+        'assistant_name': request.form.get('assistant_name', ''),
+        'classdescription': request.form.get('classdescription', '')        
+    }   
+
+    # Your logic to save/update the metadata goes here
+    # This could involve saving the data to a database, 
+    # or as in your previous example, writing the data to a JSON file.
+    # I'll give a simple example using a fictitious database function:
+
+    try:
+        # Assume save_course_metadata is a function that saves the course metadata to your data storage
+        save_course_metadata(folder_name, metadata)
+        flash('Metadata updated successfully!', 'success')
+    except Exception as e:
+        # Handle any exceptions that might arise
+        app.logger.error(f"Error updating metadata: {e}", exc_info=True)
+        flash(f'Error updating metadata; Contact Support', 'danger')
+    # Redirect to a relevant page after saving
+    # For instance, redirecting back to the course management or course content page
+    return redirect(request.referrer)
+
 
 
 @app.route('/preview-chunks/<course_name>', methods=['GET'])

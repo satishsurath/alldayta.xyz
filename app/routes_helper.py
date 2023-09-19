@@ -16,7 +16,7 @@ from app.file_operations import (
     list_folders,
     rename_folder,
     delete_folder,
-    create_folder,
+    create_course_folder_with_metadata,
     allowed_file,
     delete_file,
     get_first_txt_file,

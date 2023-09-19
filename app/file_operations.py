@@ -121,7 +121,7 @@ def delete_file(file_name):
         return False
 
 # Create a New Folder under this app.config["FOLDER_UPLOAD"]
-def create__course_folder_with_metadata(folder_name, metadata):
+def create_course_folder_with_metadata(folder_name, metadata):
     try:
         user_folder = session['folder']
         os.makedirs(os.path.join(app.config["FOLDER_UPLOAD"], user_folder, folder_name))
@@ -133,6 +133,19 @@ def create__course_folder_with_metadata(folder_name, metadata):
         return True
     except:
         return False
+
+
+def save_course_metadata(folder_name,metadata):
+    try:
+        user_folder = session['folder']
+        json_file_path = f"{app.config['FOLDER_UPLOAD']}/{user_folder}/{folder_name}/course_meta.json"
+        with open(json_file_path, 'w') as json_file:
+            json.dump(metadata, json_file)
+        return True
+    except:
+        return False
+
+
 
 #define the allowed files!
 def allowed_file(filename):
