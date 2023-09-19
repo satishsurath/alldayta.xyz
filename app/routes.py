@@ -39,7 +39,7 @@ from app.file_operations import (
     list_folders,
     rename_folder,
     delete_folder,
-    create_folder,
+    create__course_folder_with_metadata,
     allowed_file,
     delete_file,
     get_first_txt_file,
@@ -197,7 +197,14 @@ def course_management():
 @login_required
 def create_course():
     name = request.form['name'].replace(' ', '-')
-    create_folder(name)
+    meta_data = {
+        'classname': request.form.get('classname', ''),
+        'professor': request.form.get('professor', ''),
+        'assistants': request.form.get('assistants', ''),
+        'classdescription': request.form.get('classdescription', ''),
+        'assistant_name': request.form.get('assistant_name', '')
+    }    
+    create__course_folder_with_metadata(name, meta_data)
     return redirect(url_for('course_management'))
 
 @app.route('/rename-item', methods=['POST'])

@@ -121,10 +121,15 @@ def delete_file(file_name):
         return False
 
 # Create a New Folder under this app.config["FOLDER_UPLOAD"]
-def create_folder(folder_name):
+def create__course_folder_with_metadata(folder_name, metadata):
     try:
         user_folder = session['folder']
         os.makedirs(os.path.join(app.config["FOLDER_UPLOAD"], user_folder, folder_name))
+        # Create JSON file inside the course folder
+        name = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, folder_name)
+        json_file_path = f"{name}/course_meta.json"
+        with open(json_file_path, 'w') as json_file:
+            json.dump(metadata, json_file)
         return True
     except:
         return False
@@ -182,6 +187,7 @@ def get_content_files(folder_path):
         and f != 'Textchunks.npy' 
         and f != 'Textchunks-originaltext.csv'
         and f != app.config['ACTIVATIONS_FILE']
+        and f != 'course_meta.json'
     ]
     
 def check_and_update_activations_file(folder_path):
