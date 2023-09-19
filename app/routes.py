@@ -136,7 +136,7 @@ def request_loader(request):
     return None
   user_data = users[username]
   user = User(id=username, folder=user_data['folder'], admin=user_data['admin'])
-  user.is_authenticated = request.form['pw'] == user_data['pw']
+  # user.is_authenticated = request.form['pw'] == user_data['pw']
   return user
     
 

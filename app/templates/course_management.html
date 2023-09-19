@@ -108,13 +108,47 @@
         {% else %}
         <p>No courses found.</p>
         {% endif %}
-        <h2>Create a New Course</h2>
-        <form action="{{ url_for('create_course') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <label for="name">Course Name:</label> 
-            <input type="text" id="name" name="name" size="35" placeholder="Year-CourseCode-CourseTitle"> 
-            <input type="submit" value="Create" class="form-control">
-        </form>
+        <details>
+            <Summary class="course-content-heading">Create a New Course</Summary>
+            <div style="text-align: center;">
+                <form action="{{ url_for('create_course') }}" method="post">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                    <table style="margin: auto; border:0px;">
+                        <tr>
+                            <td style="text-align: left;border: 0px"><label for="name">Course / Class Name:</label></td>
+                            <td style="text-align: left;border: 0px"><input type="text" id="name" name="name" size="35" placeholder="Year-CourseCode-CourseTitle"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border: 0px"><label for="professor">Professor:</label></td>
+                            <td style="text-align: left;border: 0px"><input type="text" id="professor" name="professor" size="35"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border: 0px"><label for="assistant_name">Assistant Name:</label></td>
+                            <td style="text-align: left;border: 0px"><input type="text" id="assistant_name" name="assistant_name" size="35"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border: 0px"><label for="assistants">Virtual Assistant's Name:</label></td>
+                            <td style="text-align: left;border: 0px"><input type="text" id="assistants" name="assistants" value="Virtual Teaching Assistant" placeholder="Virtual Teaching Assistant" size="35"></td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;border: 0px"><label for="classdescription">Class Description:</label></td>
+                            <td style="text-align: left;border: 0px"><textarea id="classdescription" name="classdescription" rows="3" cols="28"></textarea></td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" style="text-align: center;border: 0px">
+                                <input type="submit" value="Create" class="form-control">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </details>
+        
+        
+        
+        
+        
+        
         {% include 'user_status.html' %}       
 
 
