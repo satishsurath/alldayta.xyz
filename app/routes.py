@@ -147,6 +147,7 @@ def request_loader(request):
 @app.route('/')
 @app.route('/index')
 def index():
+  app.logger.info(f"Loading Index Page")
   return redirect(url_for('adminlogin'))
   #return render_template('index.html')
   print(app.config["SHOWALLCOURSESAVAILABLE"])

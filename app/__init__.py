@@ -37,28 +37,54 @@ from app import routes, file_operations
 
 # ---------------  Configure logging --------------- #
 
-class RequestFormatter(logging.Formatter):
+# Overloading the logging formatter to include the request and session data
+class CustomFormatter(logging.Formatter):
     def format(self, record):
         if has_request_context():
             record.url = request.url
             record.remote_addr = request.remote_addr
-            record.user_agent = request.user_agent
+            record.user_agent = str(request.user_agent)
+            record.request_data = f"<Request '{record.url}' [{request.method}]>"
+            record.session_data = f"<FileSystemSession {dict(session)}>"
         else:
             record.url = None
             record.remote_addr = None
             record.user_agent = None
-        return super().format(record)
+            record.request_data = None
+            record.session_data = None
 
-# Overloading the logging formatter to include the request and session data
-class SessionDataFormatter(logging.Formatter):
-    def format(self, record):
-        record.request_data = request
-        record.session_data = session
-        record.user_agent = request.user_agent
         return super().format(record)
 
 
-# This is the logging configuration for the app
+# Set up file and email logging
+def setup_logging():
+    if not os.path.exists('logs'):
+        os.mkdir('logs')
+
+    # Create a separate logger for startup logs
+    startup_logger = logging.getLogger('startup_logger')
+    startup_logger.setLevel(logging.INFO)
+    startup_file_handler = RotatingFileHandler('logs/startup.log', maxBytes=10240, backupCount=10)
+    file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
+    startup_file_handler.setFormatter(file_formatter)
+    startup_logger.addHandler(startup_file_handler)
+    
+    # Regular logging setup
+    file_handler = RotatingFileHandler('logs/alldayta.xyz.log', maxBytes=10240, backupCount=10)
+    file_handler.setFormatter(CustomFormatter(
+        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]\n'
+        'Request: %(request_data)s\n'
+        'Session: %(session_data)s\n'
+        'User Agent: %(user_agent)s\n'
+    ))
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.INFO)
+
+    # Log the startup message using the separate logger
+    startup_logger.info('--------AllDayTA.xy startup-----------')
+
+
 # Check if the app is in debug mode
 if not app.debug:
     # Set up email error logging
@@ -73,42 +99,18 @@ if not app.debug:
             mailhost=(app.config['MAIL_SERVER'], app.config['MAIL_PORT']),
             fromaddr='ErrorLogFile@' + app.config['MAIL_SERVER'],
             toaddrs=app.config['ADMINS'], subject='SummarizeMe.io Failure',
-            credentials=auth, secure=secure)
+            credentials=auth, secure=secure
+        )
         mail_handler.setLevel(logging.ERROR)
-        mail_handler.setFormatter(SessionDataFormatter(
-            '%(asctime)s %(levelname)s: %(message)s '
-            '[in %(pathname)s:%(lineno)d]\n'
-            'Request data: %(request_data)s\n'
-            'Session data: %(session_data)s\n'
+        mail_handler.setFormatter(CustomFormatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]\n'
+            'Request: %(request_data)s\n'
+            'Session: %(session_data)s\n'
             'User Agent: %(user_agent)s\n'
         ))
         app.logger.addHandler(mail_handler)
 
-    if not os.path.exists('logs'):
-        os.mkdir('logs')
-    # Create a separate logger for startup logs
-    startup_logger = logging.getLogger('startup_logger')
-    startup_logger.setLevel(logging.INFO)
-    startup_file_handler = RotatingFileHandler('logs/startup.log', maxBytes=10240, backupCount=10)
-    file_formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
-    startup_file_handler.setFormatter(file_formatter)
-    startup_logger.addHandler(startup_file_handler)
-    
-    file_handler = RotatingFileHandler(
-        'logs/alldayta.xyz.log', 
-        maxBytes=10240, 
-        backupCount=10
-    )
-    file_handler.setFormatter(SessionDataFormatter(
-        '%(asctime)s %(levelname)s: %(message)s '
-        '[in %(pathname)s:%(lineno)d]\n'
-        'Request data: %(request_data)s\n'
-        'Session data: %(session_data)s\n'
-        'User Agent: %(user_agent)s\n'
-    ))
-    file_handler.setLevel(logging.INFO)
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.INFO)
-
-    # Log the startup message using the separate logger
-    startup_logger.info('--------AllDayTA.xy startup-----------')
+    setup_logging()
+else:
+    # In Debug mode, we only need the regular file logger.
+    setup_logging()
