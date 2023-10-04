@@ -44,8 +44,8 @@ class CustomFormatter(logging.Formatter):
             record.url = request.url
             record.remote_addr = request.remote_addr
             record.user_agent = str(request.user_agent)
-            record.request_data = f"<Request '{record.url}' [{request.method}]>"
-            record.session_data = f"<FileSystemSession {dict(session)}>"
+            record.request_data = f"Request: '{record.url}' [{request.method}]"
+            record.session_data = f"Session: {dict(session)}"
         else:
             record.url = None
             record.remote_addr = None
@@ -54,7 +54,6 @@ class CustomFormatter(logging.Formatter):
             record.session_data = None
 
         return super().format(record)
-
 
 # Set up file and email logging
 def setup_logging():
@@ -72,11 +71,9 @@ def setup_logging():
     # Regular logging setup
     file_handler = RotatingFileHandler('logs/alldayta.xyz.log', maxBytes=10240, backupCount=10)
     file_handler.setFormatter(CustomFormatter(
-        '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]\n'
-        'Request: %(request_data)s\n'
-        'Session: %(session_data)s\n'
-        'User Agent: %(user_agent)s\n'
-    ))
+    '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]; '
+    '%(request_data)s; %(session_data)s; User Agent: %(user_agent)s'
+))
     file_handler.setLevel(logging.INFO)
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.INFO)
