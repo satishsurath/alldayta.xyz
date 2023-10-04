@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+        <h1>Application Logs</h1>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flashes">
+                {% for message in messages %}
+                <div class="alert alert-warning" role="alert">{{ message }}</div>
+                {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <br>
+        <table border="0">
+                <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Log Level</th>
+                            <th>Message</th>
+                            <th>File Path</th>
+                            <th>Request URL</th>
+                            <th>Method</th>
+                            <th>User Name</th>
+                            <th>Folder</th>
+                            <th>User Agent</th>
+                            <th>Course Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.timestamp }}</td>
+                            <td>{{ log.level }}</td>
+                            <td>{{ log.message }}</td>
+                            <td>{{ log.file_path }}</td>
+                            <td>{{ log.request_url }}</td>
+                            <td>{{ log.request_method }}</td>
+                            <td>{{ log.name }}</td>
+                            <td>{{ log.folder }}</td>
+                            <td>{{ log.user_agent }}</td>
+                            <td>{{ log.course_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            <!-- You can add more content or scripts here -->
+        <br>
+{% endblock %}

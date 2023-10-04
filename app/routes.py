@@ -7,6 +7,8 @@ import time
 import threading
 import csv
 import json
+import re
+import ast
 
 
 from csv import reader
@@ -23,7 +25,8 @@ from app.forms import UploadSyllabus
 from app.routes_helper import (
     save_pdf_and_extract_text, 
     check_processed_files,
-    detect_final_data_files
+    detect_final_data_files,
+    load_course_metadata
     #courses_with_final_data, # Checks all (courses) sub-folders returns a list that contain both 'textchunks.npy' and 'textchunks-originaltext.csv' files.
     #retry_with_exponential_backoff # Define a retry decorator with exponential backoff
 )
@@ -157,7 +160,6 @@ def index():
 def privacypolicy():
     return render_template('privacy.html')
 
-
 #  --------------------Routes for the login and logout pages --------------------
 @app.route('/admin-login', methods=['GET', 'POST'])
 def adminlogin():
@@ -258,12 +260,10 @@ def delete_item():
         delete_folder(path) 
     return redirect(request.referrer)
 
-
 @app.errorhandler(400)
 def bad_request_error(error):
     app.logger.error(f"Bad Request Error: {error}")
     return jsonify(success=False, error="Bad Request"), 400
-
 
 @app.route('/toggle_activation/<course_name>/<file_name>', methods=['POST'])
 @login_required
@@ -295,14 +295,11 @@ def toggle_activation(course_name, file_name):
         app.logger.error(f"Exception in toggle_activation: {str(e)}", exc_info=True)
         return jsonify(success=False, error=str(e))
 
-
-
-
-
 @app.route('/course-contents/<course_name>', methods=['GET', 'POST'])
 @login_required
 def course_contents(course_name):
     form = UploadSyllabus()
+    session['course_name'] = course_name
     # Part 1: Upload Syllabus PDF file and Save the text version: Check if the form was sucessfully validated:
     if form.validate_on_submit():
        save_pdf_and_extract_text(form, course_name)
@@ -324,6 +321,9 @@ def course_contents(course_name):
     else:
         with open(meta_file_path, 'r') as json_file:
             metadata = json.load(json_file)
+        load_course_metadata(metadata)
+
+
 
     contents = get_content_files(folder_path)
     file_info = detect_final_data_files(folder_path) # for 'textchunks.npy' and 'textchunks-originaltext.csv' if they exist
@@ -351,7 +351,6 @@ def course_contents(course_name):
        file_info=file_info,
        metadata=metadata,  # add metadata to the template
        )
-
 
 @app.route('/update-course-metadata', methods=['POST'])
 @login_required
@@ -383,8 +382,6 @@ def update_course_metadata():
     # For instance, redirecting back to the course management or course content page
     return redirect(request.referrer)
 
-
-
 @app.route('/preview-chunks/<course_name>', methods=['GET'])
 @login_required
 def preview_chunks(course_name):
@@ -413,7 +410,6 @@ def preview_chunks(course_name):
             print(f"Error reading {csv_file}: {e}")  # Print any errors encountered
     #print(f"CSV files: {csv_files}\nSecond entries: {second_entries}")
     return render_template('preview_chunks.html', course_name=course_name, zip=zip, csv_files=csv_files, second_entries=second_entries, name=session.get('name'))
-
 
 
 @app.route('/preview-chunks-js/<course_name>/<content_name>', methods=['GET'])
@@ -481,6 +477,45 @@ def settings():
         flash('Settings have been updated!', 'success') 
     return render_template('settings.html', settings=settings_data, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
+
+@app.route('/logs')
+@login_required
+def view_logs():
+    with open('logs/alldayta.xyz.log', 'r') as f:
+        raw_logs = f.readlines()
+
+    # Parsing the logs
+    parsed_logs = []
+    for log in raw_logs:
+        # Using regex to extract components
+        timestamp = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})", log).group(1)
+        level = re.search(r" (\w+):", log).group(1)
+        message = re.search(r": (.+?) \[in", log).group(1)
+        file_path = re.search(r"\[in (.*?)]", log).group(1)
+        request_url = re.search(r"Request: '(.*?)' \[(\w+)]", log).group(1)
+        request_method = re.search(r"Request: '(.*?)' \[(\w+)]", log).group(2)
+        session_str = re.search(r"Session: (.*?);", log).group(1)
+        session_dict = ast.literal_eval(session_str)
+        user_agent = re.search(r"User Agent: (.*)$", log).group(1)
+        name = session_dict.get('name', 'N/A')
+        folder = session_dict.get('folder', 'N/A')
+        course_name = session_dict.get('course_name', 'N/A')
+
+        parsed_logs.append({
+        'timestamp': timestamp,
+        'level': level,
+        'message': message,
+        'file_path': file_path,
+        'request_url': request_url,
+        'request_method': request_method,
+        'session': session_dict,
+        'user_agent': user_agent,
+        'name': name,
+        'folder': folder,
+        'course_name': course_name
+})
+    return render_template('logs.html', logs=parsed_logs)
+
 #  --------------------Routes for Content Processing --------------------
 
 @app.route('/chop-course-content', methods=['GET'])
@@ -529,15 +564,49 @@ def create_final_data_course_content():
 def teaching_assistant():
     global df_chunks, embedding
     course_name = request.args.get('course_name', None)
-    folder = request.args.get('folder', None)     
+    folder = request.args.get('folder', None) 
+    
+    # setting a new session variable to save course name
+    # we save this to the session so that we can use it in the logging
+    session['course_name'] = course_name
+    session['folder'] = folder
+
+    app.logger.info(f"Entered teaching_assistant for course {course_name} and folder {folder}")    
     course_folder = os.path.join(app.config['FOLDER_UPLOAD'], folder, course_name)
     dataname = os.path.join(course_folder,"Textchunks")
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
+    # Check if metadata file exists, if not create a blank one
+    meta_file_path = os.path.join(folder_path, "course_meta.json")
+    if not os.path.exists(meta_file_path):
+        metadata = {
+            'classname': '',
+            'professor': '',
+            'assistants': '',
+            'classdescription': '',
+            'assistant_name': ''
+        }
+        with open(meta_file_path, 'w') as json_file:
+            json.dump(metadata, json_file)
+    else:
+        with open(meta_file_path, 'r') as json_file:
+            metadata = json.load(json_file)
+        load_course_metadata(metadata)
+
+
+
     classname = course_name
-    professor = "Placeholder"
-    assistants = "Placeholder"
-    classdescription = "Placeholder"
-    assistant_name = "Placeholder"
-    instruct = 'I am an experimental virtual TA for your course in entrepreneurship.  I have been trained with all of your readings, course materials, lecture content, and slides. I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice.  If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'
+    professor = session['professor']
+    assistants = session['assistants']
+    classdescription = session['classdescription']
+    assistant_name = session['assistant_name']
+    instruct = ('I am an experimental virtual TA for your course in entrepreneurship.'
+                  ' I have been trained with all of your readings, course materials, lecture content, and slides. '
+                  ' I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. '
+                  ' The more precise your question, the better an answer you will get. '
+                  ' You may ask me questions in the language of your choice.  '
+                  ' If "an error occurs while processing", ask your question again: '
+                  ' the servers we use to process these answers are also in beta.')
     num_chunks = 8
 
     # check if we have the Syllabus already for this course
@@ -556,8 +625,17 @@ def teaching_assistant():
             if not (request.form['content1'].startswith('m:') or request.form['content1'].startswith('M:') or request.form['content1'].startswith('a:')):
                 # first let's see if it's on the syllabus
                 send_to_gpt = []
-                send_to_gpt.append({"role": "user",
-                                    "content": f"This question is from a student in an {classname} taught by {professor} with the help of {assistants}.  The class is {classdescription}  I want to know whether this question is likely about the logistical details, schedule, nature, teachers, assignments, or syllabus of the course?  Answer Yes or No and nothing else: {request.form['content1']}"})
+                send_to_gpt.append({
+                    "role": "user",
+                    "content": (
+                        f"This question is from a student in an {classname} taught by "
+                        f"{professor} with the help of {assistants}. The class is "
+                        f"{classdescription} I want to know whether this question is "
+                        f"likely about the logistical details, schedule, nature, teachers, "
+                        f"assignments, or syllabus of the course? Answer Yes or No and "
+                        f"nothing else: {request.form['content1']}"
+                    )
+                })
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     max_tokens=1,
@@ -576,21 +654,39 @@ def teaching_assistant():
                     # if not on the syllabus, and it might be a followup, see if it is
                     if len(request.form['content2'])>1:
                         send_to_gpt = []
+                        content_value = (
+                            f"Consider this new question from a user: {request.form['content1']}. "
+                            f"Their prior question and the response was {request.form['content2']} "
+                            f"Would it be helpful to have the context of the previous question and response to answer the new one? "
+                            "For example, the new question may refer to 'this' or 'that' or 'the company' or 'their' or 'his' "
+                            "or 'her' or 'the paper' or similar terms whose context is not clear if you only know the current question "
+                            "and don't see the previous question and response, or it may ask for more details or to summarize or "
+                            "rewrite or expand on the prior answer in a way that is impossible to do unless you can see the previous answer. "
+                            "Answer either Yes or No."
+                        )
                         send_to_gpt.append({"role": "user",
-                                            "content": f"Consider this new question from a user: {request.form['content1']}. Their prior question and the response was {request.form['content2']} Would it be helpful to have the context of the previous question and response to answer the new one?  For example, the new question may refer to 'this' or 'that' or 'the company' or 'their' or 'his' or 'her' or 'the paper' or similar terms whose context is not clear if you only know the current question and don't see the previous question and response, or it may ask for more details or to summarize or rewrite or expand on the prior answer in a way that is impossible to do unless you can see the previous answer.  Answer either Yes or No."})
+                                            "content": content_value})
                         response = openai.ChatCompletion.create(
                             model="gpt-3.5-turbo",
                             max_tokens=1,
                             temperature=0.0,
                             messages=send_to_gpt
                         )
-                        print(f"Consider this new question from a user: {request.form['content1']}. Their prior question and the response was {request.form['content2']} Think very logically.  Is the information requested in the new question potentially related to the previous question and response? Answer either Yes or No.")
+                        print(f"Consider this new question from a user: {request.form['content1']}."
+                            f" Their prior question and the response was {request.form['content2']}."
+                            " Think very logically."
+                            " Is the information requested in the new question potentially related to the previous question and response?"
+                            " Answer either Yes or No.")
                         print("Might this be a follow-up? " + response["choices"][0]["message"]["content"])
                         # Construct new prompt if AI says that this is a followup
                         if response["choices"][0]["message"]["content"].startswith('Y') or response["choices"][0]["message"]["content"].startswith('y'):
                            # Concatenate the strings to form the original_question value
                             print("Creating follow-up question")
-                            original_question = 'I have a followup on the previous question and response. ' + request.form['content2'] + 'My new question is: ' + request.form['content1']
+                            #original_question = 'I have a followup on the previous question and response. ' + request.form['content2'] + 'My new question is: ' + request.form['content1']
+                            original_question = ('I have a followup on the previous question and response. ' 
+                                                + request.form['content2'] 
+                                                + 'My new question is: ' 
+                                                + request.form['content1'])
 
 
 
@@ -671,11 +767,35 @@ def teaching_assistant():
                 session['last_session'] = truncated_most_similar
                 print("saving old context to session variable")
             elif request.form['content1'].startswith('a:'):
-                instructions = "You are a very truthful, precise TA in a " + classname + ".  You think step by step. You are testing a strong graduate student on their knowledge.  The student would like you, using the attached context, to tell them whether they have answered the attached multiple choice question correctly.  Draw ONLY on the attached context for definitions and theoretical content.  Never refer to 'the attached context' or 'the article says that' or other context: just state your answer and the rationale."
+                #instructions = "You are a very truthful, precise TA in a " + classname + ".  You think step by step. You are testing a strong graduate student on their knowledge.  The student would like you, using the attached context, to tell them whether they have answered the attached multiple choice question correctly.  Draw ONLY on the attached context for definitions and theoretical content.  Never refer to 'the attached context' or 'the article says that' or other context: just state your answer and the rationale."
+                instructions = ("You are a very truthful, precise TA in a " + classname + ". "
+               "You think step by step. You are testing a strong graduate student on their knowledge. "
+               "The student would like you, using the attached context, to tell them whether they have "
+               "answered the attached multiple choice question correctly. "
+               "Draw ONLY on the attached context for definitions and theoretical content. "
+               "Never refer to 'the attached context' or 'the article says that' or other context: "
+               "just state your answer and the rationale.")
+
                 original_question =  request.form['content1'][len('a:'):].strip()
                 temperature=0.2
             else:
-                instructions = "You are a very truthful, precise TA in a " + classname + ", a " + classdescription + ".  You think step by step. A strong graduate student is asking you questions.  The answer to their query may appear in the attached book chapters, handouts, transcripts, and articles.  If it does, in no more than three paragraphs answer the user's question; you may answer in longer form with more depth if you need it to fully construct a requested numerical example.  Do not restate the question, do not refer to the context where you learned the answer, do not say you are an AI; just answer the question.  Say 'I don't know' if you can't find the answer to the original question in the text below; be very careful to match the terminology and definitions, implicit or explicit, used in the attached context. You may try to derive more creative examples ONLY if the user asks for a numerical example of some type when you can construct it precisely using the terminology found in the attached context with high certainty, or when you are asked for an empirical example or an application of an idea to a new context, and you can construct one using the exact terminology and definitions in the text; remember, you are a precise TA who wants the student to understand but also wants to make sure you do not contradict the readings and lectures the student has been given in class. Please answer in the language of the student's question."
+                instructions = ("You are a very truthful, precise TA in a " 
+                                + classname + ", a " + classdescription + 
+                                ".  You think step by step. A strong graduate student is asking you questions."  
+                                " The answer to their query may appear in the attached book chapters, handouts, transcripts, and articles."  
+                                " If it does, in no more than three paragraphs answer the user's question;" 
+                                " you may answer in longer form with more depth if you need it to fully construct a requested numerical example."  
+                                " Do not restate the question, do not refer to the context where you learned the answer, do not say you are an AI;" 
+                                " just answer the question.  Say 'I don't know' if you can't find the answer to the original question in the text below;" 
+                                " be very careful to match the terminology and definitions, implicit or explicit, used in the attached context." 
+                                " You may try to derive more creative examples ONLY if the user asks for a numerical example of some type when" 
+                                " you can construct it precisely using the terminology found in the attached context with high certainty," 
+                                " or when you are asked for an empirical example or an application of an idea to a new context," 
+                                " and you can construct one using the exact terminology and definitions in the text; remember," 
+                                " you are a precise TA who wants the student to understand but also wants to make sure you do not" 
+                                " contradict the readings and lectures the student has been given in class." 
+                                " Please answer in the language of the student's question."
+                                )
                 temperature=0.2
             reply = []
             print("The question sent to GPT is " + original_question)
@@ -837,8 +957,13 @@ def teaching_assistant():
        # courses=courses, # THis is no longer needed
        name=session.get('name'),
        course_name = course_name,
-       instruct = 'I am an experimental virtual TA for your course in <i>' + course_name + '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides. <br>I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. <br>The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice. <br> If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.'
-       )
+       instruct = ('I am an experimental virtual TA for your course in <i>' 
+                   + course_name + 
+                   '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides.<br>'
+                   'I am generally truthful, but be aware that there is a large language model in the background and hallucinations are possible. <br>'
+                   'The more precise your question, the better an answer you will get. You may ask me questions in the language of your choice. <br>'
+                    'If "an error occurs while processing", ask your question again: the servers we use to process these answers are also in beta.')
+                    )
 
 
 #  --------------------Functions for Chatting --------------------

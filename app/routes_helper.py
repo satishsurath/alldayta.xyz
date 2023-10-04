@@ -101,3 +101,13 @@ def retry_with_exponential_backoff(func):
         # If max_retries exceeded, raise an exception
         raise Exception("API rate limit exceeded even after retries.")
     return wrapper
+
+
+# read metadata from the course folder and store them in session variables
+def load_course_metadata(metadata):
+    # save the values of the metadata in session
+    session['classname'] = metadata['classname']
+    session['professor'] = metadata['professor']
+    session['assistants'] = metadata['assistants']
+    session['classdescription'] = metadata['classdescription']
+    session['assistant_name'] = metadata['assistant_name']
