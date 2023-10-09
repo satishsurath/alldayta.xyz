@@ -22,23 +22,27 @@
                             <th>Method</th>
                             <th>User Name</th>
                             <th>Folder</th>
-                            <th>User Agent</th>
                             <th>Course Name</th>
+                            <th>User Agent</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for log in logs %}
                         <tr>
-                            <td>{{ log.timestamp }}</td>
-                            <td>{{ log.level }}</td>
-                            <td>{{ log.message }}</td>
-                            <td>{{ log.file_path }}</td>
-                            <td>{{ log.request_url }}</td>
+                            <td>{{ log.timestamp[0] }}</td>
+                            <td>{{ log.level[0] }}</td>
+                            {% if '{' in log.message and '}' in log.message  %}
+                                <td><pre>{{ log.message|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}</pre></td>
+                            {% else %}
+                                <td>{{ log.message|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}</td>
+                            {% endif %}
+                            <td>...{{ log.file_path[0][-21:] }}</td>
+                            <td>{{ log.request_url|strip_domain }}</td>
                             <td>{{ log.request_method }}</td>
                             <td>{{ log.name }}</td>
                             <td>{{ log.folder }}</td>
-                            <td>{{ log.user_agent }}</td>
                             <td>{{ log.course_name }}</td>
+                            <td>{{ log.user_agent[0] }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

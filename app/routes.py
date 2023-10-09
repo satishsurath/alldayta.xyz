@@ -56,6 +56,8 @@ from app.file_operations import (
 
 from pdfminer.high_level import extract_text
 from io import BytesIO
+from urllib.parse import urlparse
+
 
 # -------------------- Global Variables --------------------
 # this lets us load the data only once and to do it in the background while the user types the first q
@@ -80,6 +82,23 @@ def escape_id(id_str):
 
 app.jinja_env.globals.update(escape_id=escape_id)
 
+@app.template_filter('strip_domain')
+def strip_domain_filter(url):
+    if not isinstance(url, str):
+        return url  # Return the original value if it's not a string
+
+    parsed = urlparse(url)
+    return parsed.path + ('?' + parsed.query if parsed.query else '')
+app.jinja_env.filters['strip_domain'] = strip_domain_filter
+
+
+def format_json(message):
+    try:
+        parsed_json = json.loads(message)
+        return json.dumps(parsed_json, indent=4)
+    except json.JSONDecodeError:
+        return message
+    
 # -------------------- Flask app configurations --------------------
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -482,39 +501,69 @@ def settings():
 @login_required
 def view_logs():
     with open('logs/alldayta.xyz.log', 'r') as f:
-        raw_logs = f.readlines()
+        raw_lines = f.readlines() # = f.readlines()
+
+    # Consolidate log entries
+    consolidated_logs = []
+    current_log = ''
+    for line in raw_lines:
+        if re.match(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}", line):
+            if current_log:
+                consolidated_logs.append(current_log)
+            current_log = line
+        else:
+            current_log += line
+    if current_log:
+        consolidated_logs.append(current_log)
+
+
+
+    def safe_search(pattern, log, default="N/A"):
+        """Helper function to safely perform regex search."""
+        match = re.search(pattern, log)
+        if match:
+            return match.groups()  # Return all groups as a tuple
+        elif isinstance(default, tuple):
+            return default
+        else:
+            return (default,)
 
     # Parsing the logs
     parsed_logs = []
-    for log in raw_logs:
-        # Using regex to extract components
-        timestamp = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})", log).group(1)
-        level = re.search(r" (\w+):", log).group(1)
-        message = re.search(r": (.+?) \[in", log).group(1)
-        file_path = re.search(r"\[in (.*?)]", log).group(1)
-        request_url = re.search(r"Request: '(.*?)' \[(\w+)]", log).group(1)
-        request_method = re.search(r"Request: '(.*?)' \[(\w+)]", log).group(2)
-        session_str = re.search(r"Session: (.*?);", log).group(1)
-        session_dict = ast.literal_eval(session_str)
-        user_agent = re.search(r"User Agent: (.*)$", log).group(1)
-        name = session_dict.get('name', 'N/A')
-        folder = session_dict.get('folder', 'N/A')
-        course_name = session_dict.get('course_name', 'N/A')
+    for log in consolidated_logs:
+        timestamp = safe_search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})", log)
+        level = safe_search(r" (\w+):", log)
+        message = safe_search(r": (.+?) \[in", log)
+        file_path = safe_search(r"\[in (.*?)]", log)
+        request_data = safe_search(r"Request: '(.*?)' \[(\w+)]", log, default=("N/A", "N/A"))
+        #session_str = safe_search(r"Session: (.*?);", log)
+        session_str_tuple = safe_search(r"Session: (.*?);", log)
+        session_str = session_str_tuple[0] if session_str_tuple else ''
+        print(session_str)
+        # Convert the session string into a dictionary
+        try:
+            session_dict = ast.literal_eval(session_str)
+        except (ValueError, SyntaxError):
+            session_dict = {}
 
+        user_agent = safe_search(r"User Agent: (.*)$", log)
+        
         parsed_logs.append({
-        'timestamp': timestamp,
-        'level': level,
-        'message': message,
-        'file_path': file_path,
-        'request_url': request_url,
-        'request_method': request_method,
-        'session': session_dict,
-        'user_agent': user_agent,
-        'name': name,
-        'folder': folder,
-        'course_name': course_name
-})
+            'timestamp': timestamp,
+            'level': level,
+            'message': format_json(message[0]),
+            'file_path': file_path,
+            'request_url': request_data[0],
+            'request_method': request_data[1],
+            'session': session_dict,
+            'user_agent': user_agent,
+            'name': session_dict.get('name', 'N/A'),
+            'folder': session_dict.get('folder', 'N/A'),
+            'course_name': session_dict.get('course_name', 'N/A')
+        })
+
     return render_template('logs.html', logs=parsed_logs)
+
 
 #  --------------------Routes for Content Processing --------------------
 
@@ -614,10 +663,14 @@ def teaching_assistant():
         with load_lock:
             # Load the text and its embeddings
             print("ok, starting")
+            app.logger.info(f"Entered teaching_assistant for course {course_name} and folder {folder} - in the POST block")
             start_time = time.time()  # record the start time
+            # add the log entry of the start time
+            app.logger.info(f"Start time: {start_time}")
             df_chunks = load_df_chunks(dataname) # get df_chunks from the global
             elapsed_time = time.time() - start_time  # calculate the elapsed time
             print(f"Data loaded. Time taken: {elapsed_time:.2f} seconds")
+            app.logger.info(f"Data loaded. Time taken: {elapsed_time:.2f} seconds")
             original_question = request.form['content1']
 
             # if there is a previous question and it's not multiple choice or its answer, check to see if the new one is a syllabus q or followup
@@ -636,6 +689,8 @@ def teaching_assistant():
                         f"nothing else: {request.form['content1']}"
                     )
                 })
+                #Log send_to_gpt variable
+                app.logger.info(f"Check if this is Syllabus question: 'Send_to_gpt' variable: {send_to_gpt}")
                 response = openai.ChatCompletion.create(
                     model="gpt-3.5-turbo",
                     max_tokens=1,
@@ -643,12 +698,22 @@ def teaching_assistant():
                     messages=send_to_gpt
                 )
                 print("Is this a syllabus question? " + response["choices"][0]["message"]["content"])
+                app.logger.info(f"Is this a syllabus question? " + response["choices"][0]["message"]["content"])
+                #Logging the whole response JSON
+                # Convert the response object to a JSON-formatted string
+                formatted_response = json.dumps(str(response), indent=4, ensure_ascii=False)
+                # Log the formatted string
+                app.logger.info(f"This is the fortmatted 'response' JSON:\n{formatted_response}")
+                #app.logger.info(f"This is the 'response' JSON:" + str(response))
+
                 # Construct new prompt if AI says that this is a syllabus question
                 if response["choices"][0]["message"]["content"].startswith('Y') or response["choices"][0]["message"][
                     "content"].startswith('y'):
                     # Concatenate the strings to form the original_question value
                     print("It seems like this question is about the syllabus")
+                    app.logger.info(f"It seems like this question is about the syllabus")
                     original_question = "I may be asking about a detail on the syllabus for " + classname + ". " + request.form['content1']
+                    app.logger.info(f"Original question: {original_question}")
                 # This follow-up question works great in 4 BUT NOT WELL WITH 3.5
                 else:
                     # if not on the syllabus, and it might be a followup, see if it is
