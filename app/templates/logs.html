@@ -34,15 +34,18 @@
                             {% if '{' in log.message and '}' in log.message %}
                             {% set json_start = log.message.find("{") %}
                             {% set json_end = log.message.rfind("}") + 1 %}
+                            {% set json_content = log.message[json_start:json_end]|break_lines %}
+                        
                             <td>
-                                {{ log.message[:json_start]|replace("\\\"", "\"")|safe }}
-                                <pre>{{ log.message[json_start:json_end]|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}</pre>
-                                {{ log.message[json_end:]|replace("\\\"", "\"")|safe }}
+                                {{ log.message[:json_start]|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}
+                                <pre>{{ json_content|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}</pre>
+                                {{ log.message[json_end:]|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}
                             </td>
                         {% else %}
                             <td>{{ log.message|replace("\\\"", "\"")|replace("\\n", "<br>")|safe }}</td>
                         {% endif %}
-                        
+
+
                             <td>...{{ log.file_path[0][-21:] }}</td>
                             <td>{{ log.request_url|strip_domain }}</td>
                             <td>{{ log.request_method }}</td>

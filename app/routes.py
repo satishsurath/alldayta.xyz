@@ -99,6 +99,12 @@ def format_json(message):
     except json.JSONDecodeError:
         return message
     
+@app.template_filter('break_lines')
+def break_lines(s):
+    return "<br>".join([s[i:i+50] for i in range(0, len(s), 50)])
+
+app.jinja_env.filters['break_lines'] = break_lines
+
 # -------------------- Flask app configurations --------------------
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -497,11 +503,37 @@ def settings():
     return render_template('settings.html', settings=settings_data, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
 
-@app.route('/logs')
+@app.route('/logs',methods=['GET', 'POST'])
 @login_required
 def view_logs():
+    load_previous = request.args.get('previous', None)
+    
+    raw_lines = []
+    #first we load the first log file
     with open('logs/alldayta.xyz.log', 'r') as f:
-        raw_lines = f.readlines() # = f.readlines()
+        raw_lines += f.readlines() # = f.readlines()
+    
+    #if load_previous: then load the previous log file
+    if load_previous:
+        #if load_previos is a number, then load all the log files from the last n days where n = load_previous
+        if load_previous.isdigit():
+            load_previous = int(load_previous)
+            log_files = []
+            for i in range(load_previous):
+                #ignore for i = 0
+                if i > 0:
+                    log_files.append(f"logs/alldayta.xyz.log.{i}")
+        #Now read the log files and add them to the raw_lines
+        for log_file in log_files:
+            try:
+                with open(log_file, 'r') as f:
+                    raw_lines += f.readlines()
+            except Exception as e:
+                app.logger.error(f"Error reading log file {log_file}: {e}")
+
+
+
+
 
     # Consolidate log entries
     consolidated_logs = []
@@ -564,6 +596,9 @@ def view_logs():
             'folder': session_dict.get('folder', 'N/A'),
             'course_name': session_dict.get('course_name', 'N/A')
         })
+
+    # Sorting logs based on timestamp in descending order.
+    parsed_logs = sorted(parsed_logs, key=lambda x: x['timestamp'][0], reverse=True)    
 
     return render_template('logs.html', logs=parsed_logs)
 
@@ -693,9 +728,10 @@ def teaching_assistant():
                     )
                 })
                 #Log send_to_gpt variable
-                app.logger.info(f"Check if this is Syllabus question: 'Send_to_gpt' variable: {send_to_gpt}")
+                formatted_send_to_gpt = json.dumps(str(send_to_gpt), indent=4, ensure_ascii=False)
+                app.logger.info(f"Check if this is Syllabus question: 'Send_to_gpt' variable: {formatted_send_to_gpt}")
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4",
                     max_tokens=1,
                     temperature=0.0,
                     messages=send_to_gpt
