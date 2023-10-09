@@ -25,6 +25,10 @@ body.dark-mode {
 
 }
 
+pre{
+  color: rgb(25, 50, 0);
+}
+
 .alert { color: red}
 
 

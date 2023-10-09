@@ -517,10 +517,10 @@ def view_logs():
         consolidated_logs.append(current_log)
 
 
-
-    def safe_search(pattern, log, default="N/A"):
+ 
+    def safe_search(pattern, log, flags=0, default="N/A"):
         """Helper function to safely perform regex search."""
-        match = re.search(pattern, log)
+        match = re.search(pattern, log, flags)
         if match:
             return match.groups()  # Return all groups as a tuple
         elif isinstance(default, tuple):
@@ -532,8 +532,11 @@ def view_logs():
     parsed_logs = []
     for log in consolidated_logs:
         timestamp = safe_search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3})", log)
-        level = safe_search(r" (\w+):", log)
-        message = safe_search(r": (.+?) \[in", log)
+        #level = safe_search(r" (\w+):", log)
+        #   message = safe_search(r": (.+?) \[in", log)
+        #message = safe_search(r":(.*?)\s\[in", log, flags=re.DOTALL) 
+        level = safe_search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} (\w+):", log)
+        message = safe_search(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \w+: (.+?) \[in", log, flags=re.DOTALL)
         file_path = safe_search(r"\[in (.*?)]", log)
         request_data = safe_search(r"Request: '(.*?)' \[(\w+)]", log, default=("N/A", "N/A"))
         #session_str = safe_search(r"Session: (.*?);", log)
