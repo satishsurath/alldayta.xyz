@@ -945,7 +945,7 @@ def teaching_assistant():
     
 
 
-
+    ####------------- TO DO : LOAD SYLLABUS
     # This is now manually being triggered by the faculty. 
     #if courses_with_final_data(app.config['FOLDER_UPLOAD']):
     #  courses = courses_with_final_data(app.config['FOLDER_UPLOAD'])

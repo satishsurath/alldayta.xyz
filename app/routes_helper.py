@@ -111,3 +111,21 @@ def load_course_metadata(metadata):
     session['assistants'] = metadata['assistants']
     session['classdescription'] = metadata['classdescription']
     session['assistant_name'] = metadata['assistant_name']
+
+def process_syllabus(course_name):
+    app.logger.info(f"Entered process_syllabus")
+    user_folder = session['folder']
+    
+    ####------ to be done
+    # Assuming you have similar functions for syllabus processing
+    #chop_syllabus_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+    #embed_syllabus_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+    
+    try:
+        ####------ to be done
+        #create_final_data_syllabus_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+        app.logger.info(f"Completed process_syllabus for COURSE NAME: {course_name}")
+        return True
+    except Exception as e:
+        app.logger.error(f"An error occurred while processing syllabus: {e}")
+        return False

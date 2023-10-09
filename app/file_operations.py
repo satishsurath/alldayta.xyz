@@ -22,6 +22,7 @@ def check_folder_exists(folder_path):
         return True
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when creating folder: {e}")
         return False
 
 #check if there is a text file and return the filename
@@ -34,6 +35,7 @@ def get_first_txt_file(folder_path):
             return None
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when reading from {folder_path}: {e}")
         return None
 
 #Given the filename, read the file and return the json, wrap it in try catch
@@ -44,6 +46,7 @@ def read_from_file_json(filename):
         return json_contents
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when reading from {filename}: {e}")
         return False
 
 #Given the filename and aata, write the the json, wrap it in try catch
@@ -72,6 +75,7 @@ def read_from_file_text(filename):
         return content
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when reading from {filename}: {e}")
         return False
     
 
@@ -97,6 +101,7 @@ def rename_folder(old_folder_name, new_folder_name):
         return True
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when renaming folder: {e}")
         return False
 
 # Delete the Folder (and all the contents under this)
@@ -108,6 +113,7 @@ def delete_folder(folder_name):
         return True
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when deleting folder: {e}")
         return False
 
 # Delete the File
@@ -118,6 +124,7 @@ def delete_file(file_name):
         return True
     except Exception as e:
         print("An exception occurred:", e)
+        app.logger.error(f"An exception occurred when deleting file: {e}")
         return False
 
 # Create a New Folder under this app.config["FOLDER_UPLOAD"]
@@ -131,7 +138,8 @@ def create_course_folder_with_metadata(folder_name, metadata):
         with open(json_file_path, 'w') as json_file:
             json.dump(metadata, json_file)
         return True
-    except:
+    except Exception as e:
+        app.logger.error(f"An exception occurred when creating course folder: {e}")
         return False
 
 
@@ -142,7 +150,8 @@ def save_course_metadata(folder_name,metadata):
         with open(json_file_path, 'w') as json_file:
             json.dump(metadata, json_file)
         return True
-    except:
+    except Exception as e:
+        app.logger.error(f"An exception occurred when saving course metadata: {e}")
         return False
 
 
@@ -187,6 +196,7 @@ def delete_files_in_folder(folder_path):
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)
     except Exception as e:
+        app.logger.error(f'Failed to delete: Reason: {e}')
         print(f'Failed to delete: Reason: {e}')
 
 
