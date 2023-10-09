@@ -600,7 +600,7 @@ def view_logs():
     # Sorting logs based on timestamp in descending order.
     parsed_logs = sorted(parsed_logs, key=lambda x: x['timestamp'][0], reverse=True)    
 
-    return render_template('logs.html', logs=parsed_logs)
+    return render_template('logs.html', logs=parsed_logs, previous=load_previous)
 
 
 #  --------------------Routes for Content Processing --------------------
