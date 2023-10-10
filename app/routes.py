@@ -23,7 +23,7 @@ from flask_login import login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
 from app.forms import UploadSyllabus
 from app.routes_helper import (
-    save_pdf_and_extract_text, 
+    save_syllabus, 
     check_processed_files,
     detect_final_data_files,
     load_course_metadata
@@ -327,7 +327,7 @@ def course_contents(course_name):
     session['course_name'] = course_name
     # Part 1: Upload Syllabus PDF file and Save the text version: Check if the form was sucessfully validated:
     if form.validate_on_submit():
-       save_pdf_and_extract_text(form, course_name)
+       save_syllabus(form, course_name)
     # Part 2: Load Course Content: 
     user_folder = session['folder']
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)

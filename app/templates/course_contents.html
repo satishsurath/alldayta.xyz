@@ -44,12 +44,12 @@
             {{ form.hidden_tag() }}
             <p>
                 {{ form.csrf_token }}
-                <span class="alert alert-warning" role="alert">  Replace Syllabus {{ form.pdf.label }} </span>
+                <span class="alert alert-warning" role="alert">  Replace Syllabus {{ form.syllabus.label }} </span>
                 
-                {{ form.pdf(class_='form-control',placeholder='Upload PDF...') }} 
+                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }} 
                 <p> <br> </p>
                 {{ form.submit(id='submit_button', value='Upload and Replace Syllabus') }} 
-                {% for error in form.pdf.errors %} 
+                {% for error in form.syllabus.errors %} 
                 <span style="color: red;">[{{ error }}]</span> 
                 {% endfor %} 
                 
@@ -108,10 +108,10 @@
             {{ form.hidden_tag() }}
             <p class="course-content-heading">
                 {{ form.csrf_token }}
-                {{ form.pdf.label }} 
+                {{ form.syllabus.label }} 
                 
-                {{ form.pdf(class_='form-control',placeholder='Upload PDF...') }}  
-                {% for error in form.pdf.errors %} 
+                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }}  
+                {% for error in form.syllabus.errors %} 
                 <span style="color: red;">[{{ error }}]</span> 
                 {% endfor %} 
                 <br>

@@ -27,28 +27,44 @@ from app.file_operations import (
 
 
 # This function handles an uploaded PDF file from a form, extracts text from the PDF, generates a hash of the extracted text for naming, checks if a text file already exists for the course and deletes it if so, and finally saves the PDF and the extracted text to the designated locations.
-def save_pdf_and_extract_text(form, course_name):
+def save_syllabus(form, course_name):
     # Get the uploaded PDF file
-    pdf_file = form.pdf.data
-    course_syllabus  = extract_text(BytesIO(pdf_file.read()))
-    course_syllabus_hash = hashlib.sha256(course_syllabus.encode('utf-8')).hexdigest()
-
-    #generate file names and full file paths for the PDF and txt files
-    filename = secure_filename(course_syllabus_hash + pdf_file.filename)
+    syllabus_file = form.syllabus.data
+    #generate file names and full file paths for the Syllabus file
+    filename = secure_filename(course_name + "Syllabus" + syllabus_file.filename)
     user_folder = session['folder']
-    pdf_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name, filename)
-    txt_filename = secure_filename(course_syllabus_hash + os.path.splitext(pdf_file.filename)[0] + '.txt')
-    txt_path = get_file_path(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name, txt_filename)
+    syllabus_path = get_file_path(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename)
+    #delete old syllabus before saving the new one if its present
+    delete_previous_syllabus(course_name)
+    #save the syllabus file
+    syllabus_file.save(syllabus_path)
 
-    # check if there is a text file already and delete the folder contents
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
-        delete_files_in_folder(pdf_path)
+#function to check if there is another file that starts with <course_name> + "Syllabus" and delete it if it exists. input is couse_name
+def delete_previous_syllabus(course_name):
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)
+    #get a list file names in the course folder
+    contents = os.listdir(folder_path)
+    # Check if there is a file that starts with course_name + "Syllabus" in contents
+    for file in contents:
+        if file.startswith(course_name + "Syllabus"):
+            file_path = os.path.join(folder_path, file)
+            try:
+                os.remove(file_path)
+                print(f"Deleted previous syllabus: {file_path}")
+                app.logger.info(f"Deleted previous syllabus: {file_path}")
+            except Exception as e:
+                print(f"Error deleting the file {file_path}. Reason: {str(e)}")
 
-    #write the PDF files and text files to the locations:
-    if check_folder_exists(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
-        pdf_file.save(pdf_path)
-        with open(txt_path, 'w') as txt_file:
-            txt_file.write(course_syllabus)
+
+
+    
+
+
+    previous_syllabus_file = get_first_txt_file(app.config['FOLDER_UPLOAD'], user_folder, course_name, course_name + "Syllabus")
+    if previous_syllabus_file:
+        #delete the file
+        delete_file(app.config['FOLDER_UPLOAD'], user_folder, course_name, previous_syllabus_file)
 
 # This function checks if the '-originaltext.csv' and '-originaltext.npy' versions of each file in the provided list exist in the 'Textchunks' and 'EmbeddedText' folders respectively, and returns their existence status.
 def check_processed_files(contents, parent_folder):
