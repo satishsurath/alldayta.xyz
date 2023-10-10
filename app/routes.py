@@ -24,6 +24,7 @@ from werkzeug.utils import secure_filename
 from app.forms import UploadSyllabus
 from app.routes_helper import (
     save_syllabus, 
+    delete_previous_syllabus,
     check_processed_files,
     detect_final_data_files,
     load_course_metadata
@@ -327,6 +328,7 @@ def course_contents(course_name):
     session['course_name'] = course_name
     # Part 1: Upload Syllabus PDF file and Save the text version: Check if the form was sucessfully validated:
     if form.validate_on_submit():
+       app.logger.info(f"Form validated successfully: {form}")
        save_syllabus(form, course_name)
     # Part 2: Load Course Content: 
     user_folder = session['folder']
@@ -357,8 +359,9 @@ def course_contents(course_name):
     for info in contents_info:
         filename = info[0]
         info.append(activations.get(filename, False))
-
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
+    # Part 3: Load Syllabus:
+    ### TO DO: REPLACE THIS WITH ANOTHER FUNCTION THAT LOADS THE SYLLABUS IN THE NEW WAY
+    if get_first_txt_file(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)):
       syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
     else:
        syllabus = None

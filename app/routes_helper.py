@@ -56,6 +56,20 @@ def delete_previous_syllabus(course_name):
             except Exception as e:
                 print(f"Error deleting the file {file_path}. Reason: {str(e)}")
 
+# define a new function to read the contents of the syllabus file. input is the course_name
+def read_syllabus(course_name):
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)
+    #get the file name of the syllabus file
+    contents = os.listdir(folder_path)
+    # Check if there is a file that starts with course_name + "Syllabus" in contents
+    for file in contents:
+        if file.startswith(course_name + "Syllabus"):
+            file_path = os.path.join(folder_path, file)
+            # File existis!
+            # Check if it has been processed into chunks
+            
+
 
 
     
