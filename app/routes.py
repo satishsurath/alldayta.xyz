@@ -352,9 +352,9 @@ def course_contents(course_name):
 
 
 
-    contents = get_content_files(folder_path)
+    contents = get_content_files(folder_path, course_name)
     file_info = detect_final_data_files(folder_path) # for 'textchunks.npy' and 'textchunks-originaltext.csv' if they exist
-    activations = check_and_update_activations_file(folder_path)
+    activations = check_and_update_activations_file(folder_path, course_name)
     contents_info = check_processed_files(contents, folder_path)
     for info in contents_info:
         filename = info[0]

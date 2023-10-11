@@ -15,6 +15,7 @@ import json
 import io
 # you need to pip install python-docx, not docx
 import docx
+from app import app
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
@@ -57,6 +58,7 @@ def chunk_documents_given_course_name(course_name):
             filepath = os.path.join(filedirectory, filename)
             #Ingnore folders and hidden files
             if os.path.isfile(filepath) and not filename.startswith('.'):
+                output_file = os.path.join(output_folder, filename_without_extension + "-originaltext.csv")
                 # Create an empty DataFrame to store the text and title of each document
                 df = pd.DataFrame(columns=["Title", "Text"])
                 print("Loading " + filename)
@@ -201,10 +203,11 @@ def chunk_documents_given_course_name(course_name):
                 filename_without_extension = os.path.splitext(filename)[0]
 
                 # Save the df_chunks to the output_folder subfolder with the new file name
-                output_file = os.path.join(output_folder, filename_without_extension + "-originaltext.csv")
+                
                 df_chunks.to_csv(output_file, encoding='utf-8', escapechar='\\', index=False)
 
                 print("Saving " + filename)
+                app.logger.info(f"Saved {filename}")
 
 
 

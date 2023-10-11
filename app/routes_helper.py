@@ -31,7 +31,8 @@ def save_syllabus(form, course_name):
     # Get the uploaded PDF file
     syllabus_file = form.syllabus.data
     #generate file names and full file paths for the Syllabus file
-    filename = secure_filename(course_name + "Syllabus" + syllabus_file.filename)
+    extension = os.path.splitext(syllabus_file.filename)[1]
+    filename = secure_filename("Syllabus-" + course_name + extension)
     user_folder = session['folder']
     syllabus_path = get_file_path(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename)
     #delete old syllabus before saving the new one if its present
@@ -47,7 +48,7 @@ def delete_previous_syllabus(course_name):
     contents = os.listdir(folder_path)
     # Check if there is a file that starts with course_name + "Syllabus" in contents
     for file in contents:
-        if file.startswith(course_name + "Syllabus"):
+        if file.startswith("Syllabus" + course_name):
             file_path = os.path.join(folder_path, file)
             try:
                 os.remove(file_path)

@@ -201,19 +201,20 @@ def delete_files_in_folder(folder_path):
 
 
 
-def get_content_files(folder_path):
+def get_content_files(folder_path, course_name):
     """Get a list of content files from the given folder, excluding specific and hidden files."""
     return [
         f for f in os.listdir(folder_path) 
         if os.path.isfile(os.path.join(folder_path, f)) 
         and not f.startswith('.')
+        and not f.startswith("Syllabus-" + course_name)
         and f != 'Textchunks.npy' 
         and f != 'Textchunks-originaltext.csv'
         and f != app.config['ACTIVATIONS_FILE']
         and f != 'course_meta.json'
     ]
     
-def check_and_update_activations_file(folder_path):
+def check_and_update_activations_file(folder_path, course_name):
     """
     Check and update the course activation status JSON file based on the current content in the specified folder.
     
@@ -229,7 +230,7 @@ def check_and_update_activations_file(folder_path):
     3. Updates the activations based on the current content, setting the status to False for any new content.
     4. Saves the updated activations back to the ACTIVATIONS_FILE.
     """
-    contents = get_content_files(folder_path)
+    contents = get_content_files(folder_path, course_name)
     # Load existing activations if they exist
     activations_path = os.path.join(folder_path, app.config['ACTIVATIONS_FILE'])
     if os.path.exists(activations_path):
