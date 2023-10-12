@@ -478,7 +478,7 @@ def upload_file():
     if user_folder is None:
         flash("User folder not found. Please ensure you're logged in properly.", 'error')
         app.logger.error(f"User folder not found. Please ensure you're logged in properly. Contact Administrator for support!")
-        return redirect(url_for('course_management'))  # assuming 'dashboard' is a relevant route for redirection
+        return redirect(url_for('course_management'))  
 
     if course_name is None:
         app.logger.error(f"Course name not provided. Contact Administrator for support!")
