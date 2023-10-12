@@ -54,7 +54,7 @@ def chunk_documents_given_course_name(course_name):
 
     # Loop through all pdf, txt, tex in the "documents" folder
     for filename in os.listdir(filedirectory):
-        if filename not in ["Textchunks.npy", "Textchunks-originaltext.csv", "CourseContentActivations.JSON"] and not filename.startswith('.'):
+        if filename not in ["Textchunks.npy", "Textchunks-originaltext.csv", "CourseContentActivations.JSON", "course_meta.json"] and not filename.startswith('.'):
             filepath = os.path.join(filedirectory, filename)
             #Ingnore folders and hidden files
             if os.path.isfile(filepath) and not filename.startswith('.'):

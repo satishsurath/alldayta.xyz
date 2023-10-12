@@ -48,7 +48,7 @@ def embed_documents_given_course_name(course_name):
 
     # Loop through CSV files in the folder
     for file in os.listdir(folder):
-        if file.endswith(".csv"):
+        if file.endswith(".csv") and file.startswith('CourseContentActivations'):
             filename_without_extension = os.path.splitext(file)[0]
             npy_filename = f"{filename_without_extension}.npy"
             output_path = os.path.join(output_folder, npy_filename)
