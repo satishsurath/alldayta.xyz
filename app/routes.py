@@ -335,6 +335,9 @@ def course_contents(course_name):
        #Now going to run the chunking in the background
        chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
        app.logger.info(f"Completed chop_course_content")
+       embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+       app.logger.info(f"Completed embed_course_content")       
+
     # Part 2: Load Course Content: 
     user_folder = session['folder']
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
@@ -473,10 +476,15 @@ def preview_chunks_js(course_name, content_name):
 def course_syllabus(course_name):
     # check if we have the Syllabus already for this course
     user_folder = session['folder']
-    if get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name)):
-      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
-    else:
-       syllabus = None
+    syllabus_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks')
+    syllabus_contents = os.listdir(syllabus_folder_path)
+    # Check if there is a file that starts with course_name + "Syllabus" in contents
+    syllabus = None
+    for file in syllabus_contents:
+        if file.startswith("Syllabus-" + course_name):
+            file_path = os.path.join(syllabus_folder_path, file)
+            syllabus = read_csv_preview(file_path)
+            break  # Exit the loop as soon as the first matching file is found
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
     return render_template(
        'course_syllabus.html', 
