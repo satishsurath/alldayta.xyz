@@ -312,6 +312,15 @@ def toggle_activation(course_name, file_name):
                 json.dump(activations, f)
                 
             app.logger.info(f"Updated activations for {file_name}. New status: {activations[file_name]}")
+            #Now that we have updated the activations, we need to run the chunking, embedding and creating final data in the background
+            #Now going to run the chunking, embeding and creating final data in the background
+            chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed chop_course_content")
+            embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed embed_course_content")       
+            app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
+            create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
 
             return jsonify(success=True, status=activations[file_name])
         else:
@@ -332,7 +341,7 @@ def course_contents(course_name):
        app.logger.info(f"Form validated successfully: {form}")
        save_syllabus(form, course_name)
        app.logger.info(f"Syllabus saved successfully - Now Back in 'course-content' Route")
-       #Now going to run the chunking in the background
+       #Now going to run the chunking, embeding and creating final data in the background
        chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
        app.logger.info(f"Completed chop_course_content")
        embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
