@@ -27,11 +27,11 @@
           <hr>
           <h3 style="text-align: center;">Course Information:</h3>
           <ul>
-            <li><strong>Class Name:</strong> {{ metadata.classname if metadata.classname else "<empty>" }}</li>
-            <li><strong>Professor:</strong> {{ metadata.professor if metadata.professor else "<empty>" }}</li>
-            <li><strong>Assistants:</strong> {{ metadata.assistants if metadata.assistants else "<empty>" }}</li>
-            <li><strong>Virtual Assistant's Name:</strong> {{ metadata.assistant_name if metadata.assistant_name else "<empty>" }}</li>
-            <li><strong>Class Description:</strong> {{ metadata.classdescription if metadata.classdescription else "<empty>" }}</li>
+            <li><strong>Class Name:</strong> {{ metadata.classname if metadata.classname else "<empty>" }}</li><br>
+            <li><strong>Professor:</strong> {{ metadata.professor if metadata.professor else "<empty>" }}</li><br>
+            <li><strong>Assistants:</strong> {{ metadata.assistants if metadata.assistants else "<empty>" }}</li><br>
+            <li><strong>Virtual Assistant's Name:</strong> {{ metadata.assistant_name if metadata.assistant_name else "<empty>" }}</li><br>
+            <li><strong>Class Description:</strong> {{ metadata.classdescription if metadata.classdescription else "<empty>" }}</li><br>
         </ul>
         </details>
 <br>
@@ -84,7 +84,7 @@
                   </tr>
                   <tr>
                       <td style="text-align: left;border: 0px"><label for="classdescription">Class Description:</label></td>
-                      <td style="text-align: left;border: 0px"><textarea id="classdescription" name="classdescription" rows="3" cols="28" value="{{ metadata.classdescription if metadata.classdescription else '' }}"></textarea></td>
+                      <td style="text-align: left;border: 0px"><textarea id="classdescription" name="classdescription" rows="3" cols="28">{{ metadata.classdescription if metadata.classdescription else '' }}</textarea></td>
                   </tr>
                   <tr>
                       <td colspan="2" style="text-align: center;border: 0px">

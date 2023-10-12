@@ -326,10 +326,15 @@ def toggle_activation(course_name, file_name):
 def course_contents(course_name):
     form = UploadSyllabus()
     session['course_name'] = course_name
+    user_folder = session['folder']
     # Part 1: Upload Syllabus PDF file and Save the text version: Check if the form was sucessfully validated:
     if form.validate_on_submit():
        app.logger.info(f"Form validated successfully: {form}")
        save_syllabus(form, course_name)
+       app.logger.info(f"Syllabus saved successfully - Now Back in 'course-content' Route")
+       #Now going to run the chunking in the background
+       chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+       app.logger.info(f"Completed chop_course_content")
     # Part 2: Load Course Content: 
     user_folder = session['folder']
     folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
@@ -361,10 +366,22 @@ def course_contents(course_name):
         info.append(activations.get(filename, False))
     # Part 3: Load Syllabus:
     ### TO DO: REPLACE THIS WITH ANOTHER FUNCTION THAT LOADS THE SYLLABUS IN THE NEW WAY
-    if get_first_txt_file(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)):
-      syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
-    else:
-       syllabus = None
+    syllabus_file_name = "Syllabus-" + course_name
+    syllabus_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks')
+    syllabus_contents = os.listdir(syllabus_folder_path)
+    # Check if there is a file that starts with course_name + "Syllabus" in contents
+    syllabus = None
+    for file in syllabus_contents:
+        if file.startswith("Syllabus-" + course_name):
+            file_path = os.path.join(syllabus_folder_path, file)
+            syllabus = read_csv_preview(file_path)
+            break  # Exit the loop as soon as the first matching file is found
+
+
+    #if get_first_txt_file(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)):
+    #  syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
+    #else:
+    #   syllabus = None
     # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
     # When checking and updating activations
     
