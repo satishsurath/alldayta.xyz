@@ -472,19 +472,36 @@ def course_syllabus(course_name):
 @app.route('/upload-file', methods=['GET', 'POST'])
 @login_required
 def upload_file():
+    user_folder = session.get('folder', None)
+    course_name = request.form.get('course_name', None)
+
+    if user_folder is None:
+        flash("User folder not found. Please ensure you're logged in properly.", 'error')
+        app.logger.error(f"User folder not found. Please ensure you're logged in properly. Contact Administrator for support!")
+        return redirect(url_for('course_management'))  # assuming 'dashboard' is a relevant route for redirection
+
+    if course_name is None:
+        app.logger.error(f"Course name not provided. Contact Administrator for support!")
+        flash("Course name not provided. Please select a valid course.", 'error')
+        return redirect(url_for('course_management'))
+
     try:
-        user_folder = session['folder']
         if request.method == 'POST':
             file = request.files.get('file')
-            course_name = request.form.get('course_name')
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename))
-            return "File uploaded successfully."
-        return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
-    except Exception as e:
-        print(f"An error occurred: {str(e)}")
+                app.logger.info(f"File {filename} uploaded successfully - For course: '{course_name}' for user: '{user_folder}'")
+                return f"File {filename} uploaded successfully."
+            else:
+                app.logger.error(f"File {file.filename} not uploaded - For course: '{course_name}' for user: '{user_folder}'; Reason: Unsupported file type.")  
+                return "Unsupported file type.", 400
 
+        return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
+
+    except Exception as e:
+        app.logger.error(f"An error occurred: {str(e)}", exc_info=True)
+        return "An error occurred.", 500
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
