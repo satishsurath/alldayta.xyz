@@ -2,10 +2,15 @@
 <hr>
 {% if name: %}
     <p class="center-align">  
-        Welcome, {{ name }}
+        <ul> 
+            <li> Welcome, {{ name }}
         <a href="{{ url_for('logout') }}"> 
             Signout
-        </a>                        
+        </a>  </li>
+        |
+        <li> <a href="{{ url_for('view_logs') }}"> 
+           View Logs
+        </ul>                      
     </p>
 {% else:  %}
     <p class="center-align">  
