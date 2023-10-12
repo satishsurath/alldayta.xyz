@@ -2,10 +2,11 @@ import os
 import json
 import pandas as pd
 import numpy as np
-from flask import flash
+from flask import flash, session
 from app import app
 
 def create_final_data_given_course_name(course_name):
+    session_course_name = session.get('course_name')
     # Path to the activations file
     app.logger.info(f"Creating final data for course: {course_name}")
     activations_file = os.path.join(course_name, "CourseContentActivations.JSON")
@@ -24,6 +25,14 @@ def create_final_data_given_course_name(course_name):
         activations_data = json.load(f)
     # Convert keys from format 'filename.docx' to 'filename' by stripping the file extension
     activations = {key.split('.')[0]: value for key, value in activations_data.items()}
+    # Adding a new item for Syllabus file is True if there is a Syllabus file
+    contents = os.listdir(course_name)
+    for file in contents:
+        if file.startswith("Syllabus-" + session_course_name):
+            activations[file.split('.')[0]] = True
+            break
+
+
     app.logger.info(f" The Contents of the activations file: {activations}")
 
     # Check if all files are deactivated
@@ -63,11 +72,15 @@ def create_final_data_given_course_name(course_name):
                 concatenated_npy = npy_data
             else:
                 concatenated_npy = np.concatenate([concatenated_npy, npy_data], axis=0)
-    
+
+
     # Save the concatenated data to the base folder
     concatenated_csv.to_csv(os.path.join(course_name, "Textchunks-originaltext.csv"), encoding='utf-8', escapechar='\\', index=False)
     np.save(os.path.join(course_name, "Textchunks.npy"), concatenated_npy)
     
     print("Files saved: Textchunks-originaltext.csv and Textchunks.npy")
+    app.logger.info(f"Files saved: Textchunks-originaltext.csv and Textchunks.npy for course: {course_name}")
     print(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape}")
+    app.logger.info(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape} for course: {course_name}")
     print(f"Textchunks.npy dimensions: {concatenated_npy.shape}")
+    app.logger.info(f"Textchunks.npy dimensions: {concatenated_npy.shape} for course: {course_name}")   
