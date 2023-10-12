@@ -370,22 +370,23 @@
           </table>
           
       <br><br>
-          <h2 class="center-align"> Step 3: Chunk your Content</h2>
+      <h3 class="center-align"> Preview your Content</h3>
+          <!-- <h2 class="center-align"> Step 3: Chunk your Content</h2>
           <br><br>
           <a href="{{ url_for('chop_course_content', course_name=course_name) }}">Chop All Content into Chunks</a>
           <br>
           <p>
             Once you have Chunked your Content, it is highly recommended to "Preview" your Content.
           </p>
-          <br>
+          <br> -->
            Hover on the File Names or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV Chunks</a>
   
-          <br><br>
+          <!-- <br><br>
           <h2 class="center-align"> Step 4: Embed your Content</h2>
           <br><br>
           <a href="{{ url_for('embed_course_content', course_name=course_name) }}">Embed All Chunks</a>
           <h2 class="center-align"> Step 5: Create Final Data</h2>
-          <br><br>
+          <br><br> -->
           {% if file_info %}
           {% for file_name, file_details in file_info.items() %}
               
