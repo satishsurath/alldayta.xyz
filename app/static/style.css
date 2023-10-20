@@ -80,6 +80,20 @@ body.dark-mode .nav-links a:hover {
   font-display: swap;
 }
 
+.container-chat{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  font-family: 'Cabin', 'Raleway', sans-serif;
+  font-display: swap;
+}
+
+.input-box{
+  width: 100%;
+}
+
 .item .item-footer{
   margin: 0rem;
   padding: 0rem;

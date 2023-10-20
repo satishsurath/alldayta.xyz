@@ -16,22 +16,21 @@
         <p><b>Instructions: </b><br>{{ instruct|safe }}	 </p>
         <br>
         <div class="main-container">
-                <div class="container">
-                    <form id="my-form-1" method="post" data-target="response">
+            <div class="responses">
+                <i>Responses will be displayed here:</i><br>
+                <div class="text-2" id="previous-response">   </div>
+                <p></p><p>&nbsp;</p>
+                <div class="text-1" id="response">  </div>
+                <span id="processing-message" style="display: none; margin-bottom: 10px; font-size: 16pt; font-weight: bold; font-style: normal;"></span>
+            </div>
+
+                <div class="container-chat">
+                    <form id="my-form-1" method="post" data-target="response" style="width: 100%;">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <div style="display: flex; flex-direction: row;">
-                                    <textarea id="input-box" class="input-box" name="content1" placeholder="Type query here." width="100%" rows="15" style="flex: 1; font-size: 20pt; border: none; outline: none; resize: none; background-color: rgb(248, 248, 248);"></textarea>
-                                <input type="hidden" id="hiddenContent2" name="content2">
-                        </div>
-                        <p>
+                        <textarea id="input-box" class="input-box" name="content1" placeholder="Type query here." rows="5" style="font-size: 1.5em; border: none; outline: none; resize: none; background-color: rgb(248, 248, 248);"></textarea>
                     </form>
                 </div>
-                <div class="responses">
-                    <span id="processing-message" style="display: none; margin-bottom: 10px; font-size: 16pt; font-weight: bold; font-style: normal;"></span>
-                    <div class="text-1" id="response">  </div>
-                    <p></p><p>&nbsp;</p>
-                    <div class="text-2" id="previous-response">   </div>
-                </div>
+
             </div>
             <script>
                 $(document).ready(function() {
@@ -84,7 +83,7 @@
                                     success: function(response) {
                                         $('#processing-message').hide();
                                         $('#my-form-1')[0].reset(); // reset the form 
-                                        var previousResponse = $('#response').html() + '<p>' + $('#previous-response').html();
+                                        var previousResponse = $('#previous-response').html() + '<p>' + $('#response').html();
                                         $('#previous-response').html(previousResponse);
                                         $('#input-box').attr("placeholder", "Type query here.");
                                         if (query.startsWith('c: ')) {
@@ -126,7 +125,7 @@
             if (window.innerWidth <= 768) {
                 textarea.setAttribute('rows', 5);
             } else {
-                textarea.setAttribute('rows', 15);
+                textarea.setAttribute('rows', 5);
             }
         }
         
