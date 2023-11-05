@@ -151,38 +151,43 @@
             <thead>
                 <tr>
                     <th>Content</th>
+                    <!--
                     <th>Chunking Status</th>
+                    -->
+                    <!--
                     <th>Embedding Status</th>
+                    -->
                     <th>Activation Status</th>
                     <th>Delete</th>
+                    <th>Preview</th>
 
                 </tr>
             </thead>
             <tbody>
                 {% for content in contents_info %}
                 <tr>
-
-                    {% if content[1]: %}
-                    <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
-                        onmouseout="hidePreview()" style="text-align: left;">{{ content[0] }}</td>
-                    {% else %}
-                    <td>{{ content[0] }}</td>
-                    {% endif %}
-
+                    <td style="text-align: left">
+                      {{ content[0] }}
+                    </td>
+                    <!--
                     <td>{% if content[1]: %}
-                        {% include 'svg_greencheckmark.html' %}
+                        {# include 'svg_greencheckmark.html' #}
                         {% else %}
-                        {% include 'svg_redcrossmark.html' %}
+                        {# include 'svg_redcrossmark.html' #}
                         {% endif %}
 
                     </td>
-                    <td>{% if content[2]: %}
-                        {% include 'svg_greencheckmark.html' %}
+                    -->
+                    <!--
+                    <td>
+                      {% if content[2]: %}
+                        {# include 'svg_greencheckmark.html' #}
                         {% else %}
-                        {% include 'svg_redcrossmark.html' %}
+                        {# include 'svg_redcrossmark.html' #}
                         {% endif %}
 
                     </td>
+                  -->
                     <td>
                         {% if content[3]: %}
                         <a id="activation-{{ escape_id(content[0]) }}"
@@ -205,12 +210,23 @@
                         </a>
                     </td>
 
+                    {% if content[1]: %}
+                    <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
+                        onmouseout="hidePreview()" >
+                        {% include 'svg_preview.html' %}
+                    </td>
+                    {% else %}
+                    <td>
+                      {% include 'svg_no_preview.html' %}
+                    </td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         <br><br>
+
         <h3 class="center-align"> Preview your Content</h3>
         Hover on the File Names or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV
             Chunks</a>

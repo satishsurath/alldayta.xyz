@@ -208,10 +208,23 @@ function showPreview(courseName, contentName, event) {
             let tooltipHtml = `<div class="tooltip">${data.preview_content}</div>`;
             // Append tooltip HTML to the body
             $('body').append(tooltipHtml);
-            // Set tooltip position based on the mouse event
+            
+            // Calculate the left position based on the mouse event
+            let leftPosition = event.pageX - $('.tooltip').width() - 10; // Adjust -10 for spacing
+            
+            // Set tooltip position to the bottom left corner
             $('.tooltip').css({
                 top: event.pageY + 10 + 'px',
-                left: event.pageX + 10 + 'px'
+                left: leftPosition + 'px'
+            });
+            // Add an event listener to hide the tooltip on mouseleave
+            $('.tooltip').on("mouseenter", function() {
+                clearTimeout(hideTimeout); // Clear any existing timeout
+            }).on("mouseleave", function() {
+                // Set a timeout to hide the tooltip after a delay (e.g., 500 milliseconds)
+                hideTimeout = setTimeout(function() {
+                    hidePreview(); // Hide the tooltip
+                }, 500); // Adjust the delay as needed
             });
         },
         error: function(xhr, status, error) {
@@ -219,6 +232,7 @@ function showPreview(courseName, contentName, event) {
         }
     });
 }
+
 
 function hidePreview() {
     // Remove tooltip HTML from the body

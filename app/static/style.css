@@ -257,6 +257,10 @@ th:last-child {
   padding: 10px;
   border-radius: 4px;
   z-index: 1000;
+    max-width: 50%;
+    word-wrap: break-word; /* Wrap long content within the tooltip */
+    /* Add any other styling you need for the tooltip */
 }
+
 
 
