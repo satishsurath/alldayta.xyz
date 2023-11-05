@@ -20,6 +20,7 @@
                 <th>Modify</th>
                 <th>Delete</th>
                 <th>Test TA</th>
+                <th>Student TA</th>
                 <th>Rename</th>
             </tr>
         </thead>
@@ -29,23 +30,28 @@
                 <td>{{ course }}</td>
                 <td>
                     <a href="{{ url_for('course_contents', course_name=course) }}">
-                        {% include 'svg_modify.html' %}
+                        {% include './svg/svg_modify.html' %}
                     </a>
                 </td>                  
                 <td>
                     <a href="{{ url_for('delete_item', name=course) }}">
-                        {% include 'svg_delete.html' %}
+                        {% include './svg/svg_delete.html' %}
                     </a>
                 </td>
                 <td>
                     <a href="{{ url_for('teaching_assistant', course_name=course, folder=folder) }}">
-                        {% include 'svg_chat.html' %}
+                        {% include './svg/svg_chat_test.html' %}
                     </a>
-                </td>                    
+                </td>
+                <td>
+                    <a href="{{ url_for('teaching_assistant', course_name=course, folder=folder) }}">
+                        {% include './svg/svg_chat.html' %}
+                    </a>
+                </td>                                     
                 <td>
                     <details>
                         <summary>
-                            {% include 'svg_rename.html' %}
+                            {% include './svg/svg_rename.html' %}
                         </summary>
                         <form action="{{ url_for('rename_item') }}" method="post">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

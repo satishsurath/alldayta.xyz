@@ -24,7 +24,7 @@
         {{ syllabus[:200].replace('<br>', '')|safe }}
         <br>
         <p><a href="{{ url_for('course_syllabus', course_name=course_name) }}" target="_blank">Full Course Syllabus Preview
-            {% include 'svg_open_in_new_window.html' %}
+            {% include './svg/svg_open_in_new_window.html' %}
             </a></p>
         <hr>
         <h3 style="text-align: center;">Course Information:</h3>
@@ -171,9 +171,9 @@
                     </td>
                     <!--
                     <td>{% if content[1]: %}
-                        {# include 'svg_greencheckmark.html' #}
+                        {# include './svg/svg_greencheckmark.html' #}
                         {% else %}
-                        {# include 'svg_redcrossmark.html' #}
+                        {# include './svg/svg_redcrossmark.html' #}
                         {% endif %}
 
                     </td>
@@ -181,9 +181,9 @@
                     <!--
                     <td>
                       {% if content[2]: %}
-                        {# include 'svg_greencheckmark.html' #}
+                        {# include './svg/svg_greencheckmark.html' #}
                         {% else %}
-                        {# include 'svg_redcrossmark.html' #}
+                        {# include './svg/svg_redcrossmark.html' #}
                         {% endif %}
 
                     </td>
@@ -193,31 +193,31 @@
                         <a id="activation-{{ escape_id(content[0]) }}"
                             href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
                             <!-- Deactivate -->
-                            {% include 'svg_checkbox_checked.html' %}
+                            {% include './svg/svg_checkbox_checked.html' %}
 
                         </a>
                         {% else %}
                         <a id="activation-{{ escape_id(content[0]) }}"
                             href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
                             <!-- Activate -->
-                            {% include 'svg_checkbox_unchecked.html' %}
+                            {% include './svg/svg_checkbox_unchecked.html' %}
                         </a>
                         {% endif %}
                     </td>
                     <td>
                         <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}">
-                            {% include 'svg_delete.html' %}
+                            {% include './svg/svg_delete.html' %}
                         </a>
                     </td>
 
                     {% if content[1]: %}
                     <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
                         onmouseout="hidePreview()" >
-                        {% include 'svg_preview.html' %}
+                        {% include './svg/svg_preview.html' %}
                     </td>
                     {% else %}
                     <td>
-                      {% include 'svg_no_preview.html' %}
+                      {% include './svg/svg_no_preview.html' %}
                     </td>
                     {% endif %}
                 </tr>
@@ -236,9 +236,9 @@
 
         <p>
             {% if file_details.present %}
-            {% include 'svg_greencheckmark.html' %}
+            {% include './svg/svg_greencheckmark.html' %}
             {% else %}
-            {% include 'svg_redcrossmark.html' %}
+            {% include './svg/svg_redcrossmark.html' %}
             {% endif %}
             {{ file_details.name }}
             [Size:
