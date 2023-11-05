@@ -16,6 +16,7 @@ from app.routes_helper import retry_with_exponential_backoff  # Import the retry
 # Global Variables
 EMBEDDING_MODEL = "text-embedding-ada-002"
 MAX_TOKENS_PER_BATCH = 250000  # Maximum tokens to be sent in a single batch to OpenAI API
+WAIT_SECONDS = 10  # Wait time in seconds before sending next batch to OpenAI API
 
 # Function to read settings from a file and return as a dictionary
 def read_settings(file_name):
@@ -35,6 +36,7 @@ def embed_input_text(input_text_batch):
 
 # Main function to embed text and save as .npy files for each course
 def embed_documents_given_course_name(course_name):
+    app.logger.info(f"Embedding documents for course: {course_name}")
     MAX_TOKENS_PER_BATCH = 250000  # Max tokens per batch
     filedirectory = course_name  # Define file directory
     output_folder = os.path.join(course_name, "EmbeddedText")  # Define output folder
@@ -43,12 +45,19 @@ def embed_documents_given_course_name(course_name):
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
-    openai.api_key = os.getenv("OPENAI_API_KEY")  # Set OpenAI API key
+    # if os.getenv("OPENAI_API_KEY") is None then log an error and return
+    if os.getenv("OPENAI_API_KEY") is None:
+        app.logger.error("OPENAI_API_KEY is not set. Please set it in the environment variables.")
+        return
+    else:
+        openai.api_key = os.getenv("OPENAI_API_KEY")  # Set OpenAI API key
+        app.logger.info("OPENAI_API_KEY is set successfully.")
+    
     folder = os.path.join(course_name, "Textchunks")  # Define the folder to read CSVs from
 
     # Loop through CSV files in the folder
     for file in os.listdir(folder):
-        if file.endswith(".csv") and file.startswith('CourseContentActivations'):
+        if file.endswith(".csv") and not file.startswith('CourseContentActivations'):
             filename_without_extension = os.path.splitext(file)[0]
             npy_filename = f"{filename_without_extension}.npy"
             output_path = os.path.join(output_folder, npy_filename)

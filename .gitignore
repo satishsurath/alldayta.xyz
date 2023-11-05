@@ -170,6 +170,7 @@ app.sqlite3
 #ignore uploads folder
 uploads/
 app/uploads/
+app/preuploads/
 
 #ignore the sessions folder
 sessions/

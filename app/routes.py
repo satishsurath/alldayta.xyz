@@ -382,6 +382,9 @@ def course_contents(course_name):
     ### TO DO: REPLACE THIS WITH ANOTHER FUNCTION THAT LOADS THE SYLLABUS IN THE NEW WAY
     syllabus_file_name = "Syllabus-" + course_name
     syllabus_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks')
+    # if os.listdir(syllabus_folder_path) does not exist, then create it
+    if not os.path.exists(syllabus_folder_path):
+        os.mkdir(syllabus_folder_path)
     syllabus_contents = os.listdir(syllabus_folder_path)
     # Check if there is a file that starts with course_name + "Syllabus" in contents
     syllabus = None
@@ -410,6 +413,24 @@ def course_contents(course_name):
        file_info=file_info,
        metadata=metadata,  # add metadata to the template
        )
+
+@app.route('/course-contents-rename/<course_name>', methods=['GET', 'POST'])
+@login_required
+def course_contents_rename(course_name):
+    session['course_name'] = course_name
+    user_folder = session['folder']
+    # Part 2: Load Course Content: 
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name)
+    contents = get_content_files(folder_path, course_name)
+    app.logger.info(f"Contents: {contents}")
+    return render_template(
+       'course_contents_rename.html', 
+       course_name=course_name,
+       contents=contents,
+       name=session.get('name')
+       )
+
 
 @app.route('/update-course-metadata', methods=['POST'])
 @login_required
@@ -508,6 +529,8 @@ def course_syllabus(course_name):
 @app.route('/upload-file', methods=['GET', 'POST'])
 @login_required
 def upload_file():
+    app.logger.info(f"Entered upload_file")
+    print("Entered upload_file")
     user_folder = session.get('folder', None)
     course_name = request.form.get('course_name', None)
 
@@ -526,7 +549,18 @@ def upload_file():
             file = request.files.get('file')
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename))
+                #if os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name) does not exist, then create it
+                if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)):
+                    app.logger.info(f"Creating folder: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)}")
+                    if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder)):
+                        if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'])):
+                            os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD']))
+                            app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'])}")
+                        os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder))
+                        app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder)}")
+                    os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name))
+                    app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)}")
+                file.save(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name, filename))
                 app.logger.info(f"File {filename} uploaded successfully - For course: '{course_name}' for user: '{user_folder}'")
                 flash(f"File {filename} uploaded successfully.", 'success')
                 return f"File {filename} uploaded successfully."
@@ -535,7 +569,7 @@ def upload_file():
                 flash(f"File {file.filename} not uploaded. Unsupported file type.", 'error')  
                 return "Unsupported file type.", 400
 
-        return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
+        return render_template('course_contents_rename.html', course_name=course_name, name=session.get('name'))
 
     except Exception as e:
         app.logger.error(f"An error occurred: {str(e)}", exc_info=True)

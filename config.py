@@ -16,6 +16,7 @@ class Config(object):
 
 
     # Configure file upload
+    FOLDER_PREUPLOAD = 'app/preuploads'
     FOLDER_UPLOAD = 'app/uploads'
     FOLDER_PROCESSED_CONTENT = 'app/content'
     FOLDER_PROCESSED_SYLLABUS = 'app/syllabus'
@@ -31,7 +32,7 @@ class Config(object):
 
     # Set up Dropzone
     DROPZONE_ALLOWED_FILE_CUSTOM=True
-    DROPZONE_ALLOWED_FILE_TYPE='image/*, .pdf, .txt'
-    DROPZONE_MAX_FILE_SIZE=3
+    DROPZONE_ALLOWED_FILE_TYPE='image/*, .pdf, .txt, .docx'
+    DROPZONE_MAX_FILE_SIZE=100 #in MB
     DROPZONE_MAX_FILES=30    
     
