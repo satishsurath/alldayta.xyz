@@ -221,7 +221,7 @@ def logout():
 @login_required
 def course_management():
     courses = list_folders()
-    return render_template('course_management.html', courses=courses, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
+    return render_template('courses.html', courses=courses, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
 @app.route('/create-course', methods=['POST'])
 @login_required
@@ -827,7 +827,7 @@ def teaching_assistant():
                         send_to_gpt.append({"role": "user",
                                             "content": content_value})
                         response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
+                            model="gpt-4",
                             max_tokens=1,
                             temperature=0.0,
                             messages=send_to_gpt
@@ -977,7 +977,7 @@ def teaching_assistant():
             send_to_gpt.append({"role":"system","content":"Just say 'Yes' or 'No'. Do not give any other answer."})
             send_to_gpt.append({"role":"user","content":f"User: {original_question}  Attendant: {reply1} Was the Attendant able to answer the user's question?"})
             response=openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4",
                 max_tokens=1,
                 temperature=0.0,
                 messages=send_to_gpt
