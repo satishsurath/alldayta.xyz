@@ -1,271 +1,258 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1 class="center-align">Course Content: {{ course_name }}</h1><br>
-        {% with messages = get_flashed_messages() %}
-                {% if messages %}
-                <div class="flashes">
-                        {% for message in messages %}
-                        <div class="alert alert-warning" role="alert">{{ message }}</div>
-                        {% endfor %}
-                </div>
-                {% endif %}
-        {% endwith %}
-        < <a href="{{ url_for('course_management') }}">Back to Course Management</a>
-        <br>
-        <br>
+    <h1 class="center-align">Course Content: {{ course_name }}</h1><br>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flashes">
+            {% for message in messages %}
+            <div class="alert alert-warning" role="alert">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    <a href="{{ url_for('course_management') }}">Back to Course Management</a>
+    <br>
+    <br>
 
-        {% if syllabus %}
-        <details id="viewSyllabus">
-          <summary class="course-content-heading">View Syllabus / Course Information</summary>
-          
-          <h3 style="text-align: center;">Syllabus:</h3>
-          <b>Course Syllabus: [Preview of 250 Characters]:</b>
-          <br><br>
-          {{ syllabus[:200].replace('<br>', '')|safe }}
-          <br>
-          <p><a href="{{ url_for('course_syllabus', course_name=course_name) }}" target="_blank">Full Course Syllabus Preview <svg style="fill: var(--text-color); height:1.5rem; width:1.5rem;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px" y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve"><path d="M83.333,50v33.333H16.667V16.667H50V10H16.667C13.001,10,10,13,10,16.667v66.667C10,86.999,13.001,90,16.667,90h66.666  C86.999,90,90,86.999,90,83.333V50H83.333z"/><path d="M90,36.667l-0.003-23.335C90,11.493,88.506,10,86.667,10H63.333v6.665h15.283L50,45.285L54.714,50l28.619-28.615v15.281H90z  "/></svg></a></p>
-          <hr>
-          <h3 style="text-align: center;">Course Information:</h3>
-          <ul>
+    {% if syllabus %}
+    <details id="viewSyllabus">
+        <summary class="course-content-heading">View Syllabus / Course Information</summary>
+
+        <h3 style="text-align: center;">Syllabus:</h3>
+        <b>Course Syllabus: [Preview of 250 Characters]:</b>
+        <br><br>
+        {{ syllabus[:200].replace('<br>', '')|safe }}
+        <br>
+        <p><a href="{{ url_for('course_syllabus', course_name=course_name) }}" target="_blank">Full Course Syllabus Preview
+                <svg style="fill: var(--text-color); height:1.5rem; width:1.5rem;"
+                    xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" x="0px"
+                    y="0px" viewBox="0 0 100 125" enable-background="new 0 0 100 100" xml:space="preserve">
+                    <path
+                        d="M83.333,50v33.333H16.667V16.667H50V10H16.667C13.001,10,10,13,10,16.667v66.667C10,86.999,13.001,90,16.667,90h66.666  C86.999,90,90,86.999,90,83.333V50H83.333z" />
+                    <path
+                        d="M90,36.667l-0.003-23.335C90,11.493,88.506,10,86.667,10H63.333v6.665h15.283L50,45.285L54.714,50l28.619-28.615v15.281H90z  " />
+                </svg>
+            </a></p>
+        <hr>
+        <h3 style="text-align: center;">Course Information:</h3>
+        <ul>
             <li><strong>Class Name:</strong> {{ metadata.classname if metadata.classname else "<empty>" }}</li><br>
             <li><strong>Professor:</strong> {{ metadata.professor if metadata.professor else "<empty>" }}</li><br>
             <li><strong>Assistants:</strong> {{ metadata.assistants if metadata.assistants else "<empty>" }}</li><br>
-            <li><strong>Virtual Assistant's Name:</strong> {{ metadata.assistant_name if metadata.assistant_name else "<empty>" }}</li><br>
-            <li><strong>Class Description:</strong> {{ metadata.classdescription if metadata.classdescription else "<empty>" }}</li><br>
+            <li><strong>Virtual Assistant's Name:</strong>
+                {{ metadata.assistant_name if metadata.assistant_name else "<empty>" }}</li><br>
+            <li><strong>Class Description:</strong>
+                {{ metadata.classdescription if metadata.classdescription else "<empty>" }}</li><br>
         </ul>
-        </details>
-<br>
-        <details id="ReplaceSyllabus">
-          <summary class="course-content-heading">Modify Syllabus / Course Information </summary>
-          
-  
-          <form method="POST" enctype="multipart/form-data" novalidate>
+    </details>
+    <br>
+    <details id="ReplaceSyllabus">
+        <summary class="course-content-heading">Modify Syllabus / Course Information </summary>
+
+        <form method="POST" enctype="multipart/form-data" novalidate>
             <h3 style="text-align: center;">Modify Syllabus:</h3>
             {{ form.hidden_tag() }}
             <p>
                 {{ form.csrf_token }}
-                <span class="alert alert-warning" role="alert">  Replace Syllabus {{ form.syllabus.label }} </span>
-                
-                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }} 
+                <span class="alert alert-warning" role="alert"> Replace Syllabus {{ form.syllabus.label }} </span>
+
+                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }}
                 <p> <br> </p>
-                {{ form.submit(id='submit_button', value='Upload and Replace Syllabus') }} 
-                {% for error in form.syllabus.errors %} 
-                <span style="color: red;">[{{ error }}]</span> 
-                {% endfor %} 
-                
-             </p>
+                {{ form.submit(id='submit_button', value='Upload and Replace Syllabus') }}
+                {% for error in form.syllabus.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+
+            </p>
             <br>
-            <div class="alert alert-warning" role="alert"> Warning: Uploading a new syllabus will instantly replace the current one.</div>
-            <div id="processing" class="processing"></div>    
+            <div class="alert alert-warning" role="alert"> Warning: Uploading a new syllabus will instantly replace
+                the current one.</div>
+            <div id="processing" class="processing"></div>
         </form>
-<hr>
+        <hr>
         <div style="text-align: center;">
-          <h3>Modify Course Information:</h3>
-          <form action="{{ url_for('update_course_metadata') }}" method="post">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
-              <table style="margin: auto; border:0px;">
-                  <tr>
-                      <td style="text-align: left;border: 0px"><label for="name">Course / Class Name:</label></td>
-                      <td style="text-align: left;border: 0px"><input type="text" id="name" name="name" size="35" value="{{ metadata.classname if metadata.classname else '' }}">
-                        <input type="hidden" name="course_name" value="{{ course_name }}" />
-                      </td>
-                  </tr>
-                  <tr>
-                      <td style="text-align: left;border: 0px"><label for="professor">Professor:</label></td>
-                      <td style="text-align: left;border: 0px"><input type="text" id="professor" name="professor" size="35" value="{{ metadata.professor if metadata.professor else '' }}"></td>
-                  </tr>
-                  <tr>
-                      <td style="text-align: left;border: 0px"><label for="assistant_name">Assistant Name:</label></td>
-                      <td style="text-align: left;border: 0px"><input type="text" id="assistant_name" name="assistant_name" size="35" value="{{ metadata.assistant_name if metadata.assistant_name else '' }}"></td>
-                  </tr>
-                  <tr>
-                      <td style="text-align: left;border: 0px"><label for="assistants">Virtual Assistant's Name:</label></td>
-                      <td style="text-align: left;border: 0px"><input type="text" id="assistants" name="assistants" value="{{ metadata.assistant_name if metadata.assistant_name else 'Virtual Teaching Assistant' }}" placeholder="Virtual Teaching Assistant" size="35"></td>
-                  </tr>
-                  <tr>
-                      <td style="text-align: left;border: 0px"><label for="classdescription">Class Description:</label></td>
-                      <td style="text-align: left;border: 0px"><textarea id="classdescription" name="classdescription" rows="3" cols="28">{{ metadata.classdescription if metadata.classdescription else '' }}</textarea></td>
-                  </tr>
-                  <tr>
-                      <td colspan="2" style="text-align: center;border: 0px">
-                          <input type="submit" value="Modify" class="form-control">
-                      </td>
-                  </tr>
-              </table>
-          </form>
-      </div>
+            <h3>Modify Course Information:</h3>
+            <form action="{{ url_for('update_course_metadata') }}" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                <table style="margin: auto; border:0px;">
+                    <tr>
+                        <td style="text-align: left;border: 0px"><label for="name">Course / Class Name:</label></td>
+                        <td style="text-align: left;border: 0px"><input type="text" id="name" name="name"
+                                size="35" value="{{ metadata.classname if metadata.classname else '' }}">
+                            <input type="hidden" name="course_name" value="{{ course_name }}" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;border: 0px"><label for="professor">Professor:</label></td>
+                        <td style="text-align: left;border: 0px"><input type="text" id="professor" name="professor"
+                                size="35" value="{{ metadata.professor if metadata.professor else '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;border: 0px"><label for="assistant_name">Assistant Name:</label></td>
+                        <td style="text-align: left;border: 0px"><input type="text" id="assistant_name"
+                                name="assistant_name" size="35"
+                                value="{{ metadata.assistant_name if metadata.assistant_name else '' }}"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;border: 0px"><label for="assistants">Virtual Assistant's Name:</label></td>
+                        <td style="text-align: left;border: 0px"><input type="text" id="assistants"
+                                name="assistants" value="{{ metadata.assistant_name if metadata.assistant_name else 'Virtual Teaching Assistant' }}"
+                                placeholder="Virtual Teaching Assistant" size="35"></td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left;border: 0px"><label for="classdescription">Class Description:</label></td>
+                        <td style="text-align: left;border: 0px"><textarea id="classdescription" name="classdescription"
+                                rows="3" cols="28">{{ metadata.classdescription if metadata.classdescription else '' }}</textarea></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" style="text-align: center;border: 0px">
+                            <input type="submit" value="Modify" class="form-control">
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
 
-        </details>
-        <br>
+    </details>
+    <br>
 
+    {% else %}
 
-        {% else %}
+    <details id="AddSyllabus">
+        <summary class="course-content-heading">Add Syllabus </summary>
 
-        <details id="AddSyllabus">
-          <summary class="course-content-heading">Add Syllabus </summary>
-        
-          <form method="POST" enctype="multipart/form-data" novalidate>
+        <form method="POST" enctype="multipart/form-data" novalidate>
             {{ form.hidden_tag() }}
             <p class="course-content-heading">
                 {{ form.csrf_token }}
-                {{ form.syllabus.label }} 
-                
-                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }}  
-                {% for error in form.syllabus.errors %} 
-                <span style="color: red;">[{{ error }}]</span> 
-                {% endfor %} 
+                {{ form.syllabus.label }}
+
+                {{ form.syllabus(class_='form-control',placeholder='Upload Syllabus...') }}
+                {% for error in form.syllabus.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
                 <br>
                 {{ form.submit(id='submit_button') }}
-             </p>
+            </p>
             <br>
-            <div id="processing" class="processing"></div>    
+            <div id="processing" class="processing"></div>
         </form>
-        </details>
-        <br>
-        {% endif %}
-        
+    </details>
+    <br>
+    {% endif %}
 
-        <details id="NewCourseContent">
-          <summary class="course-content-heading">Add New Course Content </summary>
-          <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-              <input type="hidden" name="course_name" value="{{ course_name }}">
-          </form>
-        </details>
-        <br>        
+    <details id="NewCourseContent">
+        <summary class="course-content-heading">Add New Course Content </summary>
+        <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="course_name" value="{{ course_name }}">
+        </form>
+    </details>
+    <br>
 
-        <details id="modifyCourseContent">
-          <summary class="course-content-heading">Modify Course Content </summary>
-        
+    <details id="modifyCourseContent">
+        <summary class="course-content-heading">Modify Course Content </summary>
 
-          {% if contents_info %}
-          <table style="text-align: center;">
-              <thead>
-                  <tr>
-                      <th>Content</th>
-                      <th>Chunking Status</th>
-                      <th>Embedding Status</th>
-                      <th>Activation Status</th>
-                      <th>Delete</th>
-  
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for content in contents_info %}
-                  <tr>
+        {% if contents_info %}
+        <table style="text-align: center;">
+            <thead>
+                <tr>
+                    <th>Content</th>
+                    <th>Chunking Status</th>
+                    <th>Embedding Status</th>
+                    <th>Activation Status</th>
+                    <th>Delete</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for content in contents_info %}
+                <tr>
 
                     {% if content[1]: %}
-                      <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
-                      onmouseout="hidePreview()" style="text-align: left;">{{ content[0] }}</td>
+                    <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
+                        onmouseout="hidePreview()" style="text-align: left;">{{ content[0] }}</td>
                     {% else %}
                     <td>{{ content[0] }}</td>
                     {% endif %}
-                    
-                      <td>{% if content[1]: %}
-  {% include 'svg_greencheckmark.html' %}
 
-  {% else %}
-
-  {% include 'svg_redcrossmark.html' %}
-
-  {% endif %}
-  
-  
-                      </td>
-                      <td>{% if content[2]: %}
-  
+                    <td>{% if content[1]: %}
                         {% include 'svg_greencheckmark.html' %}
-
                         {% else %}
-                      
                         {% include 'svg_redcrossmark.html' %}
-                      
                         {% endif %}
-  
-  
-                      </td>
-                      <td>
+
+                    </td>
+                    <td>{% if content[2]: %}
+                        {% include 'svg_greencheckmark.html' %}
+                        {% else %}
+                        {% include 'svg_redcrossmark.html' %}
+                        {% endif %}
+
+                    </td>
+                    <td>
                         {% if content[3]: %}
-                          <a id="activation-{{ escape_id(content[0]) }}" href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
+                        <a id="activation-{{ escape_id(content[0]) }}"
+                            href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
                             <!-- Deactivate -->
                             {% include 'svg_checkbox_checked.html' %}
-                            
-                          </a>
+
+                        </a>
                         {% else %}
-                          <a id="activation-{{ escape_id(content[0]) }}" href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
+                        <a id="activation-{{ escape_id(content[0]) }}"
+                            href="javascript:toggleActivation('{{ content[0] }}', '{{ course_name }}');">
                             <!-- Activate -->
                             {% include 'svg_checkbox_unchecked.html' %}
-                          </a>
+                        </a>
                         {% endif %}
-                    </td>                                        
-                      <td>
-                          <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}">
+                    </td>
+                    <td>
+                        <a href="{{ url_for('delete_item', name=content[0], course_name=course_name) }}">
                             {% include 'svg_delete.html' %}
-                        </a>                        
-                      </td>
-  
-                  </tr>
-                  {% endfor %}
-              </tbody>
-          </table>
-          
-      <br><br>
-      <h3 class="center-align"> Preview your Content</h3>
+                        </a>
+                    </td>
 
-           Hover on the File Names or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV Chunks</a>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-          {% if file_info %}
-          {% for file_name, file_details in file_info.items() %}
-              
-          <p>
+        <br><br>
+        <h3 class="center-align"> Preview your Content</h3>
+        Hover on the File Names or <a href="{{ url_for('preview_chunks', course_name=course_name) }}">Preview All CSV
+            Chunks</a>
+
+        {% if file_info %}
+        {% for file_name, file_details in file_info.items() %}
+
+        <p>
             {% if file_details.present %}
-  
             {% include 'svg_greencheckmark.html' %}
             {% else %}
-  
             {% include 'svg_redcrossmark.html' %}
             {% endif %}
-            
-            {{ file_details.name }} 
-            
-            [Size: 
-          
+            {{ file_details.name }}
+            [Size:
             {% if file_details.size %}
-                  {{ "%.2f" | format(file_details.size / 1024 / 1024) }} MB
-              {% else %}
-                  File not present
-              {% endif %}
-              ]</p>
-          
-              {% endfor %}
-          <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Refresh Final Data</a>
-      {% else %}
-          <p>No Final Data files present.</p>
-          <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Create Final Data</a>
-      {% endif %}
-  
-  
-          {% else %}
-          <p>No content found.</p>
-          {% endif %}
+            {{ "%.2f" | format(file_details.size / 1024 / 1024) }} MB
+            {% else %}
+            File not present
+            {% endif %}
+            ]</p>
 
-        </details>
+        {% endfor %}
+        <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Refresh Final Data</a>
+        {% else %}
+        <p>No Final Data files present.</p>
+        <a href="{{ url_for('create_final_data_course_content', course_name=course_name) }}">Create Final Data</a>
+        {% endif %}
 
+        {% else %}
+        <p>No content found.</p>
+        {% endif %}
 
+    </details>
 
-
-
-
-
-
-
-
-
-
-        {% include 'user_status.html' %}       
-
-        
-
-
+    {% include 'user_status.html' %}
 
 {% endblock %}
