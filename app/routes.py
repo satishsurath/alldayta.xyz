@@ -528,9 +528,11 @@ def upload_file():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name, filename))
                 app.logger.info(f"File {filename} uploaded successfully - For course: '{course_name}' for user: '{user_folder}'")
+                flash(f"File {filename} uploaded successfully.", 'success')
                 return f"File {filename} uploaded successfully."
             else:
-                app.logger.error(f"File {file.filename} not uploaded - For course: '{course_name}' for user: '{user_folder}'; Reason: Unsupported file type.")  
+                app.logger.error(f"File {file.filename} not uploaded - For course: '{course_name}' for user: '{user_folder}'; Reason: Unsupported file type.")
+                flash(f"File {file.filename} not uploaded. Unsupported file type.", 'error')  
                 return "Unsupported file type.", 400
 
         return render_template('course_contents.html', course_name=course_name, name=session.get('name'))
@@ -538,6 +540,7 @@ def upload_file():
     except Exception as e:
         app.logger.error(f"An error occurred: {str(e)}", exc_info=True)
         return "An error occurred.", 500
+
 @app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
