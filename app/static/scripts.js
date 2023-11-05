@@ -154,7 +154,7 @@ function showPreview(courseName, contentName, event) {
         },
         success: function(data) {
             // Create tooltip HTML
-            let tooltipHtml = `<div class="tooltip">${data.preview_content}</div>`;
+            let tooltipHtml = `<div class="tooltip">${data.preview_content}<br><br><span style="color:red;"><b>Click anywhere to hide this Preview<b></span></div>`;
             // Append tooltip HTML to the body
             $('body').append(tooltipHtml);
             
