@@ -212,7 +212,7 @@
 
                     {% if content[1]: %}
                     <td onmouseover="showPreview('{{ course_name }}', '{{ content[0] }}', event)"
-                        onmouseout="hidePreview()" >
+                        onmouseout="hidePreview()" onmouseleave="hidePreview()" >
                         {% include './svg/svg_preview.html' %}
                     </td>
                     {% else %}

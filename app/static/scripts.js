@@ -173,6 +173,11 @@ function showPreview(courseName, contentName, event) {
         hidePreview();
     });
 
+    // Add an event listener to the document to hide the tooltip on any click
+    $(document).on("click", function(e) {
+            hidePreview(); // Hide the tooltip
+        
+    });
 
         },
         error: function(xhr, status, error) {
