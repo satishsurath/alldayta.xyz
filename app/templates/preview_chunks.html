@@ -2,6 +2,9 @@
 {% block content %}
         <h1 class="center-align">Course Content: {{ course_name }}</h1><br>
         <h2 class="center-align">Preview CSV Chunks</h2>
+        <a href="{{ url_for('courses') }}">Back to Courses</a><br>
+        <a href="{{ url_for('course_contents',course_name=course_name) }}">Back to Course Content: {{ course_name }}</a>
+        <br>
         <br>
         {% if csv_files and second_entries %}
             <table style="text-align: center;">

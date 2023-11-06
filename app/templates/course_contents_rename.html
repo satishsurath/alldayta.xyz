@@ -70,6 +70,10 @@
         </table>
         <br>
         <div class="alert alert-warning" role="alert" style="text-align: left;"> Warning: This step cannot be undone. You need to Delete the file, reupload it and rename it should you need to rename after confirming</div>
+        <br>
+        <a href="{{ url_for('move_contents', course_name=course_name) }}">
+            <button class="btn btn-primary">Confirm Rename</button>
+        </a>
         {% else %}
         <p>No content found.</p>
         {% endif %}

@@ -9,7 +9,7 @@ import csv
 import json
 import re
 import ast
-
+import shutil
 
 from csv import reader
 from app import app, login_manager
@@ -241,9 +241,22 @@ def create_course():
 @login_required
 def rename_item():
     old_name = request.form['old_name']
-    new_name = request.form['new_name'].replace(' ', '-')
+    new_name_raw = request.form['new_name'].replace(' ', '-')
     course_name = request.form.get('course_name', None)
     user_folder = session['folder']
+
+    # Extract the extension from the old filename
+    old_extension = os.path.splitext(old_name)[1]
+
+    # Check if the new name has the same extension; if not, add the old extension to it
+    if not new_name_raw.lower().endswith(old_extension.lower()):
+        new_name = new_name_raw + old_extension
+    else:
+        new_name = new_name_raw
+
+    # Secure the new filename
+    new_name = secure_filename(new_name)
+    
     if course_name:
         # This is a file (content) within a course (folder)
         old_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, old_name)
@@ -435,6 +448,43 @@ def course_contents_rename(course_name):
        RENAME_INSRUCTIONS=RENAME_INSRUCTIONS,
        name=session.get('name')
        )
+
+
+@app.route('/move-contents/<course_name>', methods=['GET'])
+@login_required
+def move_contents(course_name):
+    user_folder = session.get('folder')
+    # Check if the course_name is provided
+    if not course_name:
+        flash('Course name not provided.', 'error')
+        return redirect(request.referrer)
+
+    # Define source and destination paths
+    source_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name)
+    destination_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
+
+    # Check if the source directory exists
+    if not os.path.exists(source_path):
+        flash('Source directory does not exist.', 'error')
+        return redirect(request.referrer)
+
+    # Make sure the destination directory exists
+    if not os.path.exists(destination_path):
+        os.makedirs(destination_path)
+
+    try:
+        # Move each item in the source directory to the destination directory
+        for item in os.listdir(source_path):
+            s_item = os.path.join(source_path, item)
+            d_item = os.path.join(destination_path, item)
+            shutil.move(s_item, d_item)
+            app.logger.info(f"Moved '{s_item}' to '{d_item}'")
+        flash('Contents moved successfully.', 'success')
+    except Exception as e:
+        app.logger.error(f"An error occurred while moving content: {e}", exc_info=True)
+        flash('An error occurred while moving contents.', 'error')
+
+    return redirect(url_for('course_contents',course_name=course_name))
 
 
 @app.route('/update-course-metadata', methods=['POST'])
