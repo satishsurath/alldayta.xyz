@@ -3,12 +3,12 @@
 {% if name: %}
     <p class="center-align">  
         <ul> 
-            <li> Welcome, {{ name }}
+            <li class="nav-links"> Welcome, {{ name }}
         <a href="{{ url_for('logout') }}"> 
             Signout
         </a>  </li>
         |
-        <li> <a href="{{ url_for('view_logs') }}"> 
+        <li class="nav-links"> <a href="{{ url_for('view_logs') }}"> 
            View Logs
         </ul>                      
     </p>

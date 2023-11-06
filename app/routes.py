@@ -441,10 +441,12 @@ def course_contents_rename(course_name):
     contents = get_content_files(folder_path, course_name)
     app.logger.info(f"Contents: {contents}")
     RENAME_INSRUCTIONS = app.config['RENAME_INSRUCTIONS']
+    UPLOAD_INSTRUCTIONS = app.config['UPLOAD_INSTRUCTIONS']
     return render_template(
        'course_contents_rename.html', 
        course_name=course_name,
        contents=contents,
+       UPLOAD_INSTRUCTIONS=UPLOAD_INSTRUCTIONS,
        RENAME_INSRUCTIONS=RENAME_INSRUCTIONS,
        name=session.get('name')
        )
