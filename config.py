@@ -16,12 +16,10 @@ class Config(object):
 
 
     # Configure file upload
-    FOLDER_PREUPLOAD = 'app/preuploads'
-    FOLDER_UPLOAD = 'app/uploads'
-    FOLDER_PROCESSED_CONTENT = 'app/content'
-    FOLDER_PROCESSED_SYLLABUS = 'app/syllabus'
-    FOLDER_SETTINGS = 'app/settings'
-    ACTIVATIONS_FILE = 'CourseContentActivations.JSON' #file name used to store the activation status of course contents
+    FOLDER_PREUPLOAD = 'app/preuploads' #folder to store the files uploaded by the user BEFORE Renamed
+    FOLDER_UPLOAD = 'app/uploads' #folder to store the files where they are Processed [Chopped, Embnedded, etc.]
+    FOLDER_SETTINGS = 'app/settings' #folder to store the settings files
+    ACTIVATIONS_FILE = 'CourseContentActivations.JSON' #filename used to store the activation status of course contents
     
     
     # Configure session options
@@ -36,3 +34,7 @@ class Config(object):
     DROPZONE_MAX_FILE_SIZE=100 #in MB
     DROPZONE_MAX_FILES=30    
     
+
+    #Placeholders from ReadMe
+
+    RENAME_INSRUCTIONS = '<b>Renaming Instructions:</b> Once you have uploaded the files; Name them in a way that is easy to follow: e.g., "Bryan and Guzman - Entrepreneurial Migration", "Agarwal Gans Goldfarb - Power and Prediction", "Class Handout - Startup Venture Financing", "Class Lecture Transcription - Experimentation (Class 1)", "CDL Advanced Entrepreneurship Class Transcript - Class 2 Pricing for Startups" and so on.'

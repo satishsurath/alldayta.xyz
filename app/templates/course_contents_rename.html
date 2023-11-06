@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 class="center-align">Course Content: {{ course_name }}</h1><br>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class="flashes">
+            {% for message in messages %}
+            <div class="alert alert-warning" role="alert">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+    <a href="{{ url_for('courses') }}">Back to Courses</a><br>
+    <a href="{{ url_for('course_contents',course_name=course_name) }}">Back to Course Content: {{ course_name }}</a>
+    <br>
+    <br>
+    <details id="NewCourseContent" style="text-align: center;">
+        <summary class="course-content-heading">Add New Course Content </summary>
+        <form action="{{ url_for('upload_file') }}" method="POST" class="dropzone" id="myDropzone">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <input type="hidden" name="course_name" value="{{ course_name }}">
+        </form>
+    </details>
+
+    <details id="RenameCourseContent" style="text-align: center;">
+        <p style="text-align: left;">
+            {{ RENAME_INSRUCTIONS|safe }}
+        </p>
+        <summary class="course-content-heading">Rename Uploaded Content </summary>
+
+        {% if contents %}
+        <br>
+        <table style="text-align: center; width: 90vw;" class="center-align">
+            <thead>
+                <tr>
+                    <th>Content</th>
+                    <th>Delete</th>
+                    <th>Rename</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for content in contents %}
+                <tr>
+                    <td style="text-align: left">
+                      {{ content }}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('delete_item', name=content, course_name=course_name) }}">
+                            {% include './svg/svg_delete.html' %}
+                        </a>
+                    </td>
+
+                    <td>
+                        <details id="RenameItem">
+                            <summary>
+                                {% include './svg/svg_rename.html' %}
+                            </summary>
+                            <form action="{{ url_for('rename_item') }}" method="post">
+                              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                              <input type="hidden" name="old_name" value="{{ content }}">
+                              <input type="hidden" name="course_name" value="{{ course_name }}">
+                              <input type="text" name="new_name" placeholder="New name">
+                              <input type="submit" value="Rename">
+                            </form>
+                        </details>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        <div class="alert alert-warning" role="alert" style="text-align: left;"> Warning: This step cannot be undone. You need to Delete the file, reupload it and rename it should you need to rename after confirming</div>
+        {% else %}
+        <p>No content found.</p>
+        {% endif %}
+    </details>
+
+    {% include 'user_status.html' %}
+
+{% endblock %}

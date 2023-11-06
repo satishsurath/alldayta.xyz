@@ -190,7 +190,7 @@ def privacypolicy():
 @app.route('/admin-login', methods=['GET', 'POST'])
 def adminlogin():
     if session.get('name'):
-        return redirect(url_for('course_management'))
+        return redirect(url_for('courses'))
     else:
         if request.method == 'POST':
             username = request.form.get('username')
@@ -204,7 +204,7 @@ def adminlogin():
                 session['admin'] = user.admin
                 #app.config['FOLDER_UPLOAD'] = os.path.join(app.config['FOLDER_UPLOAD'], session['folder'])
                 app.logger.info(f"User {session['name']} logged in successfully, folder: {session['folder']}, admin: {session['admin']}")
-                return redirect(url_for('course_management'))
+                return redirect(url_for('courses'))
             else:
                 flash('Incorrect username or password!', 'error')
     return render_template('adminlogin.html', name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
@@ -217,25 +217,25 @@ def logout():
 
 #  --------------------Routes for Course Management --------------------
 
-@app.route('/course-management', methods=['GET'])
+@app.route('/courses', methods=['GET'])
 @login_required
-def course_management():
+def courses():
     courses = list_folders()
     return render_template('courses.html', courses=courses, name=session.get('name'), folder=session.get('folder'), admin=session.get('admin'))
 
 @app.route('/create-course', methods=['POST'])
 @login_required
 def create_course():
-    name = request.form['name'].replace(' ', '-')
+    name = request.form['coursename'].replace(' ', '-')
     metadata = {
-        'classname': request.form.get('classname', ''),
+        'classname': name,
         'professor': request.form.get('professor', ''),
         'assistants': request.form.get('assistants', ''),
         'classdescription': request.form.get('classdescription', ''),
         'assistant_name': request.form.get('assistant_name', '')
     }    
     create_course_folder_with_metadata(name, metadata)
-    return redirect(url_for('course_management'))
+    return redirect(url_for('courses'))
 
 @app.route('/rename-item', methods=['POST'])
 @login_required
@@ -243,25 +243,25 @@ def rename_item():
     old_name = request.form['old_name']
     new_name = request.form['new_name'].replace(' ', '-')
     course_name = request.form.get('course_name', None)
+    user_folder = session['folder']
     if course_name:
         # This is a file (content) within a course (folder)
-        old_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, old_name)
-        new_path = os.path.join(app.config["FOLDER_UPLOAD"], course_name, new_name)
-        rename_folder(old_path, new_path)  # Replace with the appropriate function to rename a file or folder
+        old_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, old_name)
+        new_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, new_name)
+        if os.path.exists(old_path):
+            rename_folder(old_path, new_path) # Replace with the appropriate function to rename a file or folder
     else:
         # This is a course (folder)
         # First rename the Course Folder in the "Upload" Section
-        old_path_upload = os.path.join(app.config["FOLDER_UPLOAD"], old_name)
-        new_path_upload = os.path.join(app.config["FOLDER_UPLOAD"], new_name)
-        rename_folder(old_path_upload, new_path_upload)  # Replace with the appropriate function to rename a file or folder
-        # Second rename the Course Folder in the "Processed Content" Section
-        old_path_processed_content = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], old_name)
-        new_path_processed_content = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], new_name)
-        rename_folder(old_path_processed_content, new_path_processed_content)  # Replace with the appropriate function to rename a file or folder
-        # Third rename the Course Folder in the "Processed SAyllabus" Section
-        old_path_processed_syllabus = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], old_name)
-        new_path_processed_syllabus = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], new_name)        
-        rename_folder(old_path_processed_syllabus, new_path_processed_syllabus)  # Replace with the appropriate function to rename a file or folder
+        old_path_upload = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name)
+        new_path_upload = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name)
+        if os.path.exists(old_path_upload):
+            rename_folder(old_path_upload, new_path_upload)
+        old_path_upload = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, old_name)
+        new_path_upload = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, new_name)
+        if os.path.exists(old_path_upload):
+            rename_folder(old_path_upload, new_path_upload)
+
     return redirect(request.referrer)
 
 @app.route('/delete-item', methods=['GET'])
@@ -274,16 +274,24 @@ def delete_item():
     if course_name: # So this is a deletion of a single file
         # This is a file (content) within a course (folder)
         path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, name)
-        delete_file(path)
+        if os.path.exists(path):
+            delete_file(path)
+            app.logger.info(f"Deleted file: {path}")
+        path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, name)
+        if os.path.exists(path):
+            delete_file(path)
+            app.logger.info(f"Deleted file: {path}")            
     else: # So this is a deletion of a folder
         # This is a course (folder)
         # Delete all the Corresponding Course folders in all places
         path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, name)
-        delete_folder(path)  
-        path = os.path.join(app.config["FOLDER_PROCESSED_CONTENT"], user_folder, name)
-        delete_folder(path)  
-        path = os.path.join(app.config["FOLDER_PROCESSED_SYLLABUS"], user_folder, name)
-        delete_folder(path) 
+        if os.path.exists(path):
+            delete_folder(path)
+            app.logger.info(f"Deleted folder: {path}")
+        path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, name)
+        if os.path.exists(path):
+            delete_folder(path)
+            app.logger.info(f"Deleted folder: {path}")
     return redirect(request.referrer)
 
 @app.errorhandler(400)
@@ -395,12 +403,7 @@ def course_contents(course_name):
             break  # Exit the loop as soon as the first matching file is found
 
 
-    #if get_first_txt_file(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name)):
-    #  syllabus = read_from_file_text(get_first_txt_file(os.path.join(app.config['FOLDER_PROCESSED_SYLLABUS'], user_folder, course_name))).replace('\n', '<br>')
-    #else:
-    #   syllabus = None
-    # we have now processed PDF Uploads, Syllabus Loading, Course Content Loading.
-    # When checking and updating activations
+
     
     return render_template(
        'course_contents.html', 
@@ -424,10 +427,12 @@ def course_contents_rename(course_name):
     folder_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name)
     contents = get_content_files(folder_path, course_name)
     app.logger.info(f"Contents: {contents}")
+    RENAME_INSRUCTIONS = app.config['RENAME_INSRUCTIONS']
     return render_template(
        'course_contents_rename.html', 
        course_name=course_name,
        contents=contents,
+       RENAME_INSRUCTIONS=RENAME_INSRUCTIONS,
        name=session.get('name')
        )
 
@@ -537,12 +542,12 @@ def upload_file():
     if user_folder is None:
         flash("User folder not found. Please ensure you're logged in properly.", 'error')
         app.logger.error(f"User folder not found. Please ensure you're logged in properly. Contact Administrator for support!")
-        return redirect(url_for('course_management'))  
+        return redirect(url_for('courses'))  
 
     if course_name is None:
         app.logger.error(f"Course name not provided. Contact Administrator for support!")
         flash("Course name not provided. Please select a valid course.", 'error')
-        return redirect(url_for('course_management'))
+        return redirect(url_for('courses'))
 
     try:
         if request.method == 'POST':

@@ -55,7 +55,7 @@
                 <li class="nav-links"> <a href="{{ url_for('pick_course', type='chat') }}" alt="AllDayTA - Chat" aria-label="AllDayTA - Chat">Chat</a></li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
-                <li class="nav-links"><a href="{{ url_for('course_management') }}">All Courses</a></li> 
+                <li class="nav-links"><a href="{{ url_for('courses') }}">All Courses</a></li> 
                 <li class="nav-links"><a href="{{ url_for('logout') }}">Logout</a></li>
                 <li class="nav-links" style="color:#ccc;"> <a href="{{ url_for('settings') }}">Settings</a></li> 
                 {% else %}

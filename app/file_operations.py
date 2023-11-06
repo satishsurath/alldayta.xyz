@@ -203,6 +203,18 @@ def delete_files_in_folder(folder_path):
 
 def get_content_files(folder_path, course_name):
     """Get a list of content files from the given folder, excluding specific and hidden files."""
+    user_folder = session['folder']
+    #if os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name) does not exist, then create it
+    if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)):
+        app.logger.info(f"Creating folder: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)}")
+        if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder)):
+            if not os.path.exists(os.path.join(app.config['FOLDER_PREUPLOAD'])):
+                os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD']))
+                app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'])}")
+            os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder))
+            app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder)}")
+        os.mkdir(os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name))
+        app.logger.info(f"Folder created successfully: {os.path.join(app.config['FOLDER_PREUPLOAD'], user_folder, course_name)}")
     return [
         f for f in os.listdir(folder_path) 
         if os.path.isfile(os.path.join(folder_path, f)) 
