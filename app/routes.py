@@ -256,7 +256,7 @@ def rename_item():
 
     # Secure the new filename
     new_name = secure_filename(new_name)
-    
+
     if course_name:
         # This is a file (content) within a course (folder)
         old_path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, old_name)
@@ -485,6 +485,15 @@ def move_contents(course_name):
         flash('An error occurred while moving contents.', 'error')
 
     return redirect(url_for('course_contents',course_name=course_name))
+
+
+@app.route('/course-file-info/<course_name>', methods=['GET'])
+@login_required
+def course_file_info(course_name):
+    user_folder = session['folder']
+    folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name)
+    file_info = detect_final_data_files(folder_path)
+    return jsonify(file_info)
 
 
 @app.route('/update-course-metadata', methods=['POST'])

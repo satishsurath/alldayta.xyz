@@ -110,10 +110,12 @@ function toggleActivation(fileName, courseName) {
 
                         console.log(`Attempting to change the SVG - for True ${link.innerHTML}`);
                         link.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="18px" height="18px" viewBox="0 0 20 25" style="enable-background:new 0 0 20 20;" xml:space="preserve"><style type="text/css">.st0{fill:none;stroke:#231F20;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}</style><g><g><path d="M17,20H3c-1.7,0-3-1.3-3-3V3c0-1.7,1.3-3,3-3h14c1.7,0,3,1.3,3,3v14C20,18.7,18.7,20,17,20z M3,2C2.4,2,2,2.4,2,3v14    c0,0.6,0.4,1,1,1h14c0.6,0,1-0.4,1-1V3c0-0.6-0.4-1-1-1H3z"/></g><g><path d="M7.9,13.7l-3.1-3c-0.4-0.4-0.4-1,0-1.4c0.4-0.4,1-0.4,1.4,0l2.4,2.3l5.2-5.2c0.4-0.4,1-0.4,1.4,0s0.4,1,0,1.4l-5.9,5.9    C8.9,14.1,8.3,14.1,7.9,13.7z"/></g></g></svg>';  // SVG for Deactivate
+                        loadFileInfo(courseName);
                         console.log(`Successfully changed the SVG ${link.innerHTML}`);
                     } else {
                       console.log(`Attempting to change the SVG - for False: ${link.innerHTML}`);
                          link.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="18px" height="18px" viewBox="0 0 25 25" version="1.1" x="0px" y="0px"><title>2/icons/checkbox-off-24-black</title><desc>Created with Sketch.</desc><g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"><g fill-rule="nonzero" fill="#000000"><path d="M6,5 C5.44771525,5 5,5.44771525 5,6 L5,18 C5,18.5522847 5.44771525,19 6,19 L18,19 C18.5522847,19 19,18.5522847 19,18 L19,6 C19,5.44771525 18.5522847,5 18,5 L6,5 Z M6,3 L18,3 C19.6568542,3 21,4.34314575 21,6 L21,18 C21,19.6568542 19.6568542,21 18,21 L6,21 C4.34314575,21 3,19.6568542 3,18 L3,6 C3,4.34314575 4.34314575,3 6,3 Z"/></g></g></svg>  '; // SVG for Activate
+                         loadFileInfo(courseName);
                         // link.html('Test');  // SVG for Activate
                         console.log(`Successfully changed the SVG ${link.innerHTML}`);
                     }  
@@ -191,4 +193,47 @@ function hidePreview() {
     // Remove tooltip HTML from the body
     $('.tooltip').remove();
 }
+
+function loadFileInfo(courseName) {
+    $.ajax({
+        url: `/course-file-info/${courseName}`,
+        type: 'GET',
+        success: function(response) {
+            var file_info = response;
+            var container = $('#file-info-container');
+            container.empty(); // Clear existing contents
+
+            $.each(file_info, function(file_name, file_details) {
+                var fileHTML = '';
+
+                if (file_details.present) {
+                    fileHTML += '';
+                } else {
+                    fileHTML += '';
+                }
+                
+                fileHTML += file_details.name + ' [Size: ';
+
+                if (file_details.size) {
+                    var sizeMB = (file_details.size / 1024 / 1024).toFixed(2);
+                    fileHTML += sizeMB + ' MB';
+                } else {
+                    fileHTML += 'File not present';
+                }
+
+                fileHTML += ']';
+                
+                // Append each file info to the container
+                container.append('<p>' + fileHTML + '</p>');
+            });
+        },
+        error: function(xhr, status, error) {
+            // Handle errors here
+            console.log("An error occurred while retrieving file info:", error);
+        }
+    });
+}
+
+
+
 
