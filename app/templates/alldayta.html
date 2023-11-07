@@ -146,7 +146,7 @@ h1 {
                 console.log("FormData: ", formData); // log the FormData sent to Ajax
                 $.ajax({
                     type: 'POST',
-                    url: '/teaching-assistant-student?course_name={{ course_name }}&folder={{ folder }}',
+                    url: window.location.href,
                     data: formData,
                     beforeSend: function() {
                         $('#processing-message').html('Response processing...<p>');
