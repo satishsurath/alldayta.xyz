@@ -1281,6 +1281,16 @@ def teaching_assistant_student():
                   ' If "an error occurs while processing", ask your question again: '
                   ' the servers we use to process these answers are also in beta.')
     num_chunks = 8
+    # writing the professor, assistants, class description, and assistant name to the app logger
+    app.logger.info(f"Professor: {professor}")
+    app.logger.info(f"Assistants: {assistants}")
+    app.logger.info(f"Class Description: {classdescription}")
+    app.logger.info(f"Assistant Name: {assistant_name}")
+
+
+
+    #write the request.method to the app logger
+    app.logger.info(f"Request method: {request.method}")
 
     # check if we have the Syllabus already for this course
     if request.method == 'POST':
@@ -1647,6 +1657,8 @@ def teaching_assistant_student():
        # courses=courses, # THis is no longer needed
        name=session.get('name'),
        course_name = course_name,
+       assistants = assistant_name,
+       folder=folder,
        instruct = ('I am an experimental virtual TA for your course in <i>' 
                    + course_name + 
                    '</i>.<br>I have been trained with all of your readings, course materials, lecture content, and slides.<br>'
