@@ -280,6 +280,24 @@ def rename_item():
         if os.path.exists(old_syllabus_path):
             rename_folder(old_syllabus_path, new_syllabus_path)
             app.logger.info(f"Renamed Syllabus file from {old_syllabus_path} to {new_syllabus_path}")
+            #Now we check if there were chunked and embedded files for the old course name and delete them
+            old_syllabus_chunk_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, 'Textchunks',"Syllabus-" + old_name + "-originaltext.csv")
+            old_syllabus_embedded_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, 'EmbeddedText',"Syllabus-" + old_name + "-originaltext.npy")
+            if os.path.exists(old_syllabus_chunk_folder_path):
+                delete_file(old_syllabus_chunk_folder_path)
+                app.logger.info(f"Deleted Syllabus chunk file: {old_syllabus_chunk_folder_path}")
+            if os.path.exists(old_syllabus_embedded_folder_path):
+                delete_file(old_syllabus_embedded_folder_path)
+                app.logger.info(f"Deleted Syllabus embedded file: {old_syllabus_embedded_folder_path}")
+            # We run the chunking, embedding and creating final data for the newly renamed course name
+            # This is needed as we renamed the course, so the Syllabus file name has changed
+            chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed chop_course_content")
+            embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed embed_course_content")       
+            app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
+            create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
 
     return redirect(request.referrer)
 
@@ -296,6 +314,24 @@ def delete_item():
         if os.path.exists(path):
             delete_file(path)
             app.logger.info(f"Deleted file: {path}")
+            #We check if this file was chunked and embedded and delete those files as well
+            chunk_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'Textchunks',name.split('.')[0] + "-originaltext.csv")
+            embedded_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, course_name, 'EmbeddedText',name.split('.')[0] + "-originaltext.npy")
+            if os.path.exists(chunk_folder_path):
+                delete_file(chunk_folder_path)
+                app.logger.info(f"Deleted chunk file: {chunk_folder_path}")
+            if os.path.exists(embedded_folder_path):
+                delete_file(embedded_folder_path)
+                app.logger.info(f"Deleted embedded file: {embedded_folder_path}")
+            #Now that we have deleted the file, we need to run the chunking, embedding and creating final data in the background
+            #this is needed as we deleted a file, so the final data needs to be updated should the deleted file have been part of the final data
+            chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed chop_course_content")
+            embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f"Completed embed_course_content")
+            app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
+            create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
         path = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, course_name, name)
         if os.path.exists(path):
             delete_file(path)
