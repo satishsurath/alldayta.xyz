@@ -274,6 +274,12 @@ def rename_item():
         new_path_upload = os.path.join(app.config["FOLDER_PREUPLOAD"], user_folder, new_name)
         if os.path.exists(old_path_upload):
             rename_folder(old_path_upload, new_path_upload)
+        #check if there is a syllabus file and rename it to the new cousename
+        old_syllabus_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, "Syllabus-" + old_name + ".pdf")
+        new_syllabus_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name, "Syllabus-" + new_name + ".pdf")
+        if os.path.exists(old_syllabus_path):
+            rename_folder(old_syllabus_path, new_syllabus_path)
+            app.logger.info(f"Renamed Syllabus file from {old_syllabus_path} to {new_syllabus_path}")
 
     return redirect(request.referrer)
 
@@ -452,7 +458,7 @@ def course_contents_rename(course_name):
        name=session.get('name')
        )
 
-
+#Used to move the contents from the PreUpload to the Upload Folder
 @app.route('/move-contents/<course_name>', methods=['GET'])
 @login_required
 def move_contents(course_name):
@@ -489,7 +495,7 @@ def move_contents(course_name):
 
     return redirect(url_for('course_contents',course_name=course_name))
 
-
+#Used to return the Final Course NPY and CSV file size in JSON output 
 @app.route('/course-file-info/<course_name>', methods=['GET'])
 @login_required
 def course_file_info(course_name):
