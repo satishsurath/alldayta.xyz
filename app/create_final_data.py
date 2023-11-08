@@ -61,7 +61,7 @@ def create_final_data_given_course_name(course_name):
         # Check if the file is activated
         if activations.get(file_basename, False):
             # Read the CSV file and concatenate
-            app.logger.info(f"Reading file: {csv_file} and {npy_file}")
+            #app.logger.info(f"Reading file: {csv_file} and {npy_file}")
             csv_path = os.path.join(csv_folder, csv_file)
             csv_data = pd.read_csv(csv_path, encoding='utf-8', escapechar='\\')
             concatenated_csv = pd.concat([concatenated_csv, csv_data], ignore_index=True)
@@ -77,10 +77,11 @@ def create_final_data_given_course_name(course_name):
     # Save the concatenated data to the base folder
     concatenated_csv.to_csv(os.path.join(course_name, "Textchunks-originaltext.csv"), encoding='utf-8', escapechar='\\', index=False)
     np.save(os.path.join(course_name, "Textchunks.npy"), concatenated_npy)
-    
-    print("Files saved: Textchunks-originaltext.csv and Textchunks.npy")
-    app.logger.info(f"Files saved: Textchunks-originaltext.csv and Textchunks.npy for course: {course_name}")
-    print(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape}")
-    app.logger.info(f"Textchunks-originaltext.csv dimensions: {concatenated_csv.shape} for course: {course_name}")
-    print(f"Textchunks.npy dimensions: {concatenated_npy.shape}")
-    app.logger.info(f"Textchunks.npy dimensions: {concatenated_npy.shape} for course: {course_name}")   
+     
+    # Single print entry
+    print(f"Files saved: Textchunks-originaltext.csv and Textchunks.npy with dimensions: "
+        f"{concatenated_csv.shape} and {concatenated_npy.shape} respectively for course: {course_name}")
+
+    # Single log entry
+    app.logger.info(f"Files saved: Textchunks-originaltext.csv and Textchunks.npy with dimensions: "
+                    f"{concatenated_csv.shape} and {concatenated_npy.shape} respectively for course: {course_name}")
