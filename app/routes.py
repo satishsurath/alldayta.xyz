@@ -427,6 +427,7 @@ def course_contents(course_name):
        name=session.get('name'), 
        form=form,
        file_info=file_info,
+       folder=user_folder,
        metadata=metadata,  # add metadata to the template
        )
 

@@ -39,7 +39,7 @@
                 {{ metadata.classdescription if metadata.classdescription else "<empty>" }}</li><br>
         </ul>
     </details>
-    <br>
+    <hr>
     <details id="ReplaceSyllabus">
         <summary class="course-content-heading">Modify Syllabus / Course Information </summary>
 
@@ -108,7 +108,7 @@
         </div>
 
     </details>
-    <br>
+    <hr>
 
     {% else %}
 
@@ -132,7 +132,7 @@
             <div id="processing" class="processing"></div>
         </form>
     </details>
-    <br>
+    <hr>
     {% endif %}
 
 
@@ -140,7 +140,7 @@
       <summary class="course-content-heading">Add New Course Content </summary>
     <a href="{{ url_for('course_contents_rename',course_name=course_name) }}">Add New Course Content </a>
     </details>  
-
+    <hr>
     <details id="ActivateCourseContent">
         <summary class="course-content-heading">Activate / Deactivate Course Content </summary>
 
@@ -256,7 +256,38 @@
         {% endif %}
 
     </details>
+    {% if syllabus %}
+    {% if contents_info %}
+    <hr>
+    <details id="ChatContent" class="center-align">
+      <summary class="course-content-heading">Links to Chat</summary>
+      <ul style="line-height: 2rem; vertical-align: middle;">
+        <li class="nav-links">
+          <a href="{{ url_for('teaching_assistant', course_name=course_name, folder=folder) }}">
+            {% include './svg/svg_chat_test.html' %}
+            Test TA
+          </a>
+        </li>
+        <li class="nav-links">
+          
+          <a href="{{ url_for('teaching_assistant_student', course_name=course_name, folder=folder) }}">
+            {% include './svg/svg_chat.html' %}
+            Student TA
+          </a>
+        </li>
+      </ul>
+      <p style="text-align: left;">
+        <b>Note:</b><br>
+        <b>Test TA</b> shows extra information for testing purposes. <br>
+        <b>Student TA</b> shows the information that the students will see. 
+    </p>
+    </details>
+    {% endif %}
+    {% endif %}
 
     {% include 'user_status.html' %}
+
+
+
 
 {% endblock %}
