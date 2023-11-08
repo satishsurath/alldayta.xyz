@@ -275,14 +275,14 @@ def rename_item():
         if os.path.exists(old_path_upload):
             rename_folder(old_path_upload, new_path_upload)
         #check if there is a syllabus file and rename it to the new cousename
-        old_syllabus_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, "Syllabus-" + old_name + ".pdf")
+        old_syllabus_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name, "Syllabus-" + old_name + ".pdf")
         new_syllabus_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name, "Syllabus-" + new_name + ".pdf")
         if os.path.exists(old_syllabus_path):
             rename_folder(old_syllabus_path, new_syllabus_path)
             app.logger.info(f"Renamed Syllabus file from {old_syllabus_path} to {new_syllabus_path}")
             #Now we check if there were chunked and embedded files for the old course name and delete them
-            old_syllabus_chunk_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, 'Textchunks',"Syllabus-" + old_name + "-originaltext.csv")
-            old_syllabus_embedded_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, old_name, 'EmbeddedText',"Syllabus-" + old_name + "-originaltext.npy")
+            old_syllabus_chunk_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name, 'Textchunks',"Syllabus-" + old_name + "-originaltext.csv")
+            old_syllabus_embedded_folder_path = os.path.join(app.config["FOLDER_UPLOAD"], user_folder, new_name, 'EmbeddedText',"Syllabus-" + old_name + "-originaltext.npy")
             if os.path.exists(old_syllabus_chunk_folder_path):
                 delete_file(old_syllabus_chunk_folder_path)
                 app.logger.info(f"Deleted Syllabus chunk file: {old_syllabus_chunk_folder_path}")
@@ -291,13 +291,13 @@ def rename_item():
                 app.logger.info(f"Deleted Syllabus embedded file: {old_syllabus_embedded_folder_path}")
             # We run the chunking, embedding and creating final data for the newly renamed course name
             # This is needed as we renamed the course, so the Syllabus file name has changed
-            chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
-            app.logger.info(f"Completed chop_course_content")
-            embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
+            chunk_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, new_name))
+            app.logger.info(f"Completed chop_course_content: COURSE NAME: {new_name}")
+            embed_documents_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, new_name))
             app.logger.info(f"Completed embed_course_content")       
-            app.logger.info(f"Creating final data for course: COURSE NAME: {course_name}")
-            create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, course_name))
-            app.logger.info(f" Completed final data for course: COURSE NAME: {course_name}")
+            app.logger.info(f"Creating final data for course: COURSE NAME: {new_name}")
+            create_final_data_given_course_name(os.path.join(app.config['FOLDER_UPLOAD'], user_folder, new_name))
+            app.logger.info(f" Completed final data for course: COURSE NAME: {new_name}")
 
     return redirect(request.referrer)
 
